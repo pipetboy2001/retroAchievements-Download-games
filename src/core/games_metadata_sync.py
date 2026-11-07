@@ -40,6 +40,7 @@ MANUAL_CONSOLE_ALIASES = {
     "PC Engine": "PC Engine/TurboGrafx-16",
     "TurboGrafx-16": "PC Engine/TurboGrafx-16",
     "Gamegear": "Game Gear",
+    "WiiWare": "Wii",  # RA no tiene una consola separada para WiiWare
 }
 
 
