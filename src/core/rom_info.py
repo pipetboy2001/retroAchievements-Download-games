@@ -40,6 +40,7 @@ def get_console_from_rom_path(rom_path: str) -> str:
         'gbc': 'Game Boy Color',
         'game boy advance': 'Game Boy Advance',
         'gba': 'Game Boy Advance',
+        'wiiware': 'WiiWare',
 
         # Sega
         'genesis': 'Genesis/Mega Drive',
