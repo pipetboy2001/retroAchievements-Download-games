@@ -11,6 +11,7 @@ export interface Game {
 export interface ConsoleCount {
   name: string;
   count: number;
+  icon_url: string | null;
 }
 
 export interface GamesResponse {

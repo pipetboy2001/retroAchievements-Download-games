@@ -147,6 +147,8 @@ export default function GamesView() {
     consoles: consoles.filter((c) => companyOf(c.name) === company).sort((a, b) => b.count - a.count),
   })).filter((g) => g.consoles.length > 0);
 
+  const consoleIconByName = Object.fromEntries(consoles.map((c) => [c.name, c.icon_url]));
+
   return (
     <>
       <div className="title-row">
@@ -265,7 +267,7 @@ export default function GamesView() {
             <>
               <div className="games-grid">
                 {items.map((g) => (
-                  <GameCard key={g.id} game={g} />
+                  <GameCard key={g.id} game={g} consoleIcons={consoleIconByName} />
                 ))}
               </div>
               <div className="grid-foot">

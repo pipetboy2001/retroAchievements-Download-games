@@ -133,16 +133,23 @@ class GamesMetadataSync:
                 if game_id in games_metadata:
                     break
 
+        console_icons = {
+            our_name: ra_console["IconURL"]
+            for our_name, ra_console in matched.items()
+            if ra_console.get("IconURL")
+        }
+
         result = {
             "games": games_metadata,
             "recognized_hashes": sorted(hash_to_ra.keys()),
+            "console_icons": console_icons,
         }
         with open(METADATA_FILE, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
 
         self.ui.display_success_message(
             f"{METADATA_FILE} actualizado: {len(games_metadata)}/{len(our_data)} juegos con metadata de RA, "
-            f"{len(hash_to_ra)} hashes reconocidos en total."
+            f"{len(hash_to_ra)} hashes reconocidos, {len(console_icons)} iconos de consola."
         )
 
 
