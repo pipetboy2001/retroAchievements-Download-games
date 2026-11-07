@@ -8,7 +8,7 @@ import CartDrawer from "./CartDrawer";
 import HasherModal from "./HasherModal";
 import NoticeModal from "./NoticeModal";
 import RaAccountModal from "./RaAccountModal";
-import { CartIcon, FingerprintIcon, SearchIcon, UserIcon } from "./icons";
+import { CartIcon, FingerprintIcon, LogoMark, SearchIcon, UserIcon } from "./icons";
 
 function Shell({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -29,7 +29,9 @@ function Shell({ children }: { children: ReactNode }) {
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/" className="brand">
-            <div className="mark">R</div>
+            <div className="mark">
+              <LogoMark size={16} />
+            </div>
             <div className="name">RA Downloader</div>
           </Link>
 
