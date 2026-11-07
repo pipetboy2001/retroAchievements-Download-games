@@ -90,7 +90,7 @@ body {
   max-width: 1312px; margin: 0 auto; padding: 0 28px;
 }
 .brand { display: flex; align-items: center; gap: 9px; flex-shrink: 0; text-decoration: none; }
-.brand .mark { width: 28px; height: 28px; border-radius: 6px; background: var(--accent); color: var(--ground); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+.brand .mark { width: 28px; height: 28px; border-radius: 6px; background: var(--accent); color: var(--ground); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .brand .name { font-size: 14px; font-weight: 700; color: var(--text-bright); letter-spacing: -0.01em; white-space: nowrap; }
 
 .search { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; max-width: 420px; height: 36px; background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 0 12px; }
