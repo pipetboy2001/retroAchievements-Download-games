@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ConsoleFilterDropdown from "./ConsoleFilterDropdown";
+import { COMPANY_ORDER, companyOf } from "./consoleCompanies";
 import GameCard from "./GameCard";
 import { useCart } from "./CartContext";
 import { downloadGame } from "./download";
@@ -11,7 +12,6 @@ import type { ConsoleCount, Game, GamesResponse, SearchResult } from "./types";
 import { lookupHash } from "./verifyHash";
 
 const PAGE_SIZES = [10, 20, 50, 100];
-const PILL_COUNT = 6;
 const HASH_RE = /^[0-9a-f]{8,}$/i;
 
 function Pager({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (page: number) => void }) {
@@ -142,10 +142,10 @@ export default function GamesView() {
     });
   }
 
-  const sortedConsoles = [...consoles].sort((a, b) => b.count - a.count);
-  const topConsoles = sortedConsoles.slice(0, PILL_COUNT);
-  const restConsoles = sortedConsoles.slice(PILL_COUNT);
-  const filterInRest = restConsoles.some((c) => c.name === consoleFilter);
+  const consolesByCompany = COMPANY_ORDER.map((company) => ({
+    company,
+    consoles: consoles.filter((c) => companyOf(c.name) === company).sort((a, b) => b.count - a.count),
+  })).filter((g) => g.consoles.length > 0);
 
   return (
     <>
@@ -218,31 +218,19 @@ export default function GamesView() {
             >
               Todo
             </button>
-            {!filterInRest &&
-              topConsoles.map((c) => (
-                <button
-                  key={c.name}
-                  type="button"
-                  className={`pill${consoleFilter === c.name ? " active" : ""}`}
-                  onClick={() => {
-                    setConsoleFilter(c.name);
-                    setPage(1);
-                  }}
-                >
-                  {c.name}
-                </button>
-              ))}
-            {restConsoles.length > 0 && (
+            {consolesByCompany.map(({ company, consoles: companyConsoles }) => (
               <ConsoleFilterDropdown
-                consoles={restConsoles}
+                key={company}
+                label={company}
+                consoles={companyConsoles}
                 value={consoleFilter}
-                selected={filterInRest}
+                selected={companyConsoles.some((c) => c.name === consoleFilter)}
                 onChange={(name) => {
                   setConsoleFilter(name);
                   setPage(1);
                 }}
               />
-            )}
+            ))}
           </div>
 
           <div className="grid-head">

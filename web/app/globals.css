@@ -59,6 +59,14 @@
 * { box-sizing: border-box; }
 button, input, select, textarea { font: inherit; color: inherit; }
 
+/* Scrollbar acorde al tema oscuro unico del sitio -- sin esto usa la gris
+   clara del SO/navegador, que desentona fuerte contra el fondo #141414. */
+html { scrollbar-width: thin; scrollbar-color: var(--rule-strong) var(--surface); }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: var(--surface); }
+*::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 999px; border: 2px solid var(--surface); }
+*::-webkit-scrollbar-thumb:hover { background: var(--faint); }
+
 html, body { background: var(--ground); color: var(--text); }
 body {
   margin: 0;
@@ -159,7 +167,7 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .pill:hover { color: var(--text-bright); border-color: var(--accent-border); }
 .pill.active { background: var(--accent); border-color: var(--accent); color: var(--ground); }
 .console-dropdown {
-  position: fixed; z-index: 40; width: 260px;
+  position: absolute; z-index: 40; width: 260px;
   background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4); overflow: hidden;
   transform-origin: top left;
