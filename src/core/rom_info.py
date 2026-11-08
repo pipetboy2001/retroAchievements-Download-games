@@ -19,6 +19,14 @@ def get_console_from_rom_path(rom_path: str) -> str:
         t = t.replace(ch, ' ')
     t = ' '.join(t.split())  # compactar espacios
 
+    # Caso especial: WiiWare se trata como consola propia en nuestra
+    # taxonomia (filtro/agrupacion separados de los discos de Wii), aunque
+    # RA y el .dat la traten como parte de la misma consola "Wii" (mismo
+    # ID, mismo icono). Se distingue por extension: .wad es WiiWare,
+    # .rvz/.iso es disco de Wii.
+    if t == 'wii':
+        return 'WiiWare' if norm.lower().endswith('.wad') else 'Wii'
+
     # Mapa de alias -> nombre canónico
     aliases = {
         # Arcade
@@ -34,6 +42,8 @@ def get_console_from_rom_path(rom_path: str) -> str:
         'n64': 'N64',
         'nintendo ds': 'Nintendo DS',
         'nds': 'Nintendo DS',
+        'gamecube': 'GameCube',
+        'nintendo gamecube': 'GameCube',
         'game boy': 'Game Boy',
         'gb': 'Game Boy',
         'game boy color': 'Game Boy Color',
@@ -196,6 +206,9 @@ if __name__ == "__main__":
     assert get_console_from_rom_path("arcade/!_flycast/foo.zip") == "ARCADE"
     assert get_console_from_rom_path("megadriv/Sonic (U).bin") == "Genesis/Mega Drive"
     assert get_console_from_rom_path("npg/Some Game (J).ngp") == "Neo Geo Pocket"
+    assert get_console_from_rom_path("GameCube/Game (U).rvz") == "GameCube"
+    assert get_console_from_rom_path("Wii/Game (USA) (WiiWare).wad") == "WiiWare"
+    assert get_console_from_rom_path("Wii/Game (USA).rvz") == "Wii"
 
     assert extract_game_name("SNES-Super Famicom/Super Mario World (U).sfc") == "Super Mario World (U)"
     assert extract_game_name("arcade/!_flycast/sfiii3_usa.zip") == "sfiii3 usa"

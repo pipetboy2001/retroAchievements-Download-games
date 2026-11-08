@@ -178,9 +178,10 @@ class ArcadeURLGenerator(URLGenerator):
 class WiiURLGenerator(URLGenerator):
     """Generador de URLs para Wii. Fuente: item de archive.org
     'RetroAchievementsWii' (archivos sueltos en la raiz del item, sin
-    subcarpetas). Solo cubre WiiWare (.wad, chicos) -- los juegos de disco
-    (.rvz, varios GB cada uno) quedan afuera por ahora: verificarlos
-    requeriria bajar varios GB por candidato solo para confirmar el hash."""
+    subcarpetas). Cubre WiiWare (.wad) y discos (.rvz/.iso) -- sync_wii.py
+    matchea por MD5 contra el .dat de RetroAchievements (UGA_RA_DATs) sin
+    descargar ningun juego (mismo mecanismo que GameCube, ver
+    dat_archive_sync.py)."""
 
     BASE_URL = "https://archive.org/download/RetroAchievementsWii/"
 
@@ -190,6 +191,24 @@ class WiiURLGenerator(URLGenerator):
 
     def can_handle(self, rom_path: str) -> bool:
         return _normalize_slashes(rom_path).split("/", 1)[0] == "Wii"
+
+
+class GameCubeURLGenerator(URLGenerator):
+    """Generador de URLs para GameCube. Fuente: item de archive.org
+    'RetroAchievementsGameCube' (archivos .rvz sueltos en la raiz del
+    item, sin subcarpetas). A diferencia de Wii, estos SI estan
+    verificados sin descargar: sync_gamecube.py matchea por MD5 del .rvz
+    contra el .dat de RetroAchievements (UGA_RA_DATs), que trae md5 y
+    ra_hash juntos por archivo."""
+
+    BASE_URL = "https://archive.org/download/RetroAchievementsGameCube/"
+
+    def generate_url(self, rom_path: str) -> str:
+        filename = _normalize_slashes(rom_path).split("/")[-1]
+        return self.BASE_URL + _encode_rel_path(filename)
+
+    def can_handle(self, rom_path: str) -> bool:
+        return _normalize_slashes(rom_path).split("/", 1)[0] == "GameCube"
 
 
 class DSiOctober2025URLGenerator(URLGenerator):
@@ -251,6 +270,7 @@ class URLGeneratorFactory:
         SegaURLGenerator(),
         ArcadeURLGenerator(),
         WiiURLGenerator(),
+        GameCubeURLGenerator(),
         DSiOctober2025URLGenerator(),
         DefaultURLGenerator()  # Debe ir al final como fallback
     ]
