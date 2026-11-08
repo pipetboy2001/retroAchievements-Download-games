@@ -64,10 +64,15 @@ export default function ConsoleFilterDropdown({
   }, [open]);
 
   const filtered = consoles.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()));
+  const selectedConsole = selected ? consoles.find((c) => c.name === value) : undefined;
 
   return (
     <>
       <button type="button" ref={triggerRef} className={`pill${selected ? " active" : ""}`} onClick={toggle}>
+        {selectedConsole?.icon_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={selectedConsole.icon_url} alt="" className="pill-icon" />
+        )}
         {selected ? value : label}
       </button>
       {open &&
@@ -99,7 +104,13 @@ export default function ConsoleFilterDropdown({
                     close();
                   }}
                 >
-                  <span>{c.name}</span>
+                  <span className="console-dropdown-item-label">
+                    {c.icon_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.icon_url} alt="" className="console-dropdown-icon" />
+                    )}
+                    {c.name}
+                  </span>
                   <span className="console-dropdown-count">{c.count}</span>
                 </button>
               ))}
