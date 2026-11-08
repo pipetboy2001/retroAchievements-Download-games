@@ -175,22 +175,74 @@ class ArcadeURLGenerator(URLGenerator):
         return first_segment.lower() == "arcade"
 
 
+class WiiURLGenerator(URLGenerator):
+    """Generador de URLs para WiiWare. Fuente: item de archive.org
+    'RetroAchievementsWii' (archivos sueltos en la raiz del item, sin
+    subcarpetas). Root propio ("WiiWare", no "Wii") para diferenciarlo de
+    los juegos de disco (.rvz, varios GB cada uno) que quedan afuera por
+    ahora -- verificarlos requeriria bajar varios GB por candidato solo
+    para confirmar el hash."""
+
+    BASE_URL = "https://archive.org/download/RetroAchievementsWii/"
+
+    def generate_url(self, rom_path: str) -> str:
+        filename = _normalize_slashes(rom_path).split("/")[-1]
+        return self.BASE_URL + _encode_rel_path(filename)
+
+    def can_handle(self, rom_path: str) -> bool:
+        return _normalize_slashes(rom_path).split("/", 1)[0] == "WiiWare"
+
+
+class DSiOctober2025URLGenerator(URLGenerator):
+    """5 juegos de Nintendo DSi que la coleccion v5 no tiene (RA no los
+    reconocia todavia cuando se armo v5). Fuente: item de archive.org
+    'retro-achievements-nintendo-dsi-october-25-2025', un unico .zip con un
+    .zip por juego adentro. Hashes verificados con RAHasher contra
+    GetGameList(78) antes de agregarlos -- el resto de Nintendo DSi sigue
+    cayendo en DefaultURLGenerator, sin tocar.
+
+    archive.org expone cada archivo interno via /download/<item>/<outer>.zip/
+    <outer sin extension>%2F<interno>.zip (confirmado: responde 302 al
+    contenido real del zip interno, no al listado HTML)."""
+
+    ITEM = "retro-achievements-nintendo-dsi-october-25-2025"
+    OUTER_ZIP = "RetroAchievements Nintendo dsi (October 25 2025).zip"
+    BASE_URL = f"https://archive.org/download/{ITEM}/{quote(OUTER_ZIP, safe='')}/"
+
+    INNER_FILES = {
+        "Nintendo DSi/99 Moves/99 Moves (Europe) (En,Fr,De,Es,It).zip": "99 Moves (Europe) (En,Fr,De,Es,It).zip",
+        "Nintendo DSi/1001 Blockbusters/1001 Blockbusters (Europe).zip": "1001 Blockbusters (Europe).zip",
+        "Nintendo DSi/Airport Mania - First Flight/Airport Mania - First Flight (Europe, Australia) (En,Fr,De,Es,It,Nl).zip": "Airport Mania - First Flight (Europe, Australia) (En,Fr,De,Es,It,Nl).zip",
+        "Nintendo DSi/Kappa's Trail, A/Kappa's Trail, A (USA).zip": "Kappa's Trail, A (USA).zip",
+        "Nintendo DSi/Mario Calculator/Mario Calculator (USA) (En,Fr,Es).zip": "Mario Calculator (USA) (En,Fr,Es).zip",
+    }
+
+    def generate_url(self, rom_path: str) -> str:
+        rel = _normalize_slashes(rom_path)
+        inner = self.INNER_FILES[rel]
+        outer_folder = self.OUTER_ZIP.rsplit(".zip", 1)[0]
+        return self.BASE_URL + quote(f"{outer_folder}/{inner}", safe="")
+
+    def can_handle(self, rom_path: str) -> bool:
+        return _normalize_slashes(rom_path) in self.INNER_FILES
+
+
 class DefaultURLGenerator(URLGenerator):
     """Generador de URLs por defecto."""
-    
+
     BASE_URL = "https://archive.org/download/retroachievements_collection_v5/"
-    
+
     def generate_url(self, rom_path: str) -> str:
         rel = _normalize_slashes(rom_path)
         return self.BASE_URL + _encode_rel_path(rel)
-    
+
     def can_handle(self, rom_path: str) -> bool:
         return True  # Siempre puede manejar como fallback
 
 
 class URLGeneratorFactory:
     """Factory para crear generadores de URL."""
-    
+
     _generators = [
         SNESURLGenerator(),
         NESURLGenerator(),
@@ -199,6 +251,8 @@ class URLGeneratorFactory:
         PS2URLGenerator(),
         SegaURLGenerator(),
         ArcadeURLGenerator(),
+        WiiURLGenerator(),
+        DSiOctober2025URLGenerator(),
         DefaultURLGenerator()  # Debe ir al final como fallback
     ]
     
@@ -215,3 +269,25 @@ class URLGeneratorFactory:
         """Genera la URL de descarga para una ROM."""
         generator = cls.get_generator(rom_path)
         return generator.generate_url(rom_path)
+
+
+if __name__ == "__main__":
+    url = URLGeneratorFactory.generate_url(
+        "Nintendo DSi/Mario Calculator/Mario Calculator (USA) (En,Fr,Es).zip"
+    )
+    assert url == (
+        "https://archive.org/download/retro-achievements-nintendo-dsi-october-25-2025/"
+        "RetroAchievements%20Nintendo%20dsi%20%28October%2025%202025%29.zip/"
+        "RetroAchievements%20Nintendo%20dsi%20%28October%2025%202025%29%2F"
+        "Mario%20Calculator%20%28USA%29%20%28En%2CFr%2CEs%29.zip"
+    )
+    # Otros rom_path de Nintendo DSi no matcheados siguen cayendo en el fallback de siempre.
+    assert "retroachievements_collection_v5" in URLGeneratorFactory.generate_url(
+        "Nintendo DSi/Shantae - Risky's Revenge/Shantae - Risky's Revenge (USA).zip"
+    )
+
+    assert URLGeneratorFactory.generate_url(
+        "WiiWare/Cave Story/Cave Story (USA) (v258) (WiiWare).wad"
+    ) == "https://archive.org/download/RetroAchievementsWii/Cave%20Story%20%28USA%29%20%28v258%29%20%28WiiWare%29.wad"
+
+    print("url_factory smoke check: OK")

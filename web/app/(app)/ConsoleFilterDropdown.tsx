@@ -7,22 +7,28 @@ import type { ConsoleCount } from "./types";
 
 export default function ConsoleFilterDropdown({
   consoles,
+  label,
   value,
   selected,
   onChange,
 }: {
   consoles: ConsoleCount[];
-  /** true si el valor seleccionado actual pertenece a esta lista (no a los pills de arriba). */
+  /** Texto del boton cuando no hay ninguna consola de esta lista seleccionada (ej. el nombre de la compania). */
+  label: string;
+  /** true si el valor seleccionado actual pertenece a esta lista. */
   selected: boolean;
   value: string;
   onChange: (name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  // Posición calculada a mano y el panel va en un portal a <body>: .pill-row
-  // tiene overflow-x: auto, que en CSS también clippea verticalmente -- un
-  // panel position:absolute anidado ahí adentro queda invisible/inclickeable
-  // más allá de la altura de la fila, sin importar su z-index.
+  // Posicion calculada a mano y el panel va en un portal a <body>: .pill-row
+  // tiene overflow-x: auto, que en CSS tambien clippea verticalmente -- un
+  // panel position:absolute anidado ahi adentro queda invisible/inclickeable
+  // mas alla de la altura de la fila, sin importar su z-index.
+  // El panel usa position:absolute (coordenadas de documento, no de viewport)
+  // sumando window.scroll{X,Y} a getBoundingClientRect() -- con position:fixed
+  // quedaba "pegado" a la pantalla al scrollear en vez de seguir al boton.
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -36,7 +42,7 @@ export default function ConsoleFilterDropdown({
   function toggle() {
     if (!open && triggerRef.current) {
       const r = triggerRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom + 6, left: r.left });
+      setPos({ top: r.bottom + 6 + window.scrollY, left: r.left + window.scrollX });
     }
     setOpen((v) => !v);
   }
@@ -58,11 +64,16 @@ export default function ConsoleFilterDropdown({
   }, [open]);
 
   const filtered = consoles.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()));
+  const selectedConsole = selected ? consoles.find((c) => c.name === value) : undefined;
 
   return (
     <>
       <button type="button" ref={triggerRef} className={`pill${selected ? " active" : ""}`} onClick={toggle}>
-        {selected ? value : `+${consoles.length} más`}
+        {selectedConsole?.icon_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={selectedConsole.icon_url} alt="" className="pill-icon" />
+        )}
+        {selected ? value : label}
       </button>
       {open &&
         pos &&
@@ -73,7 +84,7 @@ export default function ConsoleFilterDropdown({
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Buscar consola…"
+                placeholder="Buscar consola..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -93,7 +104,13 @@ export default function ConsoleFilterDropdown({
                     close();
                   }}
                 >
-                  <span>{c.name}</span>
+                  <span className="console-dropdown-item-label">
+                    {c.icon_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.icon_url} alt="" className="console-dropdown-icon" />
+                    )}
+                    {c.name}
+                  </span>
                   <span className="console-dropdown-count">{c.count}</span>
                 </button>
               ))}
