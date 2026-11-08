@@ -16,6 +16,7 @@ import {
   Zap,
   type LucideProps,
 } from "lucide-react";
+import { TROPHY_GRID, TROPHY_PIXELS } from "../pixelTrophy";
 
 export const SearchIcon = (props: LucideProps) => <Search size={14} {...props} />;
 export const CartIcon = (props: LucideProps) => <ShoppingCart size={16} {...props} />;
@@ -32,3 +33,13 @@ export const UploadIcon = (props: LucideProps) => <Upload size={28} {...props} /
 export const ShieldCheckIcon = (props: LucideProps) => <ShieldCheck size={14} {...props} />;
 export const CheckCircleIcon = (props: LucideProps) => <CheckCircle2 size={16} {...props} />;
 export const WarningIcon = (props: LucideProps) => <AlertTriangle size={16} {...props} />;
+
+// Logo del sitio: trofeo en pixel-art (ver pixelTrophy.ts). Usa currentColor
+// para heredar el color de texto del contenedor (.brand .mark).
+export const LogoMark = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox={`0 0 ${TROPHY_GRID} ${TROPHY_GRID}`} shapeRendering="crispEdges">
+    {TROPHY_PIXELS.map(([x, y]) => (
+      <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill="currentColor" />
+    ))}
+  </svg>
+);

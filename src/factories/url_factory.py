@@ -176,12 +176,29 @@ class ArcadeURLGenerator(URLGenerator):
 
 
 class WiiURLGenerator(URLGenerator):
-    """Generador de URLs para Wii. Fuente: item de archive.org
+    """Generador de URLs para WiiWare. Fuente: item de archive.org
     'RetroAchievementsWii' (archivos sueltos en la raiz del item, sin
-    subcarpetas). Cubre WiiWare (.wad) y discos (.rvz/.iso) -- sync_wii.py
-    matchea por MD5 contra el .dat de RetroAchievements (UGA_RA_DATs) sin
-    descargar ningun juego (mismo mecanismo que GameCube, ver
-    dat_archive_sync.py)."""
+    subcarpetas). Root propio ("WiiWare", no "Wii") para diferenciarlo de
+    los juegos de disco (.rvz/.iso), que ahora cubre WiiDiscURLGenerator
+    (mismo item, root "Wii") -- sync_wii.py matchea ambos por MD5 contra
+    el .dat de RetroAchievements (UGA_RA_DATs), sin descargar ningun
+    juego (mismo mecanismo que GameCube, ver dat_archive_sync.py)."""
+
+    BASE_URL = "https://archive.org/download/RetroAchievementsWii/"
+
+    def generate_url(self, rom_path: str) -> str:
+        filename = _normalize_slashes(rom_path).split("/")[-1]
+        return self.BASE_URL + _encode_rel_path(filename)
+
+    def can_handle(self, rom_path: str) -> bool:
+        return _normalize_slashes(rom_path).split("/", 1)[0] == "WiiWare"
+
+
+class WiiDiscURLGenerator(URLGenerator):
+    """Generador de URLs para discos de Wii (.rvz/.iso). Mismo item de
+    archive.org que WiiURLGenerator (WiiWare), pero con su propio root
+    ("Wii") para que la taxonomia local los liste como consolas
+    separadas."""
 
     BASE_URL = "https://archive.org/download/RetroAchievementsWii/"
 
@@ -270,6 +287,7 @@ class URLGeneratorFactory:
         SegaURLGenerator(),
         ArcadeURLGenerator(),
         WiiURLGenerator(),
+        WiiDiscURLGenerator(),
         GameCubeURLGenerator(),
         DSiOctober2025URLGenerator(),
         DefaultURLGenerator()  # Debe ir al final como fallback
@@ -306,7 +324,11 @@ if __name__ == "__main__":
     )
 
     assert URLGeneratorFactory.generate_url(
-        "Wii/Cave Story/Cave Story (USA) (v258) (WiiWare).wad"
+        "WiiWare/Cave Story/Cave Story (USA) (v258) (WiiWare).wad"
     ) == "https://archive.org/download/RetroAchievementsWii/Cave%20Story%20%28USA%29%20%28v258%29%20%28WiiWare%29.wad"
+
+    assert URLGeneratorFactory.generate_url(
+        "Wii/Boom Blox (USA) (En,Fr,Es).rvz"
+    ) == "https://archive.org/download/RetroAchievementsWii/Boom%20Blox%20%28USA%29%20%28En%2CFr%2CEs%29.rvz"
 
     print("url_factory smoke check: OK")
