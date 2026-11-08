@@ -40,6 +40,7 @@ MANUAL_CONSOLE_ALIASES = {
     "PC Engine": "PC Engine/TurboGrafx-16",
     "TurboGrafx-16": "PC Engine/TurboGrafx-16",
     "Gamegear": "Game Gear",
+    "GameCube": "Nintendo GameCube",
     "WiiWare": "Wii",  # RA no tiene una consola separada para WiiWare
 }
 
@@ -100,15 +101,21 @@ class GamesMetadataSync:
             )
 
         hash_to_ra = {}  # MD5 upper -> {id, title, image_icon, achievements}
+        games_by_console_id = {}  # cache -- dos de nuestros nombres pueden compartir consola RA (ej. Wii/WiiWare)
         for i, (our_name, ra_console) in enumerate(matched.items()):
-            if i > 0:
-                time.sleep(DELAY_BETWEEN_CONSOLES)
-            print(f"[{i + 1}/{len(matched)}] {our_name} (RA: {ra_console['Name']})")
-            try:
-                games = client.get_game_list(ra_console["ID"], with_hashes=True)
-            except RetroAchievementsAPIError as e:
-                self.ui.display_error_message(f"{our_name}: {e}")
-                continue
+            console_id = ra_console["ID"]
+            if console_id in games_by_console_id:
+                games = games_by_console_id[console_id]
+            else:
+                if games_by_console_id:
+                    time.sleep(DELAY_BETWEEN_CONSOLES)
+                print(f"[{i + 1}/{len(matched)}] {our_name} (RA: {ra_console['Name']})")
+                try:
+                    games = client.get_game_list(console_id, with_hashes=True)
+                except RetroAchievementsAPIError as e:
+                    self.ui.display_error_message(f"{our_name}: {e}")
+                    continue
+                games_by_console_id[console_id] = games
 
             for game in games:
                 info = {

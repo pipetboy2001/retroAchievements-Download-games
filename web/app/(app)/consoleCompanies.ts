@@ -18,6 +18,8 @@ const COMPANY_BY_CONSOLE: Record<string, Company> = {
   "Virtual Boy": "Nintendo",
   "Pokemon Mini": "Nintendo",
   "WiiWare": "Nintendo",
+  "Wii": "Nintendo",
+  "GameCube": "Nintendo",
 
   "Genesis/Mega Drive": "Sega",
   "Master System": "Sega",
