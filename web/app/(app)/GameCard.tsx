@@ -7,14 +7,7 @@ import { downloadGame } from "./download";
 import { BoltIcon, CheckIcon, CopyIcon, PlusIcon, TrophyIcon } from "./icons";
 import type { Game, Version, VersionsResponse } from "./types";
 
-export default function GameCard({
-  game,
-  consoleIcons,
-}: {
-  game: Game;
-  /** nombre de consola -> icon_url, ver GamesView (viene del mismo /api/games). */
-  consoleIcons?: Record<string, string | null | undefined>;
-}) {
+export default function GameCard({ game }: { game: Game }) {
   const cart = useCart();
   const [versions, setVersions] = useState<Version[] | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -65,18 +58,7 @@ export default function GameCard({
         ) : (
           <div className="placeholder" />
         )}
-        <span className="gcard-console">
-          {game.consoles.length === 0 && "?"}
-          {game.consoles.map((c) => (
-            <span key={c} className="gcard-console-item">
-              {consoleIcons?.[c] && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={consoleIcons[c]!} alt="" className="gcard-console-icon" />
-              )}
-              {c}
-            </span>
-          ))}
-        </span>
+        <span className="gcard-console">{game.consoles.join(", ") || "?"}</span>
         {game.achievements != null && (
           <span className="gcard-trophy">
             <TrophyIcon /> {game.achievements}
