@@ -2,25 +2,24 @@
 
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { UserIcon } from "./icons";
+import { useLocale } from "./useLocale";
 
 export default function RaAccountModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useLocale();
   return (
     <Dialog open={open} onOpenChange={(o: boolean) => !o && onClose()}>
       <DialogContent className="modal-panel" style={{ maxWidth: 420 }} showCloseButton={false}>
         <div className="modal-head">
-          <DialogTitle>Conectar RetroAchievements</DialogTitle>
-          <DialogClose className="modal-close" aria-label="Cerrar">
+          <DialogTitle>{t("ra.title")}</DialogTitle>
+          <DialogClose className="modal-close" aria-label={t("common.close")}>
             &times;
           </DialogClose>
         </div>
         <div className="modal-body">
           <div className="soon-panel">
             <UserIcon size={32} />
-            <h3>Próximamente</h3>
-            <p>
-              Vas a poder conectar tu cuenta con tu propia Web API Key (nunca se guarda en nuestro servidor)
-              para traer tu lista &quot;Want to Play&quot; y ver qué juegos ya tenemos disponibles para descargar.
-            </p>
+            <h3>{t("common.soon")}</h3>
+            <p>{t("ra.body")}</p>
           </div>
         </div>
       </DialogContent>

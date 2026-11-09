@@ -44,6 +44,60 @@ export const LogoMark = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
+// Banderas para el selector de idioma: simplificadas (sin escudo/estrellas),
+// inline en vez de emoji porque Windows no renderiza flag emoji como imagen.
+export const SpainFlagIcon = ({ size = 16 }: { size?: number }) => (
+  <svg
+    className="flag-icon"
+    style={{ width: size, height: size * 0.75, flexShrink: 0 }}
+    viewBox="0 0 16 12"
+    shapeRendering="crispEdges"
+  >
+    <rect width="16" height="12" fill="#AA151B" />
+    <rect y="3" width="16" height="6" fill="#F1BF00" />
+  </svg>
+);
+
+export const UsFlagIcon = ({ size = 16 }: { size?: number }) => (
+  <svg
+    className="flag-icon"
+    style={{ width: size, height: size * 0.75, flexShrink: 0 }}
+    viewBox="0 0 16 12"
+    shapeRendering="crispEdges"
+  >
+    <rect width="16" height="12" fill="#fff" />
+    <rect y="0" width="16" height="2" fill="#B22234" />
+    <rect y="4" width="16" height="2" fill="#B22234" />
+    <rect y="8" width="16" height="2" fill="#B22234" />
+    <rect width="7" height="6" fill="#3C3B6E" />
+  </svg>
+);
+
+export const PortugalFlagIcon = ({ size = 16 }: { size?: number }) => (
+  <svg
+    className="flag-icon"
+    style={{ width: size, height: size * 0.75, flexShrink: 0 }}
+    viewBox="0 0 16 12"
+    shapeRendering="crispEdges"
+  >
+    <rect width="16" height="12" fill="#FF0000" />
+    <rect width="6" height="12" fill="#006600" />
+  </svg>
+);
+
+export const FranceFlagIcon = ({ size = 16 }: { size?: number }) => (
+  <svg
+    className="flag-icon"
+    style={{ width: size, height: size * 0.75, flexShrink: 0 }}
+    viewBox="0 0 16 12"
+    shapeRendering="crispEdges"
+  >
+    <rect width="16" height="12" fill="#fff" />
+    <rect width="6" height="12" fill="#002395" />
+    <rect x="10" width="6" height="12" fill="#ED2939" />
+  </svg>
+);
+
 // lucide-react no trae logos de marcas (Github incluido) -- mark oficial
 // inline, misma convencion que LogoMark (currentColor, hereda del texto).
 export const GithubIcon = ({ size = 14 }: { size?: number }) => (

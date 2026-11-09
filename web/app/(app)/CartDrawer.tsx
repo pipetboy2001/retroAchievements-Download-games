@@ -5,10 +5,13 @@ import { toast } from "sonner";
 import { useCart } from "./CartContext";
 import { openDownload } from "./download";
 import { TrashIcon, XIcon } from "./icons";
+import { downloadAllLabel, downloadingToast, gamesSelected } from "./i18n";
+import { useLocale } from "./useLocale";
 
 const EXIT_MS = 280;
 
 export default function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { locale, t } = useLocale();
   const cart = useCart();
   const count = cart.items.length;
   const [mounted, setMounted] = useState(open);
@@ -34,7 +37,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
 
   function downloadAll() {
     cart.items.forEach((item) => openDownload(item.hash));
-    toast(`Descargando ${count} juego${count === 1 ? "" : "s"}…`);
+    toast(downloadingToast(count, locale));
     cart.clear();
   }
 
@@ -44,10 +47,10 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
       <aside className={`drawer-panel${entered ? " open" : ""}`}>
         <div className="drawer-head">
           <div>
-            <h2>Carrito de descarga</h2>
-            <div className="sub">{count} juego{count === 1 ? "" : "s"} seleccionado{count === 1 ? "" : "s"}</div>
+            <h2>{t("cart.title")}</h2>
+            <div className="sub">{gamesSelected(count, locale)}</div>
           </div>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Cerrar">
+          <button type="button" className="modal-close" onClick={onClose} aria-label={t("common.close")}>
             <XIcon />
           </button>
         </div>
@@ -55,7 +58,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
         <div className="drawer-body">
           {count === 0 ? (
             <p className="empty-hint" style={{ margin: 0, borderTop: "none", paddingTop: 0 }}>
-              El carrito está vacío.
+              {t("cart.empty")}
             </p>
           ) : (
             cart.items.map((item) => (
@@ -68,9 +71,9 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
                 )}
                 <div className="meta">
                   <div className="name">{item.name}</div>
-                  <div className="sub">{item.consoles.join(", ") || "Consola desconocida"}</div>
+                  <div className="sub">{item.consoles.join(", ") || t("common.unknownConsole")}</div>
                 </div>
-                <button type="button" className="remove" onClick={() => cart.remove(item.id)} aria-label="Quitar">
+                <button type="button" className="remove" onClick={() => cart.remove(item.id)} aria-label={t("cart.remove")}>
                   <TrashIcon />
                 </button>
               </div>
@@ -80,23 +83,20 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
 
         <div className="drawer-section">
           <label>
-            Estructura de exportación
-            <span className="soon-badge">próximamente</span>
+            {t("cart.exportStructure")}
+            <span className="soon-badge">{t("common.soon")}</span>
           </label>
           <select className="gcard-select" disabled style={{ marginBottom: 8 }}>
-            <option>Raíz plana (todos juntos)</option>
+            <option>{t("cart.flatRoot")}</option>
           </select>
           <div className="tree-preview">
-            <span style={{ opacity: 0.6, fontStyle: "italic" }}>
-              El empaquetado en ZIP con estructura de carpetas (RetroArch, OnionOS, Batocera) todavía no está
-              disponible. Por ahora, &quot;Descargar todo&quot; abre cada archivo por separado.
-            </span>
+            <span style={{ opacity: 0.6, fontStyle: "italic" }}>{t("cart.zipNote")}</span>
           </div>
         </div>
 
         <div className="drawer-footer">
           <button type="button" className="btn-primary" disabled={count === 0} onClick={downloadAll}>
-            Descargar todo ({count})
+            {downloadAllLabel(count, locale)}
           </button>
         </div>
       </aside>

@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { downloadingNamed } from "./i18n";
 
 /** Abre el link de descarga en una pestaña nueva, sin tocar el toast (para descargas en lote). */
 export function openDownload(hash: string): void {
@@ -8,5 +9,5 @@ export function openDownload(hash: string): void {
 /** Descarga un solo juego y avisa con un toast. */
 export function downloadGame(hash: string, name?: string): void {
   openDownload(hash);
-  toast(name ? `Descargando ${name}…` : "Descargando juego…");
+  toast(downloadingNamed(name));
 }

@@ -3,17 +3,38 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CartProvider, useCart } from "./CartContext";
 import CartDrawer from "./CartDrawer";
 import Footer from "./Footer";
 import HasherModal from "./HasherModal";
 import NoticeModal from "./NoticeModal";
 import RaAccountModal from "./RaAccountModal";
-import { CartIcon, FingerprintIcon, LogoMark, SearchIcon, UserIcon } from "./icons";
+import {
+  CartIcon,
+  FingerprintIcon,
+  FranceFlagIcon,
+  LogoMark,
+  PortugalFlagIcon,
+  SearchIcon,
+  SpainFlagIcon,
+  UsFlagIcon,
+  UserIcon,
+} from "./icons";
+import { LANGUAGES, type Locale } from "./i18n";
+import { useLocale } from "./useLocale";
+
+const LANG_FLAGS: Record<Locale, (props: { size?: number }) => ReactNode> = {
+  es: SpainFlagIcon,
+  en: UsFlagIcon,
+  pt: PortugalFlagIcon,
+  fr: FranceFlagIcon,
+};
 
 function Shell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { items } = useCart();
+  const { locale, setLocale, t } = useLocale();
   const [q, setQ] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [hasherOpen, setHasherOpen] = useState(false);
@@ -40,20 +61,46 @@ function Shell({ children }: { children: ReactNode }) {
             <SearchIcon />
             <input
               type="text"
-              placeholder="Buscar por nombre o hash…"
+              placeholder={t("topbar.searchPlaceholder")}
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
           </form>
 
           <div className="header-actions">
+            <Select value={locale} onValueChange={(v) => setLocale(v as Locale)}>
+              <SelectTrigger className="icon-btn-labeled" aria-label={t("topbar.langLabel")}>
+                <SelectValue>
+                  {(value: Locale) => {
+                    const lang = LANGUAGES.find((l) => l.code === value) ?? LANGUAGES[0];
+                    const Flag = LANG_FLAGS[lang.code];
+                    return (
+                      <>
+                        <Flag />
+                        <span className="btn-label">{lang.label}</span>
+                      </>
+                    );
+                  }}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((l) => {
+                  const Flag = LANG_FLAGS[l.code];
+                  return (
+                    <SelectItem key={l.code} value={l.code}>
+                      <Flag /> {l.label}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
             <button type="button" className="icon-btn-labeled" onClick={() => setHasherOpen(true)}>
-              <FingerprintIcon /> <span>Verificar ROM</span>
+              <FingerprintIcon /> <span className="btn-label">{t("topbar.verifyRom")}</span>
             </button>
             <button type="button" className="icon-btn-labeled" onClick={() => setRaOpen(true)}>
-              <UserIcon /> <span>Conectar RA</span>
+              <UserIcon /> <span className="btn-label">{t("topbar.connectRa")}</span>
             </button>
-            <button type="button" className="cart-trigger" onClick={() => setCartOpen(true)} aria-label="Abrir carrito">
+            <button type="button" className="cart-trigger" onClick={() => setCartOpen(true)} aria-label={t("topbar.openCart")}>
               <CartIcon />
               {items.length > 0 && (
                 <span key={items.length} className="count">

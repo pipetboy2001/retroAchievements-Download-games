@@ -48,7 +48,7 @@
   --secondary: var(--raised);
   --secondary-foreground: var(--text);
   --muted-foreground: var(--muted);
-  --accent-foreground: var(--ground);
+  --accent-foreground: var(--text-bright);
   --destructive: var(--negative);
   --border: var(--rule);
   --input: var(--rule-strong);
@@ -134,7 +134,7 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
   .brand .name { display: none; }
   main.app-main { padding: 20px 16px 48px; }
   .search { max-width: none; }
-  .icon-btn-labeled span { display: none; }
+  .icon-btn-labeled .btn-label { display: none; }
 }
 
 /* --- Title row / buttons --- */
