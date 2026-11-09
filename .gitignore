@@ -23,6 +23,9 @@ __pycache__/
 .Python
 *.so
 *.egg-info/
+.coverage
+.pytest_cache/
+.ruff_cache/
 
 # Environments 
 .env 

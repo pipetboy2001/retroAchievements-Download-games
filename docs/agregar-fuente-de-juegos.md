@@ -38,9 +38,12 @@ Por cada candidato:
 4. Comparar (mayúsculas, con `.upper()`). Si matchea con un GameID real: **confirmado, se puede agregar**. Si no matchea pero el título sí existe en RA: es una revisión/dump distinta, **no lo agregues** -- quedaría roto en silencio.
 
 ```python
-from dotenv import load_dotenv; load_dotenv(".env")
+from dotenv import load_dotenv
+
+load_dotenv(".env")
 from src.core.retroachievements_api import RetroAchievementsClient
 import os
+
 c = RetroAchievementsClient(os.getenv("API_KEY"))
 games = c.get_game_list(CONSOLE_ID, with_hashes=True)
 ra_hashes = {h.upper(): g for g in games for h in (g.get("Hashes") or [])}
@@ -95,7 +98,8 @@ from src.core.data_manager import RetroAchievementsDataManager
 from src.factories.url_factory import URLGeneratorFactory
 import requests
 
-dm = RetroAchievementsDataManager(); dm.reload_data()
+dm = RetroAchievementsDataManager()
+dm.reload_data()
 rom_path = dm.find_hash("EL_HASH_EN_MAYUSCULA")
 url = URLGeneratorFactory.generate_url(rom_path)
 assert requests.head(url, allow_redirects=True, timeout=20).status_code == 200
