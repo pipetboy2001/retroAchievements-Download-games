@@ -51,6 +51,8 @@ jobs:
           cache-dependency-path: requirements-dev.txt
 
       - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: ruff format --check .
       - name: Smoke import de api.index
         run: python -c "import api.index"
       - run: pytest

@@ -5,6 +5,7 @@ anclar el comportamiento documentado (strip de segmento, split A-M/N-Z de
 PS2, case-insensitivity de Arcade, fallback a DefaultURLGenerator) y
 detectar deriva con api/index.py.
 """
+
 import json
 from urllib.parse import quote
 
@@ -51,8 +52,8 @@ def test_nes():
 
 
 def test_psp_strips_first_segment():
-    rom_path = "PlayStation Portable/Gottlieb Pinball Classics/Gottlieb Pinball Classics (Europe) (En,Fr,De,Es,It) (v1.03).zip"
     rel = "Gottlieb Pinball Classics/Gottlieb Pinball Classics (Europe) (En,Fr,De,Es,It) (v1.03).zip"
+    rom_path = f"PlayStation Portable/{rel}"
     url = URLGeneratorFactory.generate_url(rom_path)
     assert url == PSPURLGenerator.BASE_URL + quote(rel, safe="/-_.")
 
@@ -116,9 +117,7 @@ def test_wiiware_uses_filename_only():
     rom_path = "WiiWare/Adventure Island - The Beginning/Adventure Island - The Beginning (USA) (WiiWare).wad"
     assert WiiURLGenerator().can_handle(rom_path)
     url = URLGeneratorFactory.generate_url(rom_path)
-    assert url == WiiURLGenerator.BASE_URL + quote(
-        "Adventure Island - The Beginning (USA) (WiiWare).wad", safe="/-_."
-    )
+    assert url == WiiURLGenerator.BASE_URL + quote("Adventure Island - The Beginning (USA) (WiiWare).wad", safe="/-_.")
 
 
 def test_gamecube_uses_filename_only():

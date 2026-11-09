@@ -9,112 +9,103 @@ def get_console_from_rom_path(rom_path: str) -> str:
     """Devuelve el nombre canónico de consola a partir de la carpeta raíz.
     Unifica alias, abreviaturas y variaciones (p.ej. nes/NES, megadriv -> Genesis/Mega Drive, npg -> Neo Geo Pocket).
     """
-    norm = rom_path.replace('\\', '/').strip()
-    root = norm.split('/', 1)[0] if '/' in norm else norm
+    norm = rom_path.replace("\\", "/").strip()
+    root = norm.split("/", 1)[0] if "/" in norm else norm
     raw = root.strip()
 
     # Normalización básica del texto del root
     t = raw.lower()
-    for ch in ['_', '-', '&', '(', ')', '[', ']', ',', '.']:
-        t = t.replace(ch, ' ')
-    t = ' '.join(t.split())  # compactar espacios
+    for ch in ["_", "-", "&", "(", ")", "[", "]", ",", "."]:
+        t = t.replace(ch, " ")
+    t = " ".join(t.split())  # compactar espacios
 
     # Mapa de alias -> nombre canónico
     aliases = {
         # Arcade
-        'arcade': 'ARCADE',
-
+        "arcade": "ARCADE",
         # Nintendo
-        'snes': 'SNES',
-        'snes super famicom': 'SNES',
-        'super nintendo': 'SNES',
-        'nes': 'NES',
-        'nes famicom': 'NES',
-        'nintendo 64': 'N64',
-        'n64': 'N64',
-        'nintendo ds': 'Nintendo DS',
-        'nds': 'Nintendo DS',
-        'gamecube': 'GameCube',
-        'nintendo gamecube': 'GameCube',
-        'game boy': 'Game Boy',
-        'gb': 'Game Boy',
-        'game boy color': 'Game Boy Color',
-        'gbc': 'Game Boy Color',
-        'game boy advance': 'Game Boy Advance',
-        'gba': 'Game Boy Advance',
-        'wiiware': 'WiiWare',
-
+        "snes": "SNES",
+        "snes super famicom": "SNES",
+        "super nintendo": "SNES",
+        "nes": "NES",
+        "nes famicom": "NES",
+        "nintendo 64": "N64",
+        "n64": "N64",
+        "nintendo ds": "Nintendo DS",
+        "nds": "Nintendo DS",
+        "gamecube": "GameCube",
+        "nintendo gamecube": "GameCube",
+        "game boy": "Game Boy",
+        "gb": "Game Boy",
+        "game boy color": "Game Boy Color",
+        "gbc": "Game Boy Color",
+        "game boy advance": "Game Boy Advance",
+        "gba": "Game Boy Advance",
+        "wiiware": "WiiWare",
         # Sega
-        'genesis': 'Genesis/Mega Drive',
-        'mega drive': 'Genesis/Mega Drive',
-        'megadrive': 'Genesis/Mega Drive',
-        'megadriv': 'Genesis/Mega Drive',
-        'md': 'Genesis/Mega Drive',
-        'genesis mega drive': 'Genesis/Mega Drive',
-        'mega drive genesis': 'Genesis/Mega Drive',
-        'sega master system': 'Master System',
-        'master system': 'Master System',
-        'sms': 'Master System',
-        'game gear': 'Game Gear',
-        'gg': 'Game Gear',
-        'sega cd': 'Sega CD',
-        'sega 32x': 'Sega 32X',
-        '32x': 'Sega 32X',
-        'dreamcast': 'Dreamcast',
-        'dc': 'Dreamcast',
-
+        "genesis": "Genesis/Mega Drive",
+        "mega drive": "Genesis/Mega Drive",
+        "megadrive": "Genesis/Mega Drive",
+        "megadriv": "Genesis/Mega Drive",
+        "md": "Genesis/Mega Drive",
+        "genesis mega drive": "Genesis/Mega Drive",
+        "mega drive genesis": "Genesis/Mega Drive",
+        "sega master system": "Master System",
+        "master system": "Master System",
+        "sms": "Master System",
+        "game gear": "Game Gear",
+        "gg": "Game Gear",
+        "sega cd": "Sega CD",
+        "sega 32x": "Sega 32X",
+        "32x": "Sega 32X",
+        "dreamcast": "Dreamcast",
+        "dc": "Dreamcast",
         # PlayStation
-        'playstation': 'PS1',
-        'psx': 'PS1',
-        'ps1': 'PS1',
-        'playstation 2': 'PS2',
-        'ps2': 'PS2',
-        'playstation portable': 'PSP',
-        'psp': 'PSP',
-
+        "playstation": "PS1",
+        "psx": "PS1",
+        "ps1": "PS1",
+        "playstation 2": "PS2",
+        "ps2": "PS2",
+        "playstation portable": "PSP",
+        "psp": "PSP",
         # NEC / PC Engine family
-        'pc engine': 'PC Engine',
-        'pcengine': 'PC Engine',
-        'pce': 'PC Engine',
-        'turbo grafx 16': 'TurboGrafx-16',
-        'turbografx 16': 'TurboGrafx-16',
-        'tg16': 'TurboGrafx-16',
-        'supergrafx': 'SuperGrafx',
-        'super grafx': 'SuperGrafx',
-
+        "pc engine": "PC Engine",
+        "pcengine": "PC Engine",
+        "pce": "PC Engine",
+        "turbo grafx 16": "TurboGrafx-16",
+        "turbografx 16": "TurboGrafx-16",
+        "tg16": "TurboGrafx-16",
+        "supergrafx": "SuperGrafx",
+        "super grafx": "SuperGrafx",
         # SNK Neo Geo Pocket
-        'neo geo pocket': 'Neo Geo Pocket',
-        'npg': 'Neo Geo Pocket',  # posible typo invertido
-        'ngp': 'Neo Geo Pocket',
-        'neo geo pocket color': 'Neo Geo Pocket Color',
-        'ngpc': 'Neo Geo Pocket Color',
-
+        "neo geo pocket": "Neo Geo Pocket",
+        "npg": "Neo Geo Pocket",  # posible typo invertido
+        "ngp": "Neo Geo Pocket",
+        "neo geo pocket color": "Neo Geo Pocket Color",
+        "ngpc": "Neo Geo Pocket Color",
         # Atari
-        'atari 2600': 'Atari 2600',
-        'atari 7800': 'Atari 7800',
-        'atari lynx': 'Atari Lynx',
-        'atari jaguar': 'Atari Jaguar',
-
+        "atari 2600": "Atari 2600",
+        "atari 7800": "Atari 7800",
+        "atari lynx": "Atari Lynx",
+        "atari jaguar": "Atari Jaguar",
         # MSX
-        'msx': 'MSX',
-        'msx2': 'MSX2',
-
+        "msx": "MSX",
+        "msx2": "MSX2",
         # WonderSwan
-        'wonderswan': 'WonderSwan',
-        'ws': 'WonderSwan',
-        'wonderswan color': 'WonderSwan Color',
-        'wsc': 'WonderSwan Color',
-
+        "wonderswan": "WonderSwan",
+        "ws": "WonderSwan",
+        "wonderswan color": "WonderSwan Color",
+        "wsc": "WonderSwan Color",
         # Otros
-        '3do': '3DO',
-        'amiga': 'Amiga',
-        'amiga cd32': 'Amiga CD32',
+        "3do": "3DO",
+        "amiga": "Amiga",
+        "amiga cd32": "Amiga CD32",
         # Sega SG-1000
-        'sg 1000': 'SG-1000',
-        'sg1000': 'SG-1000',
-        'sg': 'SG-1000',  # solo si raíz es exactamente "sg", poco probable pero inofensivo
-        'sega 1000': 'SG-1000',
-        'sega1000': 'SG-1000',
+        "sg 1000": "SG-1000",
+        "sg1000": "SG-1000",
+        "sg": "SG-1000",  # solo si raíz es exactamente "sg", poco probable pero inofensivo
+        "sega 1000": "SG-1000",
+        "sega1000": "SG-1000",
     }
 
     # Devolver mapeo canónico si existe, si no, devolver la raíz original "bonita"
@@ -122,7 +113,7 @@ def get_console_from_rom_path(rom_path: str) -> str:
         return aliases[t]
 
     # Como fallback, capitalizar palabras (evita duplicados por mayúsculas/minúsculas)
-    pretty = ' '.join(w.capitalize() for w in t.split()) if t else raw
+    pretty = " ".join(w.capitalize() for w in t.split()) if t else raw
     return pretty or raw
 
 
@@ -133,23 +124,23 @@ def extract_game_name(rom_path: str) -> str:
     (p.ej. '!_flycast' o la carpeta raíz de la consola), usa el nombre del
     archivo sin extensión.
     """
-    path = rom_path.replace('\\', '/').strip()
-    parts = [p for p in path.split('/') if p]
+    path = rom_path.replace("\\", "/").strip()
+    parts = [p for p in path.split("/") if p]
     if not parts:
         return rom_path
     filename = parts[-1]
     root = parts[0]
-    folder = parts[-2] if len(parts) >= 2 else ''
+    folder = parts[-2] if len(parts) >= 2 else ""
 
     def clean(name: str) -> str:
         # Quitar extensión y normalizar espacios/guiones bajos
-        base = name.rsplit('.', 1)[0]
-        base = base.replace('_', ' ').strip()
+        base = name.rsplit(".", 1)[0]
+        base = base.replace("_", " ").strip()
         # Compactar múltiples espacios
-        return ' '.join(base.split())
+        return " ".join(base.split())
 
-    invalid_folder_names = {root.lower(), 'arcade'}
-    is_invalid = (not folder) or folder.lower() in invalid_folder_names or folder.startswith('!_')
+    invalid_folder_names = {root.lower(), "arcade"}
+    is_invalid = (not folder) or folder.lower() in invalid_folder_names or folder.startswith("!_")
     candidate = folder if not is_invalid else clean(filename)
     return candidate
 
@@ -157,7 +148,7 @@ def extract_game_name(rom_path: str) -> str:
 def analyze_rom_info(rom_path: str) -> dict:
     """Extrae región y flags de hack/traducción/original del nombre de archivo,
     con una prioridad de selección (menor número = mayor prioridad)."""
-    parts = rom_path.split('/')
+    parts = rom_path.split("/")
     filename = parts[-1] if parts else rom_path
 
     is_hack = "[Hack]" in filename
@@ -184,12 +175,12 @@ def analyze_rom_info(rom_path: str) -> dict:
         priority = 4  # Otros
 
     return {
-        'filename': filename,
-        'region': region,
-        'is_hack': is_hack,
-        'is_translation': is_translation,
-        'is_original': is_original,
-        'priority': priority
+        "filename": filename,
+        "region": region,
+        "is_hack": is_hack,
+        "is_translation": is_translation,
+        "is_original": is_original,
+        "priority": priority,
     }
 
 
@@ -208,6 +199,6 @@ if __name__ == "__main__":  # pragma: no cover
     assert extract_game_name("arcade/arcade/pacman.zip") == "pacman"
 
     info = analyze_rom_info("PlayStation/Foo [Hack].bin")
-    assert info['is_hack'] is True and info['priority'] == 3
+    assert info["is_hack"] is True and info["priority"] == 3
 
     print("rom_info smoke check: OK")

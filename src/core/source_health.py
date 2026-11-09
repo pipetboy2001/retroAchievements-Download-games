@@ -5,15 +5,17 @@ cada consola, toma una muestra al azar de ROMs y prueba si su URL real
 (el CLI) para poder testear la logica pura -- agrupacion y umbral -- sin
 pegarle a la red.
 """
+
 import json
 import random
 from collections import defaultdict
 from typing import Dict, List, Tuple
 
 import config
+
+from ..factories.url_factory import URLGeneratorFactory
 from .link_checker import is_download_url_reachable
 from .rom_info import get_console_from_rom_path
-from ..factories.url_factory import URLGeneratorFactory
 
 
 def group_roms_by_console(data: dict) -> Dict[str, List[str]]:
@@ -46,8 +48,7 @@ def run(sample_size: int = 15, threshold: float = 0.5) -> Tuple[str, bool]:
         candidates = roms_by_console[console]
         sample = random.sample(candidates, min(sample_size, len(candidates)))
         reachable = sum(
-            1 for rom_path in sample
-            if is_download_url_reachable(URLGeneratorFactory.generate_url(rom_path))
+            1 for rom_path in sample if is_download_url_reachable(URLGeneratorFactory.generate_url(rom_path))
         )
         status, pct = _status(reachable, len(sample), threshold)
         if status == "ROTO":

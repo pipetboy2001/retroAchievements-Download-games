@@ -3,6 +3,7 @@ Tests sobre src/core/rom_info.py, compartido entre la app de consola y
 api/index.py -- incluye los alias de consola vistos en datos reales
 (megadriv, npg, nes, sg1000, sms, arcade en minúscula).
 """
+
 import pytest
 
 from src.core.rom_info import analyze_rom_info, extract_game_name, get_console_from_rom_path

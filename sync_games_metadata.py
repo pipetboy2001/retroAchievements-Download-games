@@ -4,6 +4,7 @@ contra el catalogo de RetroAchievements (titulos reales, caratulas,
 cantidad de logros, y el set de hashes que RA reconoce).
 Requiere API_KEY en .env (ver ejemplo.env).
 """
+
 from src.core.games_metadata_sync import GamesMetadataSync
 
 
