@@ -193,7 +193,7 @@ def analyze_rom_info(rom_path: str) -> dict:
     }
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     assert get_console_from_rom_path("SNES-Super Famicom/Game (U).sfc") == "SNES"
     assert get_console_from_rom_path("PlayStation 2/A-M/Foo (U).iso") == "PS2"
     assert get_console_from_rom_path("arcade/!_flycast/foo.zip") == "ARCADE"

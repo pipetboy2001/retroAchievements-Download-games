@@ -308,7 +308,7 @@ class URLGeneratorFactory:
         return generator.generate_url(rom_path)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     url = URLGeneratorFactory.generate_url(
         "Nintendo DSi/Mario Calculator/Mario Calculator (USA) (En,Fr,Es).zip"
     )

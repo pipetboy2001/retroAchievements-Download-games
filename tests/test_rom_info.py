@@ -59,3 +59,35 @@ def test_analyze_rom_info_original_usa():
     assert info["region"] == "USA"
     assert info["is_original"] is True
     assert info["priority"] == 1
+
+
+@pytest.mark.parametrize(
+    "rom_path, expected_region",
+    [
+        ("NES-Famicom/Foo (E).zip", "Europe"),
+        ("NES-Famicom/Foo (J).zip", "Japan"),
+        ("NES-Famicom/Foo (UE).zip", "USA/Europe"),
+        ("NES-Famicom/Foo.zip", "Unknown"),
+    ],
+)
+def test_analyze_rom_info_region(rom_path, expected_region):
+    assert analyze_rom_info(rom_path)["region"] == expected_region
+
+
+def test_analyze_rom_info_official_translation_is_priority_2():
+    # Caso real del dataset: original + traducción oficial.
+    info = analyze_rom_info("SNES-Super Famicom/Super Mario World/Super Mario World (U) [!] [T+Spa_Wave].zip")
+    assert info["is_original"] is True
+    assert info["is_translation"] is True
+    assert info["priority"] == 2
+
+
+def test_analyze_rom_info_plain_rom_is_priority_4():
+    info = analyze_rom_info("NES-Famicom/Foo (U).zip")
+    assert info["is_hack"] is False
+    assert info["is_original"] is False
+    assert info["priority"] == 4
+
+
+def test_extract_game_name_empty_path():
+    assert extract_game_name("") == ""

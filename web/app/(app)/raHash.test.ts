@@ -1,3 +1,4 @@
+import { zipSync } from "fflate";
 import { md5 } from "js-md5";
 import { describe, expect, it } from "vitest";
 import { computeRaHash } from "./raHash";
@@ -44,5 +45,24 @@ describe("computeRaHash", () => {
   it("returns an error for an unrecognized extension", () => {
     const result = computeRaHash("game.unknownext", new Uint8Array([1]));
     expect("error" in result).toBe(true);
+  });
+
+  it("unzips a .zip and hashes its largest entry", () => {
+    const rom = new Uint8Array([1, 2, 3, 4]);
+    const zipped = zipSync({
+      "readme.txt": new Uint8Array([0]),
+      "game.gb": rom,
+    });
+
+    const result = computeRaHash("game.zip", zipped);
+
+    expect("error" in result).toBe(false);
+    expect((result as { hash: string }).hash).toBe(md5(rom).toUpperCase());
+    expect((result as { consoleGuess: string }).consoleGuess).toBe("Game Boy");
+  });
+
+  it("returns an error for a corrupt .zip", () => {
+    const result = computeRaHash("game.zip", new Uint8Array([1, 2, 3]));
+    expect(result).toEqual({ error: "El archivo .zip está dañado o no se pudo leer." });
   });
 });

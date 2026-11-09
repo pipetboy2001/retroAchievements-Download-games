@@ -11,6 +11,9 @@ permissions:
 jobs:
   web:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +30,13 @@ jobs:
       - run: npm run lint --prefix web
       - run: npx tsc --noEmit --project web/tsconfig.json
       - run: npm run test --prefix web
+
+      - name: Comentar coverage en el PR
+        if: github.event_name == 'pull_request'
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          working-directory: web
+
       - run: npm run build --prefix web
 
   api:
