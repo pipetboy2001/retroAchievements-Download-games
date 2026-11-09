@@ -1,6 +1,7 @@
 import os
 import sys
 import webbrowser
+from html import escape
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 
@@ -225,7 +226,7 @@ def dl_redirect():
         return "Hash no provisto o base de datos no disponible", 400
     rom_path = find_hash_in_json(data, hash_value)
     if not rom_path:
-        return f"No se encontró el hash '{hash_value}'", 404
+        return f"No se encontró el hash '{escape(hash_value)}'", 404
     url = get_download_url(rom_path)
     return redirect(url)
 
@@ -293,7 +294,8 @@ def search():
                 "console": get_console_from_rom_path(rom_path),
             }
         else:
-            return {"success": False, "message": f"No se encontró el hash '{search_term}' en la base de datos."}, 404
+            message = f"No se encontró el hash '{escape(search_term)}' en la base de datos."
+            return {"success": False, "message": message}, 404
     else:
         return {"success": False, "message": "Error al cargar el archivo JSON local."}, 500
 
