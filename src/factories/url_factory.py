@@ -1,6 +1,7 @@
 """
 Factory para crear generadores de URL según la consola/plataforma.
 """
+
 import json
 from typing import Dict
 from urllib.parse import quote
@@ -80,72 +81,72 @@ class SNESURLGenerator(URLGenerator):
 
 class NESURLGenerator(URLGenerator):
     """Generador de URLs para NES/Famicom."""
-    
+
     BASE_URL = "https://archive.org/download/retroachievements_collection_NES-Famicom/"
-    
+
     def generate_url(self, rom_path: str) -> str:
         rel = _normalize_slashes(rom_path)
         return self.BASE_URL + _encode_rel_path(rel)
-    
+
     def can_handle(self, rom_path: str) -> bool:
         return "NES-Famicom" in rom_path
 
 
 class PSPURLGenerator(URLGenerator):
     """Generador de URLs para PlayStation Portable."""
-    
+
     BASE_URL = "https://dn720005.ca.archive.org/0/items/retroachievements_collection_PlayStation_Portable/PlayStation%20Portable/"
-    
+
     def generate_url(self, rom_path: str) -> str:
         # La BASE_URL ya incluye 'PlayStation%20Portable/'
         rel = _strip_first_segment_if_matches(rom_path, "PlayStation Portable")
         return self.BASE_URL + _encode_rel_path(rel)
-    
+
     def can_handle(self, rom_path: str) -> bool:
         return "PlayStation Portable" in rom_path
 
 
 class PS1URLGenerator(URLGenerator):
     """Generador de URLs para PlayStation 1."""
-    
+
     BASE_URL = "https://archive.org/download/retroachievements_collection_PlayStation/PlayStation/"
-    
+
     def generate_url(self, rom_path: str) -> str:
         # La BASE_URL ya incluye 'PlayStation/'
         rel = _strip_first_segment_if_matches(rom_path, "PlayStation")
         return self.BASE_URL + _encode_rel_path(rel)
-    
+
     def can_handle(self, rom_path: str) -> bool:
         return "PlayStation" in rom_path and "PlayStation 2" not in rom_path and "PlayStation Portable" not in rom_path
 
 
 class PS2URLGenerator(URLGenerator):
     """Generador de URLs para PlayStation 2."""
-    
+
     BASE_URL_A_M = "https://archive.org/download/retroachievements_collection_PlayStation_2_A-M/PlayStation%202/"
     BASE_URL_N_Z = "https://archive.org/download/retroachievements_collection_PlayStation_2_N-Z/PlayStation%202/"
-    
+
     def generate_url(self, rom_path: str) -> str:
         # Quitar prefijo 'PlayStation 2/' si está presente para evitar duplicados
         rel = _strip_first_segment_if_matches(rom_path, "PlayStation 2")
         # Decidir entre A-M o N-Z basado en el nombre del archivo (primer caracter)
-        game_name = rel.split('/')[-1] if '/' in rel else rel
-        base = self.BASE_URL_A_M if (game_name and game_name[0].upper() < 'N') else self.BASE_URL_N_Z
+        game_name = rel.split("/")[-1] if "/" in rel else rel
+        base = self.BASE_URL_A_M if (game_name and game_name[0].upper() < "N") else self.BASE_URL_N_Z
         return base + _encode_rel_path(rel)
-    
+
     def can_handle(self, rom_path: str) -> bool:
         return "PlayStation 2" in rom_path
 
 
 class SegaURLGenerator(URLGenerator):
     """Generador de URLs para consolas Sega (Genesis, Mega Drive, Sega CD)."""
-    
+
     BASE_URL = "https://archive.org/download/retroachievements_collection_v5/"
-    
+
     def generate_url(self, rom_path: str) -> str:
         rel = _normalize_slashes(rom_path)
         return self.BASE_URL + _encode_rel_path(rel)
-    
+
     def can_handle(self, rom_path: str) -> bool:
         return any(console in rom_path for console in ["Genesis-Mega Drive", "Sega CD"])
 
@@ -247,7 +248,10 @@ class DSiOctober2025URLGenerator(URLGenerator):
     INNER_FILES = {
         "Nintendo DSi/99 Moves/99 Moves (Europe) (En,Fr,De,Es,It).zip": "99 Moves (Europe) (En,Fr,De,Es,It).zip",
         "Nintendo DSi/1001 Blockbusters/1001 Blockbusters (Europe).zip": "1001 Blockbusters (Europe).zip",
-        "Nintendo DSi/Airport Mania - First Flight/Airport Mania - First Flight (Europe, Australia) (En,Fr,De,Es,It,Nl).zip": "Airport Mania - First Flight (Europe, Australia) (En,Fr,De,Es,It,Nl).zip",
+        (
+            "Nintendo DSi/Airport Mania - First Flight/"
+            "Airport Mania - First Flight (Europe, Australia) (En,Fr,De,Es,It,Nl).zip"
+        ): "Airport Mania - First Flight (Europe, Australia) (En,Fr,De,Es,It,Nl).zip",
         "Nintendo DSi/Kappa's Trail, A/Kappa's Trail, A (USA).zip": "Kappa's Trail, A (USA).zip",
         "Nintendo DSi/Mario Calculator/Mario Calculator (USA) (En,Fr,Es).zip": "Mario Calculator (USA) (En,Fr,Es).zip",
     }
@@ -290,9 +294,9 @@ class URLGeneratorFactory:
         WiiDiscURLGenerator(),
         GameCubeURLGenerator(),
         DSiOctober2025URLGenerator(),
-        DefaultURLGenerator()  # Debe ir al final como fallback
+        DefaultURLGenerator(),  # Debe ir al final como fallback
     ]
-    
+
     @classmethod
     def get_generator(cls, rom_path: str) -> URLGenerator:
         """Obtiene el generador apropiado para la ROM."""
@@ -300,7 +304,7 @@ class URLGeneratorFactory:
             if generator.can_handle(rom_path):
                 return generator
         return cls._generators[-1]  # Retorna el generador por defecto
-    
+
     @classmethod
     def generate_url(cls, rom_path: str) -> str:
         """Genera la URL de descarga para una ROM."""
@@ -308,10 +312,8 @@ class URLGeneratorFactory:
         return generator.generate_url(rom_path)
 
 
-if __name__ == "__main__":
-    url = URLGeneratorFactory.generate_url(
-        "Nintendo DSi/Mario Calculator/Mario Calculator (USA) (En,Fr,Es).zip"
-    )
+if __name__ == "__main__":  # pragma: no cover
+    url = URLGeneratorFactory.generate_url("Nintendo DSi/Mario Calculator/Mario Calculator (USA) (En,Fr,Es).zip")
     assert url == (
         "https://archive.org/download/retro-achievements-nintendo-dsi-october-25-2025/"
         "RetroAchievements%20Nintendo%20dsi%20%28October%2025%202025%29.zip/"
@@ -323,12 +325,14 @@ if __name__ == "__main__":
         "Nintendo DSi/Shantae - Risky's Revenge/Shantae - Risky's Revenge (USA).zip"
     )
 
-    assert URLGeneratorFactory.generate_url(
-        "WiiWare/Cave Story/Cave Story (USA) (v258) (WiiWare).wad"
-    ) == "https://archive.org/download/RetroAchievementsWii/Cave%20Story%20%28USA%29%20%28v258%29%20%28WiiWare%29.wad"
+    assert (
+        URLGeneratorFactory.generate_url("WiiWare/Cave Story/Cave Story (USA) (v258) (WiiWare).wad")
+        == "https://archive.org/download/RetroAchievementsWii/Cave%20Story%20%28USA%29%20%28v258%29%20%28WiiWare%29.wad"
+    )
 
-    assert URLGeneratorFactory.generate_url(
-        "Wii/Boom Blox (USA) (En,Fr,Es).rvz"
-    ) == "https://archive.org/download/RetroAchievementsWii/Boom%20Blox%20%28USA%29%20%28En%2CFr%2CEs%29.rvz"
+    assert (
+        URLGeneratorFactory.generate_url("Wii/Boom Blox (USA) (En,Fr,Es).rvz")
+        == "https://archive.org/download/RetroAchievementsWii/Boom%20Blox%20%28USA%29%20%28En%2CFr%2CEs%29.rvz"
+    )
 
     print("url_factory smoke check: OK")

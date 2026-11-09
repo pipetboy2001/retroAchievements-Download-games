@@ -10,6 +10,8 @@ import { downloadGame } from "./download";
 import { BoltIcon, CheckIcon, SearchIcon } from "./icons";
 import type { ConsoleCount, Game, GamesResponse, SearchResult } from "./types";
 import { lookupHash } from "./verifyHash";
+import { resultsCount } from "./i18n";
+import { useLocale } from "./useLocale";
 
 const PAGE_SIZES = [10, 20, 50, 100];
 const HASH_RE = /^[0-9a-f]{8,}$/i;
@@ -40,6 +42,7 @@ export default function GamesView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const cart = useCart();
+  const { locale, t } = useLocale();
 
   const [input, setInput] = useState("");
   const [q, setQ] = useState("");
@@ -53,6 +56,7 @@ export default function GamesView() {
   // a esos cambios por sí solo.
   useEffect(() => {
     const next = searchParams.get("q") ?? "";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con la URL (sistema externo), no estado derivado de un render anterior
     setInput(next);
     setQ(next);
     setPage(1);
@@ -98,6 +102,7 @@ export default function GamesView() {
 
   useEffect(() => {
     if (!isHash) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- limpia el resultado de verificación anterior al salir del modo hash (sincroniza con el cambio de q/isHash)
       setVerify(null);
       setVerifyError("");
       return;
@@ -110,11 +115,11 @@ export default function GamesView() {
     lookupHash(q)
       .then((data) => {
         if (data.success) setVerify(data);
-        else setVerifyError(data.message || "No se encontró ese hash en la base de datos.");
+        else setVerifyError(data.message || t("common.hashNotFound"));
       })
-      .catch(() => setVerifyError("No se pudo verificar el hash."))
+      .catch(() => setVerifyError(t("common.hashVerifyFailed")))
       .finally(() => setVerifyLoading(false));
-  }, [q, isHash]);
+  }, [q, isHash, t]);
 
   function runSearch(value: string) {
     const trimmed = value.trim();
@@ -151,41 +156,41 @@ export default function GamesView() {
     <>
       <div className="title-row">
         <div>
-          <h1>Buscar juegos</h1>
+          <h1>{t("games.title")}</h1>
           <div className="sub">
-            <b className="num">{allTotal}</b> juegos indexados
+            <b className="num">{allTotal}</b> {t("games.indexedSuffix")}
           </div>
         </div>
       </div>
 
       <div className="search" style={{ marginBottom: 24, maxWidth: 420 }}>
         <SearchIcon />
-        <input type="text" placeholder="Nombre o hash…" value={input} onChange={(e) => onInputChange(e.target.value)} />
+        <input type="text" placeholder={t("games.searchPlaceholder")} value={input} onChange={(e) => onInputChange(e.target.value)} />
       </div>
 
       {isHash ? (
         <>
-          {verifyLoading && <p className="empty-hint">Verificando hash…</p>}
+          {verifyLoading && <p className="empty-hint">{t("common.verifyingHash")}</p>}
           {verifyError && <p className="empty-hint">{verifyError}</p>}
           {verify && (
             <div className="verify">
               <div className="icon" />
               <div className="meta">
-                <div className="name">{verify.name ?? "Juego encontrado"}</div>
-                <div className="sub">{verify.console ?? "Consola desconocida"}</div>
+                <div className="name">{verify.name ?? t("games.foundName")}</div>
+                <div className="sub">{verify.console ?? t("common.unknownConsole")}</div>
                 <div className="hash">{verifyHash}</div>
               </div>
               <div className="checks">
                 <span className={`badge ${verify.ra_recognized ? "ok" : "warn"}`}>
-                  {verify.ra_recognized ? "reconocido por RA" : "no reconocido por RA"}
+                  {verify.ra_recognized ? t("games.raRecognized") : t("games.raNotRecognized")}
                 </span>
                 <span className={`badge ${verify.link_ok ? "ok" : "warn"}`}>
-                  {verify.link_ok ? "enlace verificado" : "enlace no verificado"}
+                  {verify.link_ok ? t("games.linkVerified") : t("games.linkNotVerified")}
                 </span>
               </div>
               <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                 <button type="button" className="btn-ghost" onClick={() => downloadGame(verifyHash, verify.name)}>
-                  <BoltIcon /> Descargar
+                  <BoltIcon /> {t("common.download")}
                 </button>
                 <button
                   type="button"
@@ -195,10 +200,10 @@ export default function GamesView() {
                 >
                   {cart.has(verifyHash) ? (
                     <span key="added" className="icon-pop" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                      <CheckIcon /> En el carrito
+                      <CheckIcon /> {t("common.inCart")}
                     </span>
                   ) : (
-                    "Agregar al carrito"
+                    t("common.addToCart")
                   )}
                 </button>
               </div>
@@ -216,7 +221,7 @@ export default function GamesView() {
                 setPage(1);
               }}
             >
-              Todo
+              {t("dropdown.all")}
             </button>
             {consolesByCompany.map(({ company, consoles: companyConsoles }) => (
               <ConsoleFilterDropdown
@@ -234,12 +239,10 @@ export default function GamesView() {
           </div>
 
           <div className="grid-head">
-            <span>
-              {total} juegos{consoleFilter ? ` en ${consoleFilter}` : ""}
-            </span>
+            <span>{resultsCount(total, consoleFilter, locale)}</span>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div className="page-size">
-                <label htmlFor="page-size-select">Mostrar</label>
+                <label htmlFor="page-size-select">{t("games.showLabel")}</label>
                 <select
                   id="page-size-select"
                   value={pageSize}
@@ -260,7 +263,7 @@ export default function GamesView() {
           </div>
 
           {items.length === 0 ? (
-            <p className="empty-hint">Sin resultados.</p>
+            <p className="empty-hint">{t("games.noResults")}</p>
           ) : (
             <>
               <div className="games-grid">

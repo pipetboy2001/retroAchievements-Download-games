@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SearchIcon } from "./icons";
 import type { ConsoleCount } from "./types";
+import { useLocale } from "./useLocale";
 
 export default function ConsoleFilterDropdown({
   consoles,
@@ -20,6 +21,7 @@ export default function ConsoleFilterDropdown({
   value: string;
   onChange: (name: string) => void;
 }) {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   // Posicion calculada a mano y el panel va en un portal a <body>: .pill-row
@@ -84,7 +86,7 @@ export default function ConsoleFilterDropdown({
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Buscar consola..."
+                placeholder={t("dropdown.searchConsole")}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -93,7 +95,7 @@ export default function ConsoleFilterDropdown({
               />
             </div>
             <div className="console-dropdown-list">
-              {filtered.length === 0 && <div className="console-dropdown-empty">Sin resultados</div>}
+              {filtered.length === 0 && <div className="console-dropdown-empty">{t("common.noResults")}</div>}
               {filtered.map((c) => (
                 <button
                   key={c.name}

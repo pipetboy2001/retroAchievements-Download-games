@@ -2,6 +2,7 @@
 Cliente minimo para la Web API de RetroAchievements.
 https://api-docs.retroachievements.org/
 """
+
 import time
 from typing import Any, Dict, List
 
@@ -13,6 +14,7 @@ MAX_ATTEMPTS = 3  # shortcut: retries fijos sin backoff exponencial, alcanza par
 
 class RetroAchievementsAPIError(Exception):
     """Error al llamar a la API de RetroAchievements."""
+
     pass
 
 

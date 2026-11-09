@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { useLocale } from "./useLocale";
 
 const STORAGE_KEY = "ra-downloader-notice-seen";
 
 export default function NoticeModal() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!sessionStorage.getItem(STORAGE_KEY)) setOpen(true);
-  }, []);
+  const { t } = useLocale();
+  const [open, setOpen] = useState(() => typeof window !== "undefined" && !sessionStorage.getItem(STORAGE_KEY));
 
   function dismiss() {
     sessionStorage.setItem(STORAGE_KEY, "1");
@@ -21,28 +19,27 @@ export default function NoticeModal() {
     <Dialog open={open} onOpenChange={(o: boolean) => !o && dismiss()}>
       <DialogContent className="modal-panel" showCloseButton={false}>
         <div className="modal-head">
-          <DialogTitle>Antes de descargar</DialogTitle>
-          <DialogClose className="modal-close" aria-label="Cerrar">
+          <DialogTitle>{t("notice.title")}</DialogTitle>
+          <DialogClose className="modal-close" aria-label={t("common.close")}>
             &times;
           </DialogClose>
         </div>
         <div className="modal-body">
           <p style={{ margin: 0 }}>
-            Nota: Para descargar, primero inicia sesión en{" "}
+            {t("notice.body1")}
             <a href="https://archive.org/" target="_blank" rel="noopener" style={{ color: "var(--link)" }}>
               archive.org
             </a>
-            . Los juegos no son de mi propiedad; todo el contenido está alojado en archive.org. Esta
-            herramienta solo facilita enlaces de ROMs compatibles con RetroAchievements. Consulta la{" "}
+            {t("notice.body2")}
             <a href="/faq" style={{ color: "var(--link)" }}>
-              FAQ y Aviso legal
+              {t("footer.faqLegal")}
             </a>
-            .
+            {t("notice.body3")}
           </p>
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 18px 16px" }}>
           <button type="button" className="btn-primary" onClick={dismiss}>
-            Entendido
+            {t("notice.understood")}
           </button>
         </div>
       </DialogContent>

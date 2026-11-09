@@ -226,22 +226,15 @@ Este proyecto está basado en el archivo JSON de **RetroAchievements** disponibl
 
 Consulta también la página de **[FAQ y Aviso legal](/faq)** para más detalles (en la versión desplegada, la encontrarás en el pie de página como "FAQ y Aviso legal").
 
+## 📄 Licencia
+
+Este proyecto está licenciado bajo la [Licencia MIT](LICENSE).
+
 ## 🤝 Contribuciones
 
-Este proyecto es de **código abierto** y cualquier contribución es bienvenida. Si deseas participar:
-
-1. **Fork** el repositorio
-2. **Crea** una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. **Commit** tus cambios (`git commit -m 'Add AmazingFeature'`)
-4. **Push** a la rama (`git push origin feature/AmazingFeature`)
-5. **Abre** un Pull Request
-
-### Ideas para Contribuir
-
-- 🆕 Agregar soporte para nuevas consolas
-- 🔧 Mejorar la interfaz de usuario
-- 🐛 Reportar y corregir bugs
-- 📚 Mejorar documentación
+Este proyecto es de **código abierto** y cualquier contribución es bienvenida.
+Ver [CONTRIBUTING.md](CONTRIBUTING.md) para el flujo de ramas, el formato de
+commits y los chequeos a correr antes de abrir un PR.
 
 ---
 

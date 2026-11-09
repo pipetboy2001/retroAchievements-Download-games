@@ -4,6 +4,7 @@ en RetroAchievements, cruzando cada hash contra la coleccion descargable
 (Data/TamperMonkeyRetroachievements.json) para saber si existe y en que
 region quedo.
 """
+
 import json
 import os
 import sys
@@ -12,10 +13,11 @@ import time
 from dotenv import load_dotenv
 
 import config
-from .data_manager import RetroAchievementsDataManager
-from .retroachievements_api import RetroAchievementsClient, RetroAchievementsAPIError
-from .rom_info import analyze_rom_info
+
 from ..utils.helpers import UIHelper
+from .data_manager import RetroAchievementsDataManager
+from .retroachievements_api import RetroAchievementsAPIError, RetroAchievementsClient
+from .rom_info import analyze_rom_info
 
 DELAY_BETWEEN_GAMES = 0.4  # shortcut: pausa fija sin backoff, ver plan
 
@@ -34,7 +36,7 @@ def _bucket_region(rom_path: str) -> str:
     todos los tags estilo No-Intro; si aparecen juegos mal clasificados,
     ampliar esta funcion.
     """
-    filename = rom_path.split('/')[-1] if '/' in rom_path else rom_path
+    filename = rom_path.split("/")[-1] if "/" in rom_path else rom_path
     if "[T+Spa]" in filename or "(Spain)" in filename:
         return "ES"
 

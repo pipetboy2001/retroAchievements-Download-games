@@ -7,8 +7,8 @@ src/core/dat_archive_sync.py).
 Uso:
     python sync_wii.py
 """
-from src.core.wii_sync import WiiSync
 
+from src.core.wii_sync import WiiSync
 
 if __name__ == "__main__":
     WiiSync().run()
