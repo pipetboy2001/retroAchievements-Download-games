@@ -1,19 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getLocale, initLocale, setLocale as setLocaleGlobal, subscribe, t as translate, type Key, type Locale } from "./i18n";
+import { useCallback, useEffect, useState } from "react";
+import { initLocale, setLocale as setLocaleGlobal, subscribe, t as translate, type Key, type Locale } from "./i18n";
 
 export function useLocale() {
-  const [locale, setLocaleState] = useState<Locale>(getLocale());
+  const [locale, setLocaleState] = useState<Locale>(() => initLocale());
 
-  useEffect(() => {
-    setLocaleState(initLocale());
-    return subscribe(setLocaleState);
-  }, []);
+  useEffect(() => subscribe(setLocaleState), []);
+
+  const t = useCallback((key: Key) => translate(key, locale), [locale]);
 
   return {
     locale,
     setLocale: setLocaleGlobal,
-    t: (key: Key) => translate(key, locale),
+    t,
   };
 }

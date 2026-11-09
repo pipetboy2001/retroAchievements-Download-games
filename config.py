@@ -9,11 +9,11 @@ ENV_EXAMPLE_FILE = "ejemplo.env"
 
 ## Preferencias de región (orden de prioridad)
 PREFERRED_REGIONS = {
-    "ES": 1,      # Español tiene la mayor prioridad
-    "USA": 2,     # Luego USA
-    "WORLD": 3,   # El resto del mundo
+    "ES": 1,  # Español tiene la mayor prioridad
+    "USA": 2,  # Luego USA
+    "WORLD": 3,  # El resto del mundo
     "EUROPE": 4,  # Luego Europa
-    "JPN": 5      # Por último Japón
+    "JPN": 5,  # Por último Japón
 }
 
 ## Configuración de validación

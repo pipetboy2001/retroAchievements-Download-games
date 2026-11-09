@@ -8,6 +8,7 @@ Usa GetGameList(consoleId, h=1), que devuelve TODOS los juegos de una
 consola con sus hashes MD5 en una sola llamada (no hace falta pedir los
 hashes juego por juego).
 """
+
 import json
 import os
 import re
@@ -16,9 +17,10 @@ import time
 from dotenv import load_dotenv
 
 import config
-from .retroachievements_api import RetroAchievementsClient, RetroAchievementsAPIError
-from .rom_info import get_console_from_rom_path
+
 from ..utils.helpers import UIHelper
+from .retroachievements_api import RetroAchievementsAPIError, RetroAchievementsClient
+from .rom_info import get_console_from_rom_path
 
 DELAY_BETWEEN_CONSOLES = 0.4  # shortcut: pausa fija sin backoff, igual que want_to_play_sync
 METADATA_FILE = "Data/retroachievements_metadata.json"
@@ -96,8 +98,7 @@ class GamesMetadataSync:
         matched, unmatched = self._match_consoles_to_ra(client)
         if unmatched:
             self.ui.display_info_message(
-                f"{len(unmatched)} consolas sin cobertura (no matchean por nombre): "
-                + ", ".join(unmatched)
+                f"{len(unmatched)} consolas sin cobertura (no matchean por nombre): " + ", ".join(unmatched)
             )
 
         hash_to_ra = {}  # MD5 upper -> {id, title, image_icon, achievements}
@@ -142,9 +143,7 @@ class GamesMetadataSync:
                     break
 
         console_icons = {
-            our_name: ra_console["IconURL"]
-            for our_name, ra_console in matched.items()
-            if ra_console.get("IconURL")
+            our_name: ra_console["IconURL"] for our_name, ra_console in matched.items() if ra_console.get("IconURL")
         }
 
         result = {
