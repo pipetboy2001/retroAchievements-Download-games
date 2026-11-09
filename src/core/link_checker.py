@@ -5,11 +5,16 @@ Verificaciones livianas de si un hash/URL "funciona de verdad":
 """
 
 import json
+import os
 from typing import Optional, Set
 
 import requests
 
-METADATA_FILE = "Data/retroachievements_metadata.json"
+# Ancla la ruta a la raiz del repo (no al directorio de trabajo actual): este
+# modulo lo importan tanto api/index.py como la app de consola, que puede
+# correrse parada dentro de console/.
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+METADATA_FILE = os.path.join(_BASE_DIR, "Data", "retroachievements_metadata.json")
 
 _recognized_hashes: Optional[Set[str]] = None
 

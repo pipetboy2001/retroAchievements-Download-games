@@ -7,6 +7,7 @@ import os
 import sys
 
 from rich.console import Console
+from rich.panel import Panel
 from rich.prompt import Prompt
 
 # Permite importar src/ y config.py desde la raiz del repo cuando este
@@ -20,12 +21,12 @@ def main():
     """Función principal que permite elegir el modo de operación."""
     console = Console()
 
-    console.print("[bold green]🎮 RetroAchievements Downloader[/bold green]")
-    console.print("\nSeleccione el modo de operación:", style="bold blue")
-    console.print("1. Búsqueda directa por hash", style="bold cyan")
-    console.print("2. Lista de deseos (Want to Play)", style="bold cyan")
+    console.print(Panel("[bold green]🎮 RetroAchievements Downloader[/bold green]", border_style="green", expand=False))
+    console.print("\n[bold blue]Seleccioná el modo de operación:[/bold blue]")
+    console.print("  [cyan]1.[/cyan] Búsqueda directa por hash")
+    console.print("  [cyan]2.[/cyan] Lista de deseos (Want to Play)")
 
-    choice = Prompt.ask("Ingrese el número del modo que desea usar", choices=["1", "2"], default="1")
+    choice = Prompt.ask("\n  [bold]→[/bold]", choices=["1", "2"], default="1")
 
     if choice == "1":
         app = RetroAchievementsDownloader(AppMode.DIRECT_HASH)
