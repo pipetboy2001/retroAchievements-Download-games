@@ -24,23 +24,19 @@ const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "ra-downloader-cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
+  const [items, setItems] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setItems(JSON.parse(raw));
+      return raw ? JSON.parse(raw) : [];
     } catch {
-      // localStorage corrupto o inaccesible: arrancamos con carrito vacío
+      return [];
     }
-    setLoaded(true);
-  }, []);
+  });
 
   useEffect(() => {
-    if (!loaded) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items, loaded]);
+  }, [items]);
 
   function add(item: CartItem) {
     setItems((prev) => (prev.some((i) => i.id === item.id) ? prev : [...prev, item]));
