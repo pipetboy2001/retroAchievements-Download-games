@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import BackToTopButton from "./BackToTopButton";
 import { CartProvider, useCart } from "./CartContext";
 import CartDrawer from "./CartDrawer";
 import Footer from "./Footer";
@@ -33,6 +34,8 @@ const LANG_FLAGS: Record<Locale, (props: { size?: number }) => ReactNode> = {
 
 function Shell({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isHome = pathname === "/";
   const { items } = useCart();
   const { locale, setLocale, t } = useLocale();
   const [q, setQ] = useState("");
@@ -57,15 +60,17 @@ function Shell({ children }: { children: ReactNode }) {
             <div className="name">RA Downloader</div>
           </Link>
 
-          <form className="search" onSubmit={onSearchSubmit}>
-            <SearchIcon />
-            <input
-              type="text"
-              placeholder={t("topbar.searchPlaceholder")}
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </form>
+          {!isHome && (
+            <form className="search" onSubmit={onSearchSubmit}>
+              <SearchIcon />
+              <input
+                type="text"
+                placeholder={t("topbar.searchPlaceholder")}
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+            </form>
+          )}
 
           <div className="header-actions">
             <Select value={locale} onValueChange={(v) => setLocale(v as Locale)}>
@@ -94,6 +99,9 @@ function Shell({ children }: { children: ReactNode }) {
                 })}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="action-bar">
             <button type="button" className="icon-btn-labeled" onClick={() => setHasherOpen(true)}>
               <FingerprintIcon /> <span className="btn-label">{t("topbar.verifyRom")}</span>
             </button>
@@ -102,6 +110,7 @@ function Shell({ children }: { children: ReactNode }) {
             </button>
             <button type="button" className="cart-trigger" onClick={() => setCartOpen(true)} aria-label={t("topbar.openCart")}>
               <CartIcon />
+              <span className="btn-label">{t("topbar.openCart")}</span>
               {items.length > 0 && (
                 <span key={items.length} className="count">
                   {items.length}
@@ -114,6 +123,7 @@ function Shell({ children }: { children: ReactNode }) {
 
       <main className="app-main">{children}</main>
       <Footer />
+      <BackToTopButton />
       <NoticeModal />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
       <HasherModal open={hasherOpen} onClose={() => setHasherOpen(false)} />
