@@ -15,6 +15,7 @@ const es = {
   "topbar.connectRa": "Conectar RA",
   "topbar.openCart": "Abrir carrito",
   "topbar.langLabel": "Idioma",
+  "common.backToTop": "Volver arriba",
 
   "footer.collaborate": "Colaborá con el repositorio",
   "footer.developedBy": "Desarrollado por",
@@ -137,6 +138,7 @@ const en: Record<keyof typeof es, string> = {
   "topbar.connectRa": "Connect RA",
   "topbar.openCart": "Open cart",
   "topbar.langLabel": "Language",
+  "common.backToTop": "Back to top",
 
   "footer.collaborate": "Contribute to the repo",
   "footer.developedBy": "Made by",
@@ -257,6 +259,7 @@ const pt: Record<keyof typeof es, string> = {
   "topbar.connectRa": "Conectar RA",
   "topbar.openCart": "Abrir carrinho",
   "topbar.langLabel": "Idioma",
+  "common.backToTop": "Voltar ao topo",
 
   "footer.collaborate": "Contribua com o repositório",
   "footer.developedBy": "Desenvolvido por",
@@ -379,6 +382,7 @@ const fr: Record<keyof typeof es, string> = {
   "topbar.connectRa": "Connecter RA",
   "topbar.openCart": "Ouvrir le panier",
   "topbar.langLabel": "Langue",
+  "common.backToTop": "Retour en haut",
 
   "footer.collaborate": "Contribuer au dépôt",
   "footer.developedBy": "Développé par",

@@ -99,6 +99,7 @@ body {
 .search svg { flex-shrink: 0; opacity: 0.7; color: var(--faint); }
 
 .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: auto; }
+.action-bar { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .icon-btn-labeled {
   display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px;
   background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px;
@@ -112,6 +113,7 @@ body {
   border-radius: 8px; color: var(--muted); cursor: pointer; flex-shrink: 0;
 }
 .cart-trigger:hover { border-color: var(--accent-border); color: var(--text-bright); }
+.cart-trigger .btn-label { display: none; }
 .cart-trigger .count {
   position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px;
   background: var(--accent); color: var(--ground); border-radius: 999px; font-size: 10px;
@@ -129,12 +131,38 @@ body {
 
 main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding: 29px 32px 60px; }
 
+.back-to-top {
+  position: fixed; right: 20px; bottom: 20px; z-index: 25;
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  background: var(--surface); border: 1px solid var(--accent-border); border-radius: 999px;
+  color: var(--accent); cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.back-to-top:hover { background: var(--accent); border-color: var(--accent); color: var(--ground); }
+
 @media (max-width: 860px) {
   .topbar-inner { gap: 12px; padding: 0 16px; }
   .brand .name { display: none; }
   main.app-main { padding: 20px 16px 48px; }
   .search { max-width: none; }
   .icon-btn-labeled .btn-label { display: none; }
+
+  /* El mockup mobile mueve verificar/conectar/carrito a una tab bar fija
+     abajo -- mismos botones, reposicionados por CSS, sin duplicar JSX. */
+  .action-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: var(--surface); border-top: 1px solid var(--rule-strong);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .action-bar .icon-btn-labeled,
+  .action-bar .cart-trigger {
+    flex: 1; width: auto; height: 60px; flex-direction: column; justify-content: center;
+    gap: 4px; border: none; border-radius: 0; background: none;
+  }
+  .action-bar .btn-label { display: block; font-size: 10px; }
+  .action-bar .cart-trigger .count { top: 4px; left: calc(50% + 8px); right: auto; }
+  .app-shell { padding-bottom: 60px; }
+
+  .back-to-top { bottom: calc(60px + env(safe-area-inset-bottom) + 16px); }
 }
 
 /* --- Title row / buttons --- */

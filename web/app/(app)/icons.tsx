@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  ArrowUp,
   Check,
   CheckCircle2,
   Copy,
@@ -19,6 +20,7 @@ import {
 import { TROPHY_GRID, TROPHY_PIXELS } from "../pixelTrophy";
 
 export const SearchIcon = (props: LucideProps) => <Search size={14} {...props} />;
+export const ArrowUpIcon = (props: LucideProps) => <ArrowUp size={18} {...props} />;
 export const CartIcon = (props: LucideProps) => <ShoppingCart size={16} {...props} />;
 export const TrophyIcon = (props: LucideProps) => <Trophy size={11} {...props} />;
 export const BoltIcon = (props: LucideProps) => <Zap size={14} {...props} />;
