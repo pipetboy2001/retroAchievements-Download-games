@@ -3,6 +3,7 @@ Verificaciones livianas de si un hash/URL "funciona de verdad":
 - el link de descarga generado responde (no esta roto en archive.org)
 - el hash es uno que RetroAchievements reconoce (Data/retroachievements_metadata.json)
 """
+
 import json
 from typing import Optional, Set
 
@@ -46,12 +47,18 @@ def is_hash_recognized_by_ra(hash_value: str) -> bool:
 if __name__ == "__main__":
     assert is_download_url_reachable("https://archive.org/") is True
     # 404 real (archivo inexistente DENTRO de un item que si existe)
-    assert is_download_url_reachable(
-        "https://archive.org/download/retroachievements_collection_v5/Genesis-Mega%20Drive/ThisFileDoesNotExist123456.zip"
-    ) is False
+    assert (
+        is_download_url_reachable(
+            "https://archive.org/download/retroachievements_collection_v5/Genesis-Mega%20Drive/ThisFileDoesNotExist123456.zip"
+        )
+        is False
+    )
     # 401 (el archivo existe pero pide login en archive.org) debe contar como "reachable"
-    assert is_download_url_reachable(
-        "https://archive.org/download/retroachievements_collection_v5/Genesis-Mega%20Drive/"
-        "Sonic%20the%20Hedgehog/Sonic%20The%20Hedgehog%20%28W%29%20%28REV00%29%20%5BT%2BRus_NewGame%5D.zip"
-    ) is True
+    assert (
+        is_download_url_reachable(
+            "https://archive.org/download/retroachievements_collection_v5/Genesis-Mega%20Drive/"
+            "Sonic%20the%20Hedgehog/Sonic%20The%20Hedgehog%20%28W%29%20%28REV00%29%20%5BT%2BRus_NewGame%5D.zip"
+        )
+        is True
+    )
     print("link_checker smoke check: OK")
