@@ -6,8 +6,10 @@ import { useCart } from "./CartContext";
 import { downloadGame } from "./download";
 import { BoltIcon, CheckIcon, CopyIcon, PlusIcon, TrophyIcon } from "./icons";
 import type { Game, Version, VersionsResponse } from "./types";
+import { useLocale } from "./useLocale";
 
 export default function GameCard({ game }: { game: Game }) {
+  const { t } = useLocale();
   const cart = useCart();
   const [versions, setVersions] = useState<Version[] | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -45,7 +47,7 @@ export default function GameCard({ game }: { game: Game }) {
   function copyHash() {
     if (!active) return;
     navigator.clipboard.writeText(active.hash).then(() => {
-      toast("Hash copiado");
+      toast(t("gamecard.hashCopied"));
     });
   }
 
@@ -70,15 +72,15 @@ export default function GameCard({ game }: { game: Game }) {
         <div className="gcard-title">{game.name}</div>
 
         <div className="gcard-field">
-          <label>Versión / ROM</label>
+          <label>{t("gamecard.versionRom")}</label>
           <select
             className="gcard-select"
             value={selectedIndex}
             disabled={!versions || versions.length === 0}
             onChange={(e) => setSelectedIndex(Number(e.target.value))}
           >
-            {!versions && <option>Cargando…</option>}
-            {versions?.length === 0 && <option>Sin versiones</option>}
+            {!versions && <option>{t("common.loading")}</option>}
+            {versions?.length === 0 && <option>{t("gamecard.noVersions")}</option>}
             {versions?.map((v, idx) => (
               <option key={v.hash} value={idx}>
                 {v.info?.filename || v.rom_path}
@@ -88,29 +90,29 @@ export default function GameCard({ game }: { game: Game }) {
         </div>
 
         <div className="gcard-field">
-          <label>Espejo de descarga</label>
+          <label>{t("gamecard.mirror")}</label>
           <div className="mirror-row">
             <span className="mirror-chip active">archive.org</span>
-            <button type="button" className="mirror-chip" disabled title="Próximamente">
+            <button type="button" className="mirror-chip" disabled title={t("common.soon")}>
               CoolROM
             </button>
           </div>
           <div className="mirror-note">
-            Otros espejos <span className="soon-badge">próximamente</span>
+            {t("gamecard.otherMirrors")} <span className="soon-badge">{t("common.soon")}</span>
           </div>
         </div>
 
         <div className="gcard-actions">
           {active ? (
             <button type="button" className="btn-ghost" onClick={() => downloadGame(active.hash, game.name)}>
-              <BoltIcon /> Descargar
+              <BoltIcon /> {t("common.download")}
             </button>
           ) : (
             <span className="btn-ghost" aria-disabled>
-              <BoltIcon /> Descargar
+              <BoltIcon /> {t("common.download")}
             </span>
           )}
-          <button type="button" className="icon-btn" onClick={copyHash} disabled={!active} title="Copiar hash MD5">
+          <button type="button" className="icon-btn" onClick={copyHash} disabled={!active} title={t("gamecard.copyHash")}>
             <CopyIcon />
           </button>
           <button
@@ -118,7 +120,7 @@ export default function GameCard({ game }: { game: Game }) {
             className={`icon-btn${inCart ? " in-cart" : ""}`}
             onClick={addToCart}
             disabled={!active || inCart}
-            title={inCart ? "En el carrito" : "Agregar al carrito"}
+            title={inCart ? t("common.inCart") : t("common.addToCart")}
           >
             {inCart ? <CheckIcon key="check" className="icon-pop" /> : <PlusIcon key="plus" />}
           </button>
