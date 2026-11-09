@@ -11,6 +11,7 @@ estilo RetroAchievements sobre la ROM de adentro, y matchea contra los
 hashes que ya tenemos en Data/TamperMonkeyRetroachievements.json. Lo que no
 matchea queda listado aparte para resolver a mano.
 """
+
 import hashlib
 import io
 import json
@@ -23,7 +24,8 @@ from typing import Dict, List, Tuple
 import requests
 
 import config
-from .rom_info import get_console_from_rom_path, extract_game_name
+
+from .rom_info import extract_game_name, get_console_from_rom_path
 
 MAX_ATTEMPTS = 3  # shortcut: reintentos fijos sin backoff, igual que el resto de los sync scripts
 REQUEST_TIMEOUT = 30
@@ -205,7 +207,8 @@ class SourceResync:
         label = "PARCIAL -- resync todavia corriendo" if partial else "final"
         print(f"\n[{label}] {matched}/{total} hashes con match ({pct:.1f}%).")
         print(f"Override: {self.override_file}")
-        print(f"Faltantes: {self.missing_file} ({len(missing)}{' -- incluye lo todavia no hasheado' if partial else ''})")
+        partial_note = " -- incluye lo todavia no hasheado" if partial else ""
+        print(f"Faltantes: {self.missing_file} ({len(missing)}{partial_note})")
 
 
 if __name__ == "__main__":

@@ -1,14 +1,16 @@
 """
 Interfaces y clases abstractas para el sistema de descarga de RetroAchievements.
 """
+
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
+from typing import Any, Dict, Optional
 
 
 @dataclass
 class GameInfo:
     """Información de un juego."""
+
     name: str
     console: str
     hash_value: str
@@ -18,7 +20,7 @@ class GameInfo:
 
 class HashSearchStrategy(ABC):
     """Estrategia abstracta para buscar hashes."""
-    
+
     @abstractmethod
     def search(self, query: str) -> Optional[GameInfo]:
         """Busca un juego basado en la consulta."""
@@ -27,12 +29,12 @@ class HashSearchStrategy(ABC):
 
 class URLGenerator(ABC):
     """Generador abstracto de URLs de descarga."""
-    
+
     @abstractmethod
     def generate_url(self, rom_path: str) -> str:
         """Genera la URL de descarga para una ROM."""
         pass
-    
+
     @abstractmethod
     def can_handle(self, rom_path: str) -> bool:
         """Determina si este generador puede manejar la ROM."""
@@ -41,7 +43,7 @@ class URLGenerator(ABC):
 
 class DataProvider(ABC):
     """Proveedor abstracto de datos."""
-    
+
     @abstractmethod
     def load_data(self) -> Optional[Dict[str, Any]]:
         """Carga los datos necesarios."""
@@ -50,7 +52,7 @@ class DataProvider(ABC):
 
 class DownloadCommand(ABC):
     """Comando abstracto para operaciones de descarga."""
-    
+
     @abstractmethod
     def execute(self) -> bool:
         """Ejecuta el comando de descarga."""

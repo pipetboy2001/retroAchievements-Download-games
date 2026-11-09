@@ -56,6 +56,7 @@ export default function GamesView() {
   // a esos cambios por sí solo.
   useEffect(() => {
     const next = searchParams.get("q") ?? "";
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con la URL (sistema externo), no estado derivado de un render anterior
     setInput(next);
     setQ(next);
     setPage(1);
@@ -101,6 +102,7 @@ export default function GamesView() {
 
   useEffect(() => {
     if (!isHash) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- limpia el resultado de verificación anterior al salir del modo hash (sincroniza con el cambio de q/isHash)
       setVerify(null);
       setVerifyError("");
       return;
@@ -117,7 +119,7 @@ export default function GamesView() {
       })
       .catch(() => setVerifyError(t("common.hashVerifyFailed")))
       .finally(() => setVerifyLoading(false));
-  }, [q, isHash]);
+  }, [q, isHash, t]);
 
   function runSearch(value: string) {
     const trimmed = value.trim();
