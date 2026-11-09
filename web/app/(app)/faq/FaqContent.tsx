@@ -6,7 +6,7 @@ import { useLocale } from "../useLocale";
 export default function FaqContent() {
   const { t } = useLocale();
   return (
-    <>
+    <div className="faq-page">
       <div className="title-row">
         <div>
           <h1>{t("faq.title")}</h1>
@@ -75,6 +75,6 @@ export default function FaqContent() {
           </Link>
         </div>
       </div>
-    </>
+    </div>
   );
 }
