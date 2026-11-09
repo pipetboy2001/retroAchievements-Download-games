@@ -6,6 +6,7 @@ import webbrowser
 from typing import List
 
 from rich.console import Console
+from rich.panel import Panel
 
 from ..core.interfaces import DownloadCommand, GameInfo
 from ..core.link_checker import is_download_url_reachable, is_hash_recognized_by_ra
@@ -24,28 +25,23 @@ class OpenInBrowserCommand(DownloadCommand):
         try:
             download_url = URLGeneratorFactory.generate_url(self.game_info.rom_path)
 
-            self.console.print(f"Hash encontrado. La URL de descarga es: {download_url}", style="bold green")
-
             link_ok = is_download_url_reachable(download_url)
-            link_status = "verificado" if link_ok else "no responde (puede estar roto)"
-            self.console.print(
-                f"{'✅' if link_ok else '⚠️'} Link de descarga {link_status}",
-                style="bold green" if link_ok else "bold yellow",
-            )
             ra_recognized = is_hash_recognized_by_ra(self.game_info.hash_value)
-            ra_status = "reconocido" if ra_recognized else "no encontrado"
-            self.console.print(
-                f"{'✅' if ra_recognized else 'ℹ️'} Hash {ra_status} en el catálogo de RetroAchievements",
-                style="bold green" if ra_recognized else "dim",
-            )
 
-            self.console.print(f"Abriendo [link]{download_url}[/link] en el navegador...", style="bold blue")
+            body = (
+                f"[bold]{self.game_info.name}[/bold] [dim]({self.game_info.console})[/dim]\n"
+                f"[dim][link={download_url}]{download_url}[/link][/dim]\n\n"
+                f"{'✅' if link_ok else '⚠️'} Descarga {'verificada' if link_ok else 'puede estar rota'}"
+                "   "
+                f"{'✅' if ra_recognized else 'ℹ️'} RA {'reconocido' if ra_recognized else 'no encontrado'}"
+            )
+            self.console.print(Panel(body, border_style="green" if link_ok else "yellow", expand=False))
 
             webbrowser.open(download_url)
             return True
 
         except Exception as e:
-            self.console.print(f"[bold red]Error al abrir en el navegador: {e}[/bold red]")
+            self.console.print(f"[bold red]❌ Error al abrir en el navegador: {e}[/bold red]")
             return False
 
 
@@ -65,17 +61,21 @@ class BatchDownloadCommand(DownloadCommand):
             command = OpenInBrowserCommand(game)
             if command.execute():
                 success_count += 1
-                self.console.print(f"✅ {game.name} procesado exitosamente")
             else:
                 self.missing_games.append(game.name)
-                self.console.print(f"❌ Error procesando {game.name}")
+                self.console.print(f"[bold red]❌ Error procesando {game.name}[/bold red]")
 
         # Guardar juegos faltantes si los hay
         if self.missing_games:
             self._save_missing_games()
 
+        summary_style = "green" if success_count == len(self.games) else "yellow"
         self.console.print(
-            f"[bold green]Proceso completado: {success_count}/{len(self.games)} juegos procesados[/bold green]"
+            Panel(
+                f"[bold]{success_count}/{len(self.games)}[/bold] juegos procesados",
+                border_style=summary_style,
+                expand=False,
+            )
         )
 
         return success_count > 0
@@ -93,9 +93,9 @@ class BatchDownloadCommand(DownloadCommand):
 
             with open(filename, "w", encoding="utf-8") as f:
                 f.write("\n".join(self.missing_games) + "\n")
-            self.console.print(f"[bold yellow]Lista de juegos faltantes guardada en {filename}[/bold yellow]")
+            self.console.print(f"[bold yellow]⚠️  Lista de juegos faltantes guardada en {filename}[/bold yellow]")
         except Exception as e:
-            self.console.print(f"[bold red]Error guardando lista de juegos faltantes: {e}[/bold red]")
+            self.console.print(f"[bold red]❌ Error guardando lista de juegos faltantes: {e}[/bold red]")
 
 
 class DisplayURLCommand(DownloadCommand):
@@ -110,10 +110,10 @@ class DisplayURLCommand(DownloadCommand):
         try:
             download_url = URLGeneratorFactory.generate_url(self.game_info.rom_path)
 
-            self.console.print(f"Hash encontrado. La URL de descarga es: {download_url}", style="bold green")
+            self.console.print(f"[bold green]✅ {self.game_info.name}:[/bold green] [dim]{download_url}[/dim]")
 
             return True
 
         except Exception as e:
-            self.console.print(f"[bold red]Error generando URL: {e}[/bold red]")
+            self.console.print(f"[bold red]❌ Error generando URL: {e}[/bold red]")
             return False

@@ -75,24 +75,45 @@ python console/Console_mode.py
 python console/want_to_play.py
 ```
 
+> 💡 Estos comandos funcionan igual si los corrés desde la raíz del repo (como arriba) o si entrás a `console/` y corrés `python main.py`: todas las rutas de archivos (`.env`, `game_hashes.json`, `Data/...`) se resuelven relativas a la raíz del proyecto (ver `config.py`), nunca a la carpeta desde la que lanzás el script. Eso sí, el **archivo `.env` en sí siempre va en la raíz** — no dentro de `console/`.
+
+#### Cambiar de modo sin reiniciar
+
+No hace falta elegir un modo y quedarte ahí: tanto la búsqueda por hash como la lista de deseos tienen una salida para pasar al otro modo sin cerrar la app.
+
+- **Búsqueda por hash**: en el prompt del hash, escribí `M` para cambiar de modo o `S` para salir.
+- **Lista de deseos**: en el menú de consola/juego, las últimas dos opciones numeradas son siempre "Cambiar de modo" y "Salir" — y después de descargar un juego, el menú vuelve a aparecer en vez de cerrar la app.
+
 #### Ejemplo de Uso
 ```bash
 $ python console/main.py
 
-🎮 RetroAchievements Downloader
+┌─────────────────────────────────┐
+│ 🎮 RetroAchievements Downloader │
+└─────────────────────────────────┘
 
-Seleccione el modo de operación:
-1. Búsqueda directa por hash
-2. Lista de deseos (Want to Play)
+Seleccioná el modo de operación:
+  1. Búsqueda directa por hash
+  2. Lista de deseos (Want to Play)
 
-Ingrese el número del modo que desea usar [1]: 1
+  → [1/2] (1): 1
 
-¡Bienvenido a RetroAchievements Downloader!
-Modo: Búsqueda directa por hash
+┌─────────────────────────────────┐
+│ 🎮 RetroAchievements Downloader │
+│ Búsqueda directa por hash       │
+└─────────────────────────────────┘
 
-Por favor, ingresa el hash que deseas buscar: ABC123DEF456
-Hash encontrado. La URL de descarga es: https://archive.org/...
-Abriendo URL en el navegador...
+🔎 Hash a buscar (M: cambiar de modo, S: salir): ABC123DEF456
+
+┌─────────────────────────────────────────────┐
+│ Super Mario World (SNES)                     │
+│ https://archive.org/download/...             │
+│                                               │
+│ ✅ Descarga verificada   ✅ RA reconocido     │
+└─────────────────────────────────────────────┘
+
+🔎 Hash a buscar (M: cambiar de modo, S: salir): S
+👋 Saliendo...
 ```
 ## 📌 Requisitos
 
@@ -160,13 +181,15 @@ El modo "Want to Play" puede requerir credenciales de RetroAchievements para gen
 #### ⚙️ **Configurar las credenciales:**
 
 ```bash
-# 1. Copia el archivo de ejemplo
+# 1. Copia el archivo de ejemplo (corré esto desde la raíz del repo)
 cp ejemplo.env .env
 
 # 2. Edita .env con tus credenciales
 API_KEY=tu_api_key_de_retroachievements_aqui
 RETROACHIEVEMENTS_USERNAME=tu_nombre_de_usuario_de_retroachievements
 ```
+
+> `.env` siempre va en la **raíz del repo** (al lado de `ejemplo.env` y `config.py`), nunca dentro de `console/` o `scripts/` — no importa desde qué carpeta corras los scripts después, todos buscan `.env` ahí.
 
 #### 📋 **Ejemplo de archivo .env:**
 

@@ -35,22 +35,30 @@ class RetroAchievementsDownloader:
             self.search_strategy = WantToPlaySearchStrategy()
 
     def run(self):
-        """Ejecuta la aplicación en el modo configurado."""
-        self.ui_helper.display_welcome_message("RetroAchievements Downloader")
+        """Ejecuta la aplicación, cambiando de modo cuando el usuario lo pide."""
+        while True:
+            mode_label = (
+                "Búsqueda directa por hash" if self.mode == AppMode.DIRECT_HASH else "Lista de deseos (Want to Play)"
+            )
+            self.ui_helper.display_welcome_message("RetroAchievements Downloader", mode_label)
 
-        if self.mode == AppMode.DIRECT_HASH:
-            self._run_direct_hash_mode()
-        elif self.mode == AppMode.WANT_TO_PLAY:
-            self._run_want_to_play_mode()
+            if self.mode == AppMode.DIRECT_HASH:
+                result = self._run_direct_hash_mode()
+            else:
+                result = self._run_want_to_play_mode()
 
-    def _run_direct_hash_mode(self):
-        """Ejecuta el modo de búsqueda directa por hash."""
-        self.ui_helper.display_info_message("Modo: Búsqueda directa por hash")
+            if result == "cambiar":
+                other_mode = AppMode.WANT_TO_PLAY if self.mode == AppMode.DIRECT_HASH else AppMode.DIRECT_HASH
+                self.set_mode(other_mode)
+                continue
+            break
 
+    def _run_direct_hash_mode(self) -> str:
+        """Ejecuta el modo de búsqueda directa por hash. Devuelve 'cambiar' o 'salir'."""
         while True:
             hash_value = self.ui_helper.get_hash_input()
-            if hash_value is None:  # Usuario eligió salir
-                break
+            if hash_value in ("salir", "cambiar"):
+                return hash_value
 
             if not ValidationHelper.is_valid_hash(hash_value):
                 self.ui_helper.display_error_message(
@@ -66,37 +74,36 @@ class RetroAchievementsDownloader:
             else:
                 self.ui_helper.display_error_message(f"Hash {hash_value} no encontrado en el archivo JSON.")
 
-    def _run_want_to_play_mode(self):
-        """Ejecuta el modo de lista de deseos."""
-        self.ui_helper.display_info_message("Modo: Lista de deseos")
-
+    def _run_want_to_play_mode(self) -> str:
+        """Ejecuta el modo de lista de deseos. Devuelve 'cambiar' o 'salir'."""
         strategy = self.search_strategy
 
-        # Seleccionar consola
-        consoles = strategy.get_available_consoles()
-        if not consoles:
-            self.ui_helper.display_error_message("No se encontraron consolas en la lista de deseos.")
-            return
+        while True:
+            # Seleccionar consola
+            consoles = strategy.get_available_consoles()
+            if not consoles:
+                self.ui_helper.display_error_message("No se encontraron consolas en la lista de deseos.")
+                return "salir"
 
-        selected_console = self.ui_helper.select_from_list(consoles, "una consola")
-        if not selected_console:
-            return
+            selected_console = self.ui_helper.select_from_list(consoles, "una consola")
+            if selected_console in (None, "salir", "cambiar"):
+                return selected_console or "salir"
 
-        # Seleccionar juego(s)
-        games = strategy.get_games_for_console(selected_console)
-        if not games:
-            self.ui_helper.display_error_message(f"No se encontraron juegos para {selected_console}.")
-            return
+            # Seleccionar juego(s)
+            games = strategy.get_games_for_console(selected_console)
+            if not games:
+                self.ui_helper.display_error_message(f"No se encontraron juegos para {selected_console}.")
+                continue
 
-        selected_game = self.ui_helper.select_from_list(games, "un juego", allow_all=True)
-        if not selected_game:
-            return
+            selected_game = self.ui_helper.select_from_list(games, "un juego", allow_all=True)
+            if selected_game in (None, "salir", "cambiar"):
+                return selected_game or "salir"
 
-        # Procesar selección
-        if selected_game == "todos":
-            self._process_all_games(games)
-        else:
-            self._process_single_game(selected_game)
+            # Procesar selección
+            if selected_game == "todos":
+                self._process_all_games(games)
+            else:
+                self._process_single_game(selected_game)
 
     def _process_single_game(self, game_name: str):
         """Procesa un solo juego."""
