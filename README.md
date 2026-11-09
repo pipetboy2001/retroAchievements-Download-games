@@ -46,7 +46,7 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 
 ### Versión de Consola
 - **Modo Unificado**: `python main.py` - Permite elegir entre búsqueda directa o lista de deseos
-- **Modo Hash Directo**: `python console_mode.py` - Búsqueda directa por hash
+- **Modo Hash Directo**: `python Console_mode.py` - Búsqueda directa por hash
 - **Modo Lista de Deseos**: `python want_to_play.py` - Descarga desde tu lista "Want to Play"
 
 ## 🎯 Cómo Utilizar
@@ -69,7 +69,7 @@ Te permite elegir entre búsqueda directa por hash o lista de deseos.
 #### Opción 2: Modos Específicos
 ```bash
 # Búsqueda directa por hash
-python console_mode.py
+python Console_mode.py
 
 # Lista de deseos
 python want_to_play.py
@@ -117,7 +117,7 @@ RetroArchivement-Download-games/
 ├── 📁 api/                    # Backend Flask (Vercel)
 ├── 📁 web/                    # Frontend Next.js/TS (Vercel)
 ├── 📄 main.py                 # Punto de entrada unificado
-├── 📄 console_mode.py         # Modo hash directo
+├── 📄 Console_mode.py         # Modo hash directo
 ├── 📄 want_to_play.py         # Modo lista de deseos
 ├── 📄 sync_want_to_play.py    # Genera game_hashes.json desde la API de RA
 ├── 📄 config.py               # Configuraciones centralizadas
