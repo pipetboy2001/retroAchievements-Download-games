@@ -226,6 +226,10 @@ Este proyecto está basado en el archivo JSON de **RetroAchievements** disponibl
 
 Consulta también la página de **[FAQ y Aviso legal](/faq)** para más detalles (en la versión desplegada, la encontrarás en el pie de página como "FAQ y Aviso legal").
 
+## 📄 Licencia
+
+Este proyecto está licenciado bajo la [Licencia MIT](LICENSE).
+
 ## 🤝 Contribuciones
 
 Este proyecto es de **código abierto** y cualquier contribución es bienvenida. Si deseas participar:
