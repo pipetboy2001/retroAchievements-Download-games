@@ -3,8 +3,15 @@ RetroAchievements Downloader - Aplicación unificada.
 Permite elegir entre modo hash directo o lista de deseos.
 """
 
+import os
+import sys
+
 from rich.console import Console
 from rich.prompt import Prompt
+
+# Permite importar src/ y config.py desde la raiz del repo cuando este
+# script corre desde console/.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.app import AppMode, RetroAchievementsDownloader
 

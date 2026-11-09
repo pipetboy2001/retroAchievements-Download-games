@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Python tool to find download URLs for RetroAchievements-compatible ROMs on archive.org, given a RetroAchievements hash. Three surfaces:
 
-- **Console app** (`main.py`, `Console_mode.py`, `want_to_play.py`) — layered OOP app under `src/`.
+- **Console app** (`console/main.py`, `console/Console_mode.py`, `console/want_to_play.py`) — layered OOP app under `src/`.
 - **Web backend** (`api/index.py`) — Flask, deployed to Vercel as the `api` service (`vercel.json`, Vercel Services model). Exposes only the JSON endpoints (`/api/games`, `/get_game_versions`, `/dl`, `/search`) consumed by the Next.js frontend — no server-rendered pages reachable in production.
 - **Web frontend** (`web/`) — Next.js/TypeScript, deployed as the `web` service, owns the catch-all route (`vercel.json`'s `/(.*) → web` is last/default; explicit entries route the 4 JSON endpoints above to `api` first).
 
@@ -19,9 +19,9 @@ pip install -r requirements.txt
 npm install              # root devDependencies (concurrently) for the dev scripts below
 cd web && npm install     # Next.js deps
 
-python main.py            # unified console entry point, prompts for mode
-python Console_mode.py    # direct hash search only (no credentials needed)
-python want_to_play.py    # "want to play" list mode (needs .env, see below)
+python console/main.py            # unified console entry point, prompts for mode
+python console/Console_mode.py    # direct hash search only (no credentials needed)
+python console/want_to_play.py    # "want to play" list mode (needs .env, see below)
 
 npm run dev:api           # Flask alone, http://localhost:5000
 npm run dev:web           # Next.js alone, http://localhost:3000 (proxies /api/*, /get_game_versions, /dl to :5000 in dev — see web/next.config.ts)

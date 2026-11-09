@@ -45,9 +45,9 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 - **Descripción**: Catálogo navegable con carrito y descarga en lote, más búsqueda directa por hash (ver capturas arriba)
 
 ### Versión de Consola
-- **Modo Unificado**: `python main.py` - Permite elegir entre búsqueda directa o lista de deseos
-- **Modo Hash Directo**: `python Console_mode.py` - Búsqueda directa por hash
-- **Modo Lista de Deseos**: `python want_to_play.py` - Descarga desde tu lista "Want to Play"
+- **Modo Unificado**: `python console/main.py` - Permite elegir entre búsqueda directa o lista de deseos
+- **Modo Hash Directo**: `python console/Console_mode.py` - Búsqueda directa por hash
+- **Modo Lista de Deseos**: `python console/want_to_play.py` - Descarga desde tu lista "Want to Play"
 
 ## 🎯 Cómo Utilizar
 
@@ -62,22 +62,22 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 
 #### Opción 1: Modo Unificado (Recomendado)
 ```bash
-python main.py
+python console/main.py
 ```
 Te permite elegir entre búsqueda directa por hash o lista de deseos.
 
 #### Opción 2: Modos Específicos
 ```bash
 # Búsqueda directa por hash
-python Console_mode.py
+python console/Console_mode.py
 
 # Lista de deseos
-python want_to_play.py
+python console/want_to_play.py
 ```
 
 #### Ejemplo de Uso
 ```bash
-$ python main.py
+$ python console/main.py
 
 🎮 RetroAchievements Downloader
 
@@ -117,9 +117,10 @@ RetroArchivement-Download-games/
 ├── 📁 api/                    # Backend Flask (Vercel)
 ├── 📁 web/                    # Frontend Next.js/TS (Vercel)
 ├── 📁 scripts/                # Scripts de mantenimiento (sync_*.py, check_sources_health.py)
-├── 📄 main.py                 # Punto de entrada unificado
-├── 📄 Console_mode.py         # Modo hash directo
-├── 📄 want_to_play.py         # Modo lista de deseos
+├── 📁 console/                 # Entry points de la versión consola
+│   ├── 📄 main.py              # Punto de entrada unificado
+│   ├── 📄 Console_mode.py      # Modo hash directo
+│   └── 📄 want_to_play.py      # Modo lista de deseos
 ├── 📄 config.py               # Configuraciones centralizadas
 ├── 📄 game_hashes.json        # Lista de juegos deseados
 ├── 📄 .env                    # Variables de entorno
