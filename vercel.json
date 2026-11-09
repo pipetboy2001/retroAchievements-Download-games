@@ -10,10 +10,7 @@
     { "source": "/api/:path*", "destination": { "service": "api" } },
     { "source": "/dl", "destination": { "service": "api" } },
     { "source": "/get_game_versions", "destination": { "service": "api" } },
-    { "source": "/search_games", "destination": { "service": "api" } },
     { "source": "/search", "destination": { "service": "api" } },
-    { "source": "/open_browser", "destination": { "service": "api" } },
-    { "source": "/static/:path*", "destination": { "service": "api" } },
     { "source": "/(.*)", "destination": { "service": "web" } }
   ]
 }

@@ -5,7 +5,7 @@ una consola cae por debajo del umbral, se asume que la fuente murio (no es
 ruido de 1-2 archivos sueltos rotos).
 
 Uso:
-    python check_sources_health.py [--sample-size 15] [--threshold 0.5]
+    python scripts/check_sources_health.py [--sample-size 15] [--threshold 0.5]
 
 Escribe el reporte en sources_health_report.md y sale con status 1 si
 alguna consola quedo por debajo del umbral (asi el workflow de GitHub
@@ -13,6 +13,12 @@ Actions se entera y dispara la alerta).
 """
 
 import argparse
+import os
+import sys
+
+# Permite importar src/ y config.py desde la raiz del repo cuando este
+# script corre desde scripts/.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.core.source_health import run
 

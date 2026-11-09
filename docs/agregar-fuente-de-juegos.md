@@ -75,10 +75,10 @@ python -m src.core.rom_info
 
 ## Paso 5: imágenes y logros (metadata)
 
-Las carátulas/logros que se ven en `/` vienen de `Data/retroachievements_metadata.json`, generado por `sync_games_metadata.py` -- **no se actualiza solo**, hay que correrlo después de tocar el dataset:
+Las carátulas/logros que se ven en `/` vienen de `Data/retroachievements_metadata.json`, generado por `scripts/sync_games_metadata.py` -- **no se actualiza solo**, hay que correrlo después de tocar el dataset:
 
 ```bash
-python sync_games_metadata.py
+python scripts/sync_games_metadata.py
 ```
 
 Matchea por nombre de consola normalizado contra el `Name` real de RA. Si tu consola nueva no matchea sola (ej. `WiiWare` vs `Wii` en RA -- no son el mismo string ni normalizado), agregala a `MANUAL_CONSOLE_ALIASES` en `src/core/games_metadata_sync.py`:
@@ -111,5 +111,5 @@ Y corré los smoke checks existentes para confirmar que no rompiste nada: `pytho
 Es normal terminar con más de un repositorio para la misma consola a lo largo del tiempo (la colección vieja `v5`, un item nuevo que cubre huecos, etc.). No hace falta unificarlos:
 
 - Si los juegos nuevos **no se superponen** con los que ya tenés (otro GameID), simplemente agregá sus hashes al dataset con su propio `rom_path` y, si la URL no sigue el patrón de un generador existente, sumá uno nuevo (Paso 4). Los juegos viejos siguen resolviendo con su generador de siempre -- no se tocan.
-- Si hay **overlap** (mismo juego, misma fuente mejor/viva), ahí sí conviene un resync tipo `sync_source.py` (ver ese script) que reemplaza la URL de origen sin tocar el hash.
+- Si hay **overlap** (mismo juego, misma fuente mejor/viva), ahí sí conviene un resync tipo `scripts/sync_source.py` (ver ese script) que reemplaza la URL de origen sin tocar el hash.
 - Si dos fuentes de la *misma consola nominal* terminan siendo cosas conceptualmente distintas (ej. Wii discos vs WiiWare descargable), separalos en roots distintos (`Wii` vs `WiiWare`) en vez de forzarlos a convivir bajo el mismo nombre -- así cada uno puede tener su propio `URLGenerator` y no hay ambigüedad en `get_console_from_rom_path`.

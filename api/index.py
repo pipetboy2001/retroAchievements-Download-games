@@ -1,9 +1,8 @@
 import os
 import sys
-import webbrowser
 from html import escape
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request
 
 # Permite importar el paquete src/ (core de dominio compartido con la app de
 # consola) cuando este archivo corre como función serverless en Vercel.
@@ -15,7 +14,6 @@ from src.core.rom_info import analyze_rom_info, extract_game_name, get_console_f
 from src.factories.url_factory import URLGeneratorFactory
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # Necesario para usar flash
 
 # Ruta al archivo JSON local
 JSON_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Data", "TamperMonkeyRetroachievements.json")
@@ -23,8 +21,8 @@ RA_METADATA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Dat
 
 data_manager = RetroAchievementsDataManager(json_file_path=JSON_FILE_PATH)
 cached_games_index = None  # Índice cacheado para listados
-cached_ra_metadata = None  # {game_id: {id, title, image_icon, achievements}}, generado por sync_games_metadata.py
-cached_console_icons = None  # {nombre_canonico_consola: icon_url}, generado por sync_games_metadata.py
+cached_ra_metadata = None  # {game_id: {id, title, image_icon, achievements}}, gen. por scripts/sync_games_metadata.py
+cached_console_icons = None  # {nombre_canonico_consola: icon_url}, generado por scripts/sync_games_metadata.py
 
 
 # Cargar el archivo JSON local
@@ -34,7 +32,7 @@ def load_json_file():
 
 def load_ra_metadata():
     """Carga Data/retroachievements_metadata.json (titulos/caratulas/logros reales).
-    Si no existe todavia (no se corrio sync_games_metadata.py), /games sigue
+    Si no existe todavia (no se corrio scripts/sync_games_metadata.py), /games sigue
     funcionando sin esos datos."""
     global cached_ra_metadata
     if cached_ra_metadata is None:
@@ -50,7 +48,7 @@ def load_ra_metadata():
 
 def load_console_icons():
     """Carga el mapa de iconos por consola (mismo archivo que load_ra_metadata,
-    generado por sync_games_metadata.py). Degrada a {} si no existe todavia."""
+    generado por scripts/sync_games_metadata.py). Degrada a {} si no existe todavia."""
     global cached_console_icons
     if cached_console_icons is None:
         try:
@@ -111,46 +109,6 @@ def build_games_index():
     return cached_games_index
 
 
-# Función para buscar juegos por nombre (mejorada con múltiples versiones)
-def search_games_by_name(json_data, search_term):
-    search_term = search_term.lower()
-    matching_games = []
-
-    for game_id, hash_list in json_data.items():
-        if len(matching_games) >= 10:  # Limitar a 10 juegos diferentes
-            break
-
-        for item in hash_list:
-            versions = []
-            game_name = None
-
-            for hash_key, rom_path in item.items():
-                current_game_name = extract_game_name(rom_path)
-                if not game_name:
-                    game_name = current_game_name
-
-                if search_term in current_game_name.lower():
-                    rom_info = analyze_rom_info(rom_path)
-                    versions.append({"hash": hash_key, "rom_path": rom_path, "info": rom_info})
-
-            if versions and game_name:
-                # Ordenar versiones por prioridad
-                versions.sort(key=lambda x: x["info"]["priority"])
-
-                matching_games.append(
-                    {
-                        "id": game_id,
-                        "name": game_name,
-                        "versions": versions,
-                        "primary_version": versions[0],  # La versión de mayor prioridad
-                        "total_versions": len(versions),
-                    }
-                )
-                break  # Solo tomar el primer resultado por juego
-
-    return matching_games[:10]  # Asegurar que no se excedan 10 resultados
-
-
 # Función para buscar por hash
 def find_hash_in_json(json_data, hash_value):
     return data_manager.find_hash(hash_value)
@@ -159,13 +117,6 @@ def find_hash_in_json(json_data, hash_value):
 # Función para obtener la URL de descarga
 def get_download_url(rom_path: str) -> str:
     return URLGeneratorFactory.generate_url(rom_path)
-
-
-@app.route("/")
-def index():
-    json_data = load_json_file()
-    total_games = count_total_games(json_data) if json_data else 0
-    return render_template("index.html", total_games=total_games)
 
 
 # Consolas disponibles y conteos (usado por /api/games)
@@ -251,31 +202,6 @@ def get_game_versions():
         return {"success": False, "versions": []}
 
 
-@app.route("/search_games", methods=["POST"])
-def search_games():
-    search_term = request.form.get("search_term", "")
-    json_data = load_json_file()
-
-    if json_data and search_term:
-        matching_games = search_games_by_name(json_data, search_term)
-        # Simplificar para el frontend
-        simplified_games = []
-        for game in matching_games:
-            simplified_games.append(
-                {
-                    "id": game["id"],
-                    "name": game["name"],
-                    "hash": game["primary_version"]["hash"],
-                    "rom_path": game["primary_version"]["rom_path"],
-                    "total_versions": game["total_versions"],
-                    "primary_info": game["primary_version"]["info"],
-                }
-            )
-        return {"success": True, "games": simplified_games}
-    else:
-        return {"success": False, "games": []}
-
-
 @app.route("/search", methods=["POST"])
 def search():
     search_term = request.form["search_term"]
@@ -298,14 +224,6 @@ def search():
             return {"success": False, "message": message}, 404
     else:
         return {"success": False, "message": "Error al cargar el archivo JSON local."}, 500
-
-
-@app.route("/open_browser", methods=["POST"])
-def open_browser(download_url):
-    print(f"Abrir el navegador con la URL: {download_url}")  # Log de apertura
-    webbrowser.open(download_url)
-    flash("El juego se está descargando...", "success")  # Mensaje de éxito al abrir el navegador
-    return redirect(url_for("index"))
 
 
 @app.errorhandler(404)

@@ -45,9 +45,9 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 - **Descripción**: Catálogo navegable con carrito y descarga en lote, más búsqueda directa por hash (ver capturas arriba)
 
 ### Versión de Consola
-- **Modo Unificado**: `python main.py` - Permite elegir entre búsqueda directa o lista de deseos
-- **Modo Hash Directo**: `python console_mode.py` - Búsqueda directa por hash
-- **Modo Lista de Deseos**: `python want_to_play.py` - Descarga desde tu lista "Want to Play"
+- **Modo Unificado**: `python console/main.py` - Permite elegir entre búsqueda directa o lista de deseos
+- **Modo Hash Directo**: `python console/Console_mode.py` - Búsqueda directa por hash
+- **Modo Lista de Deseos**: `python console/want_to_play.py` - Descarga desde tu lista "Want to Play"
 
 ## 🎯 Cómo Utilizar
 
@@ -62,22 +62,22 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 
 #### Opción 1: Modo Unificado (Recomendado)
 ```bash
-python main.py
+python console/main.py
 ```
 Te permite elegir entre búsqueda directa por hash o lista de deseos.
 
 #### Opción 2: Modos Específicos
 ```bash
 # Búsqueda directa por hash
-python console_mode.py
+python console/Console_mode.py
 
 # Lista de deseos
-python want_to_play.py
+python console/want_to_play.py
 ```
 
 #### Ejemplo de Uso
 ```bash
-$ python main.py
+$ python console/main.py
 
 🎮 RetroAchievements Downloader
 
@@ -116,10 +116,11 @@ RetroArchivement-Download-games/
 ├── 📁 Data/                   # Datos JSON principales
 ├── 📁 api/                    # Backend Flask (Vercel)
 ├── 📁 web/                    # Frontend Next.js/TS (Vercel)
-├── 📄 main.py                 # Punto de entrada unificado
-├── 📄 console_mode.py         # Modo hash directo
-├── 📄 want_to_play.py         # Modo lista de deseos
-├── 📄 sync_want_to_play.py    # Genera game_hashes.json desde la API de RA
+├── 📁 scripts/                # Scripts de mantenimiento (sync_*.py, check_sources_health.py)
+├── 📁 console/                 # Entry points de la versión consola
+│   ├── 📄 main.py              # Punto de entrada unificado
+│   ├── 📄 Console_mode.py      # Modo hash directo
+│   └── 📄 want_to_play.py      # Modo lista de deseos
 ├── 📄 config.py               # Configuraciones centralizadas
 ├── 📄 game_hashes.json        # Lista de juegos deseados
 ├── 📄 .env                    # Variables de entorno
@@ -134,13 +135,13 @@ Asegúrate de que existe `Data/TamperMonkeyRetroachievements.json` con los hashe
 
 ### Lista de deseos
 Para usar el modo "Want to Play":
-1. **Archivo de juegos**: `game_hashes.json` con tus juegos deseados — se genera automáticamente con `python sync_want_to_play.py` (ver abajo), o se puede armar a mano.
+1. **Archivo de juegos**: `game_hashes.json` con tus juegos deseados — se genera automáticamente con `python scripts/sync_want_to_play.py` (ver abajo), o se puede armar a mano.
 2. **Variables de entorno**: Configura `.env` con tu API Key de RetroAchievements
 
 #### Generar game_hashes.json automáticamente
 
 ```bash
-python sync_want_to_play.py
+python scripts/sync_want_to_play.py
 ```
 
 Trae tu lista real de "Want to Play" desde la API de RetroAchievements, cruza cada hash contra `Data/TamperMonkeyRetroachievements.json` para quedarse solo con los que sí se pueden descargar, y sobreescribe `game_hashes.json`. Requiere `API_KEY` y `RETROACHIEVEMENTS_USERNAME` en `.env`.
