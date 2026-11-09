@@ -12,6 +12,7 @@ y el archivo real -- confirmado con GameCube: ~20% de los matches reales
 tenian nombre distinto) se obtiene el hash de RA con la misma certeza que
 si lo hubieramos hasheado nosotros.
 """
+
 import json
 import os
 import xml.etree.ElementTree as ET
@@ -70,7 +71,9 @@ class DatArchiveSync:
     """Orquesta el alta de una consola en Data/TamperMonkeyRetroachievements.json
     a partir de un .dat de UGA_RA_DATs y un item de archive.org."""
 
-    def __init__(self, dat_url: str, archive_item: str, console_folder: str, extensions: Iterable[str], missing_file: str):
+    def __init__(
+        self, dat_url: str, archive_item: str, console_folder: str, extensions: Iterable[str], missing_file: str
+    ):
         self.dat_url = dat_url
         self.archive_item = archive_item
         self.console_folder = console_folder
@@ -128,8 +131,14 @@ class DatArchiveSync:
 
         unmatched_archive = len(archive_files) - len(matched_md5s)
         print(f"Agregados: {len(matched_by_game)} juegos, {added_hashes} hashes nuevos.")
-        print(f"No encontrados en {self.archive_item} (RA los reconoce, falta el archivo): {len(missing)} -> {self.missing_file}")
-        print(f"Archivos del item sin match en el .dat (hacks/subsets no reconocidos por RA, se ignoran): {unmatched_archive}")
+        print(
+            f"No encontrados en {self.archive_item} (RA los reconoce, falta el archivo): "
+            f"{len(missing)} -> {self.missing_file}"
+        )
+        print(
+            "Archivos del item sin match en el .dat (hacks/subsets no reconocidos por RA, se ignoran): "
+            f"{unmatched_archive}"
+        )
 
 
 if __name__ == "__main__":

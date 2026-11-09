@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { useLocale } from "./useLocale";
 
@@ -8,11 +8,7 @@ const STORAGE_KEY = "ra-downloader-notice-seen";
 
 export default function NoticeModal() {
   const { t } = useLocale();
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!sessionStorage.getItem(STORAGE_KEY)) setOpen(true);
-  }, []);
+  const [open, setOpen] = useState(() => typeof window !== "undefined" && !sessionStorage.getItem(STORAGE_KEY));
 
   function dismiss() {
     sessionStorage.setItem(STORAGE_KEY, "1");
