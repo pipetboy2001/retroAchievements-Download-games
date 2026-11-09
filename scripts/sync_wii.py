@@ -5,8 +5,15 @@ sin descargar ningun juego (matchea por MD5, no por nombre -- ver
 src/core/dat_archive_sync.py).
 
 Uso:
-    python sync_wii.py
+    python scripts/sync_wii.py
 """
+
+import os
+import sys
+
+# Permite importar src/ y config.py desde la raiz del repo cuando este
+# script corre desde scripts/.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.core.wii_sync import WiiSync
 

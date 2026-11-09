@@ -116,10 +116,10 @@ RetroArchivement-Download-games/
 ├── 📁 Data/                   # Datos JSON principales
 ├── 📁 api/                    # Backend Flask (Vercel)
 ├── 📁 web/                    # Frontend Next.js/TS (Vercel)
+├── 📁 scripts/                # Scripts de mantenimiento (sync_*.py, check_sources_health.py)
 ├── 📄 main.py                 # Punto de entrada unificado
 ├── 📄 Console_mode.py         # Modo hash directo
 ├── 📄 want_to_play.py         # Modo lista de deseos
-├── 📄 sync_want_to_play.py    # Genera game_hashes.json desde la API de RA
 ├── 📄 config.py               # Configuraciones centralizadas
 ├── 📄 game_hashes.json        # Lista de juegos deseados
 ├── 📄 .env                    # Variables de entorno
@@ -134,13 +134,13 @@ Asegúrate de que existe `Data/TamperMonkeyRetroachievements.json` con los hashe
 
 ### Lista de deseos
 Para usar el modo "Want to Play":
-1. **Archivo de juegos**: `game_hashes.json` con tus juegos deseados — se genera automáticamente con `python sync_want_to_play.py` (ver abajo), o se puede armar a mano.
+1. **Archivo de juegos**: `game_hashes.json` con tus juegos deseados — se genera automáticamente con `python scripts/sync_want_to_play.py` (ver abajo), o se puede armar a mano.
 2. **Variables de entorno**: Configura `.env` con tu API Key de RetroAchievements
 
 #### Generar game_hashes.json automáticamente
 
 ```bash
-python sync_want_to_play.py
+python scripts/sync_want_to_play.py
 ```
 
 Trae tu lista real de "Want to Play" desde la API de RetroAchievements, cruza cada hash contra `Data/TamperMonkeyRetroachievements.json` para quedarse solo con los que sí se pueden descargar, y sobreescribe `game_hashes.json`. Requiere `API_KEY` y `RETROACHIEVEMENTS_USERNAME` en `.env`.

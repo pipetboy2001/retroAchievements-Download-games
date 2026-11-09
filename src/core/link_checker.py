@@ -31,7 +31,7 @@ def is_download_url_reachable(url: str) -> bool:
 
 def is_hash_recognized_by_ra(hash_value: str) -> bool:
     """True si el hash aparece en el set de hashes que RA reconoce
-    (generado por sync_games_metadata.py). Si el archivo no existe
+    (generado por scripts/sync_games_metadata.py). Si el archivo no existe
     todavia, devuelve False en vez de romper."""
     global _recognized_hashes
     if _recognized_hashes is None:

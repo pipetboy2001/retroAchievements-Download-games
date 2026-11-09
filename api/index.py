@@ -21,8 +21,8 @@ RA_METADATA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Dat
 
 data_manager = RetroAchievementsDataManager(json_file_path=JSON_FILE_PATH)
 cached_games_index = None  # Índice cacheado para listados
-cached_ra_metadata = None  # {game_id: {id, title, image_icon, achievements}}, generado por sync_games_metadata.py
-cached_console_icons = None  # {nombre_canonico_consola: icon_url}, generado por sync_games_metadata.py
+cached_ra_metadata = None  # {game_id: {id, title, image_icon, achievements}}, gen. por scripts/sync_games_metadata.py
+cached_console_icons = None  # {nombre_canonico_consola: icon_url}, generado por scripts/sync_games_metadata.py
 
 
 # Cargar el archivo JSON local
@@ -32,7 +32,7 @@ def load_json_file():
 
 def load_ra_metadata():
     """Carga Data/retroachievements_metadata.json (titulos/caratulas/logros reales).
-    Si no existe todavia (no se corrio sync_games_metadata.py), /games sigue
+    Si no existe todavia (no se corrio scripts/sync_games_metadata.py), /games sigue
     funcionando sin esos datos."""
     global cached_ra_metadata
     if cached_ra_metadata is None:
@@ -48,7 +48,7 @@ def load_ra_metadata():
 
 def load_console_icons():
     """Carga el mapa de iconos por consola (mismo archivo que load_ra_metadata,
-    generado por sync_games_metadata.py). Degrada a {} si no existe todavia."""
+    generado por scripts/sync_games_metadata.py). Degrada a {} si no existe todavia."""
     global cached_console_icons
     if cached_console_icons is None:
         try:

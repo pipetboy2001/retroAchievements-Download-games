@@ -1,7 +1,7 @@
 """
 Logica para el chequeo periodico de salud de las fuentes de descarga: por
 cada consola, toma una muestra al azar de ROMs y prueba si su URL real
-(la que generaria la app) responde. Separado de check_sources_health.py
+(la que generaria la app) responde. Separado de scripts/check_sources_health.py
 (el CLI) para poder testear la logica pura -- agrupacion y umbral -- sin
 pegarle a la red.
 """

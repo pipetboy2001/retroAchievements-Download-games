@@ -4,12 +4,18 @@ archive.org (cuando el item viejo murio). Genera Data/<label>_source_override.js
 y Data/<label>_missing_sources.txt.
 
 Uso:
-    python sync_source.py --console SNES --item retroachievementscompatibleromsSNES
-    python sync_source.py --console "TurboGrafx-16,PC Engine" \
+    python scripts/sync_source.py --console SNES --item retroachievementscompatibleromsSNES
+    python scripts/sync_source.py --console "TurboGrafx-16,PC Engine" \
         --item nec-pc-engine-roms-for-retroachievements --label pcengine --header-modulus 131072
 """
 
 import argparse
+import os
+import sys
+
+# Permite importar src/ y config.py desde la raiz del repo cuando este
+# script corre desde scripts/.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.core.source_resync import SourceResync
 

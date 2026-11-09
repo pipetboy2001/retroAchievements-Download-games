@@ -56,8 +56,8 @@ missing_games.txt
 game_hashes.json
 .env*
 
-# sync_source.py: cache de resumen (progreso intermedio, no el resultado final)
+# scripts/sync_source.py: cache de resumen (progreso intermedio, no el resultado final)
 Data/.*_hash_cache.json
 
-# check_sources_health.py: reporte de la corrida, se regenera cada vez (CI lo lee antes de que termine el job)
+# scripts/check_sources_health.py: reporte de la corrida, se regenera cada vez (CI lo lee antes de que termine el job)
 sources_health_report.md
