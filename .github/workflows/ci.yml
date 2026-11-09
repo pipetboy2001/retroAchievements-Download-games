@@ -25,7 +25,7 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix web
       - run: npm run lint --prefix web
-      - run: npx tsc --noEmit --project web/tsconfig.json
+      - run: npm run typecheck --prefix web
       - run: npm run build --prefix web
 
   api:
