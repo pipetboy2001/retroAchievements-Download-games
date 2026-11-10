@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 export interface RaAccount {
   username: string;
@@ -17,24 +17,10 @@ interface RaAccountContextValue {
 }
 
 const RaAccountContext = createContext<RaAccountContextValue | null>(null);
-const STORAGE_KEY = "ra-downloader-account";
 
 export function RaAccountProvider({ children }: { children: ReactNode }) {
-  const [account, setAccount] = useState<RaAccount | null>(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [account, setAccount] = useState<RaAccount | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (account) localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
-    else localStorage.removeItem(STORAGE_KEY);
-  }, [account]);
 
   function connect(username: string, apiKey: string) {
     setAccount({ username, apiKey });
