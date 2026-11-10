@@ -249,8 +249,10 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .gcard-trophy {
   position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 4px;
   padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; background: rgba(0,0,0,0.8);
-  color: var(--text); border: 1px solid var(--rule-strong);
+  color: var(--text); border: 1px solid var(--rule-strong); text-decoration: none; cursor: pointer;
+  transition: border-color 120ms ease-out, color 120ms ease-out;
 }
+.gcard-trophy:hover { border-color: var(--accent-border); color: var(--text-bright); }
 .gcard-trophy svg { color: var(--trophy); flex-shrink: 0; }
 
 .gcard-console {
@@ -291,7 +293,7 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .icon-btn:hover { border-color: var(--accent-border); color: var(--accent); }
 .icon-btn:active:not(:disabled) { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
-  .btn-primary, .btn-ghost, .icon-btn { transition: none; }
+  .btn-primary, .btn-ghost, .icon-btn, .gcard-trophy { transition: none; }
   .btn-primary:active:not(:disabled), .btn-ghost:active:not(:disabled), .icon-btn:active:not(:disabled) { transform: none; }
 }
 .icon-btn.in-cart { color: var(--accent); border-color: var(--accent-border); background: var(--accent-soft); }

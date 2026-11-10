@@ -72,9 +72,15 @@ export default function GameCard({ game }: { game: Game }) {
         )}
         <span className="gcard-console">{game.consoles.join(", ") || "?"}</span>
         {game.achievements != null && (
-          <span className="gcard-trophy">
+          <a
+            className="gcard-trophy"
+            href={`https://retroachievements.org/game/${game.id}`}
+            target="_blank"
+            rel="noopener"
+            title={t("gamecard.viewOnRa")}
+          >
             <TrophyIcon /> {game.achievements}
-          </span>
+          </a>
         )}
       </div>
 
