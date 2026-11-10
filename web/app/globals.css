@@ -297,6 +297,24 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 }
 .icon-btn.in-cart { color: var(--accent); border-color: var(--accent-border); background: var(--accent-soft); }
 .icon-pop { animation: icon-pop-in 280ms cubic-bezier(0.23, 1, 0.32, 1); }
+
+/* --- Skeletons (estado de carga) -- va después de las reglas de gcard,
+   btn-ghost e icon-btn para pisar su "background" propio con el shimmer,
+   sin necesidad de !important. */
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton {
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--raised) 25%, var(--rule-strong) 37%, var(--raised) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+.skel-line { height: 10px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
 @keyframes icon-pop-in {
   0% { transform: scale(0.5) rotate(-20deg); opacity: 0; }
   60% { transform: scale(1.15) rotate(4deg); opacity: 1; }

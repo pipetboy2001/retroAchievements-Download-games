@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ConsoleFilterDropdown from "./ConsoleFilterDropdown";
 import { COMPANY_ORDER, companyOf } from "./consoleCompanies";
 import GameCard from "./GameCard";
+import GameCardSkeleton from "./GameCardSkeleton";
 import { useCart } from "./CartContext";
 import { downloadGame } from "./download";
 import { BoltIcon, CheckIcon, SearchIcon } from "./icons";
@@ -15,6 +16,7 @@ import { useLocale } from "./useLocale";
 
 const PAGE_SIZES = [10, 20, 50, 100];
 const HASH_RE = /^[0-9a-f]{8,}$/i;
+const SKELETON_COUNT = 12;
 
 function Pager({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (page: number) => void }) {
   return (
@@ -63,6 +65,7 @@ export default function GamesView() {
   }, [searchParams]);
 
   const [items, setItems] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [consoles, setConsoles] = useState<ConsoleCount[]>([]);
@@ -90,6 +93,8 @@ export default function GamesView() {
     params.set("page", String(page));
     params.set("page_size", String(pageSize));
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marca el inicio del fetch que dispara este mismo efecto, no estado derivado de un render anterior
+    setLoading(true);
     fetch(`/api/games?${params.toString()}`)
       .then((res) => res.json() as Promise<GamesResponse>)
       .then((data) => {
@@ -97,7 +102,8 @@ export default function GamesView() {
         setTotal(data.total || 0);
         setTotalPages(data.total_pages || 1);
         setConsoles(data.consoles || []);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [q, consoleFilter, page, pageSize, isHash]);
 
   useEffect(() => {
@@ -262,7 +268,13 @@ export default function GamesView() {
             </div>
           </div>
 
-          {items.length === 0 ? (
+          {loading ? (
+            <div className="games-grid">
+              {Array.from({ length: Math.min(pageSize, SKELETON_COUNT) }).map((_, i) => (
+                <GameCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : items.length === 0 ? (
             <p className="empty-hint">{t("games.noResults")}</p>
           ) : (
             <>

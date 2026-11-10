@@ -13,6 +13,7 @@ export default function GameCard({ game }: { game: Game }) {
   const cart = useCart();
   const [versions, setVersions] = useState<Version[] | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,8 +56,17 @@ export default function GameCard({ game }: { game: Game }) {
     <div className="gcard">
       <div className="gcard-cover">
         {game.image_icon ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={game.image_icon} alt="" loading="lazy" />
+          <>
+            {!imgLoaded && <div className="skeleton" style={{ position: "absolute", inset: 0 }} />}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={game.image_icon}
+              alt=""
+              loading="lazy"
+              onLoad={() => setImgLoaded(true)}
+              style={{ opacity: imgLoaded ? 1 : 0, transition: "opacity 200ms ease-out" }}
+            />
+          </>
         ) : (
           <div className="placeholder" />
         )}
