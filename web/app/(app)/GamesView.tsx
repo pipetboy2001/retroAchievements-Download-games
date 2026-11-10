@@ -46,7 +46,7 @@ export default function GamesView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const cart = useCart();
-  const { account, openModal: openRaModal } = useRaAccount();
+  const { account } = useRaAccount();
   const { locale, t } = useLocale();
 
   const [input, setInput] = useState("");
@@ -129,6 +129,16 @@ export default function GamesView() {
   }, [wtpActive, account, t]);
 
   useEffect(() => {
+    // Si se desconecta la cuenta mientras el filtro está activo, el pill
+    // desaparece del pill-row -- sin esto no habría forma de volver al
+    // catálogo normal.
+    if (!account && wtpActive) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reacciona a que la cuenta (sistema externo) se desconectó, no a un render anterior
+      setWtpActive(false);
+    }
+  }, [account, wtpActive]);
+
+  useEffect(() => {
     if (!isHash) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- limpia el resultado de verificación anterior al salir del modo hash (sincroniza con el cambio de q/isHash)
       setVerify(null);
@@ -176,10 +186,6 @@ export default function GamesView() {
   }
 
   function toggleWtp() {
-    if (!account) {
-      openRaModal();
-      return;
-    }
     setWtpActive((prev) => !prev);
     setConsoleFilter("");
     setPage(1);
@@ -274,9 +280,11 @@ export default function GamesView() {
             >
               {t("dropdown.all")}
             </button>
-            <button type="button" className={`pill${wtpActive ? " active" : ""}`} onClick={toggleWtp}>
-              <HeartIcon /> {t("wtp.pill")}
-            </button>
+            {account && (
+              <button type="button" className={`pill${wtpActive ? " active" : ""}`} onClick={toggleWtp}>
+                <HeartIcon /> {t("wtp.pill")}
+              </button>
+            )}
             {consolesByCompany.map(({ company, consoles: companyConsoles }) => (
               <ConsoleFilterDropdown
                 key={company}

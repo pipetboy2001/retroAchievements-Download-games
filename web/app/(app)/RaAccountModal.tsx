@@ -58,13 +58,15 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
         </div>
         <div className="modal-body">
           {account ? (
-            <div className="soon-panel">
-              <UserIcon size={32} />
-              <h3>
-                {t("ra.connectedAs")} {account.username}
-              </h3>
-              {successMessage && <p>{successMessage}</p>}
-              <button type="button" className="btn-ghost" onClick={disconnect} style={{ marginTop: 12 }}>
+            <div className="ra-account-connected">
+              <div className="ra-account-avatar">
+                <UserIcon size={20} />
+              </div>
+              <div className="ra-account-name">
+                {t("ra.connectedAs")} <strong>{account.username}</strong>
+              </div>
+              {successMessage && <p className="ra-account-hint">{successMessage}</p>}
+              <button type="button" className="btn-ghost" onClick={disconnect}>
                 {t("ra.disconnect")}
               </button>
             </div>
