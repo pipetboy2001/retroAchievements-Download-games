@@ -1,8 +1,11 @@
 """
-Tests sobre POST /api/want_to_play (api/index.py) -- cruza la lista "Want
-to Play" de RetroAchievements del usuario contra el catálogo local por ID
-de juego. Mockea RetroAchievementsClient.get_want_to_play_list para no
-pegarle a la API real de RA.
+Tests sobre /api/ra/connect, /api/ra/disconnect, /api/ra/status y
+/api/want_to_play (api/index.py) -- cruzan la lista "Want to Play" de
+RetroAchievements del usuario contra el catálogo local por ID de juego,
+guardando la API Key en una sesión de servidor (cookie firmada + HttpOnly)
+en vez de devolverla o pedirla en cada request. Mockean
+RetroAchievementsClient.get_want_to_play_list para no pegarle a la API real
+de RA.
 """
 
 from unittest.mock import patch
@@ -32,25 +35,32 @@ _FAKE_CATALOG = [
 
 
 def _client():
+    # Un test_client por test mantiene su propia cookie jar -- simula un
+    # browser real a lo largo de varias requests (connect -> want_to_play).
     return api_module.app.test_client()
 
 
-def test_missing_params_returns_400():
-    resp = _client().post("/api/want_to_play", data={})
+def _connect(client, api_key="x", username="y", wtp_games=None):
+    with patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=wtp_games or []):
+        return client.post("/api/ra/connect", data={"api_key": api_key, "username": username})
+
+
+# --- /api/ra/connect --------------------------------------------------------
+
+
+def test_connect_missing_params_returns_400():
+    resp = _client().post("/api/ra/connect", data={})
     assert resp.status_code == 400
     assert resp.get_json()["success"] is False
 
 
-def test_ra_api_error_returns_502():
-    """El mensaje al cliente es genérico a propósito -- no debe filtrar el
-    texto interno de la excepción (ver app.logger.exception en api/index.py,
-    que sí registra el detalle del lado del servidor)."""
+def test_connect_ra_api_error_returns_502_without_leaking_detail():
     with patch.object(
         api_module.RetroAchievementsClient,
         "get_want_to_play_list",
         side_effect=api_module.RetroAchievementsAPIError("detalle interno sensible"),
     ):
-        resp = _client().post("/api/want_to_play", data={"api_key": "x", "username": "y"})
+        resp = _client().post("/api/ra/connect", data={"api_key": "x", "username": "y"})
 
     assert resp.status_code == 502
     data = resp.get_json()
@@ -59,35 +69,58 @@ def test_ra_api_error_returns_502():
     assert "detalle interno sensible" not in data["message"]
 
 
-def test_intersects_wtp_ids_against_local_catalog():
-    """Unidad aislada: mockea tanto la API de RA como build_games_index(),
-    así no depende del contenido real de Data/*.json."""
-    fake_wtp = [
-        {"ID": 1, "Title": "Sonic the Hedgehog"},  # existe en _FAKE_CATALOG
-        {"ID": 999999999, "Title": "No existe"},  # no está en _FAKE_CATALOG
-    ]
+def test_connect_success_returns_counts_and_username_never_api_key():
+    fake_wtp = [{"ID": 1, "Title": "Sonic the Hedgehog"}, {"ID": 999999999, "Title": "No existe"}]
     with (
         patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=fake_wtp),
         patch.object(api_module, "build_games_index", return_value=_FAKE_CATALOG),
     ):
-        resp = _client().post("/api/want_to_play", data={"api_key": "x", "username": "y"})
+        resp = _connect(_client(), api_key="super-secret-key", wtp_games=fake_wtp)
+
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data == {"success": True, "username": "y", "total": 1, "requested": 2}
+    assert "super-secret-key" not in resp.get_data(as_text=True)
+
+
+# --- /api/want_to_play (requiere sesión) ------------------------------------
+
+
+def test_want_to_play_without_session_returns_401():
+    resp = _client().get("/api/want_to_play")
+    assert resp.status_code == 401
+    assert resp.get_json()["success"] is False
+
+
+def test_want_to_play_uses_session_after_connect():
+    """La misma sesión (test_client mantiene cookies) conecta una vez y
+    después pide la lista sin volver a mandar la API Key."""
+    client = _client()
+    fake_wtp = [{"ID": 1, "Title": "Sonic the Hedgehog"}]
+    with patch.object(api_module, "build_games_index", return_value=_FAKE_CATALOG):
+        connect_resp = _connect(client, wtp_games=fake_wtp)
+        assert connect_resp.status_code == 200
+
+        with patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=fake_wtp):
+            resp = client.get("/api/want_to_play")
 
     assert resp.status_code == 200
     data = resp.get_json()
     assert data["success"] is True
-    assert data["requested"] == 2
-    assert data["total"] == 1
     assert data["items"] == [_FAKE_CATALOG[0]]
 
 
-def test_intersects_against_real_catalog_smoke():
+def test_want_to_play_against_real_catalog_smoke():
     """Smoke test sin mockear build_games_index(): prueba contra el dataset
     real que el game_id "1" de Data/TamperMonkeyRetroachievements.json es
     efectivamente el juego #1 de RA (Sonic the Hedgehog) -- la asunción
     central de la que depende todo el endpoint."""
+    client = _client()
     fake_wtp = [{"ID": 1, "Title": "Sonic the Hedgehog"}]
+    _connect(client, wtp_games=fake_wtp)
+
     with patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=fake_wtp):
-        resp = _client().post("/api/want_to_play", data={"api_key": "x", "username": "y"})
+        resp = client.get("/api/want_to_play")
 
     data = resp.get_json()
     assert data["total"] == 1
@@ -95,15 +128,34 @@ def test_intersects_against_real_catalog_smoke():
     assert data["items"][0]["name"] == "Sonic the Hedgehog"
 
 
-def test_empty_want_to_play_list_returns_empty_items():
+def test_want_to_play_empty_list_returns_empty_items():
+    client = _client()
+    _connect(client, wtp_games=[])
+
     with patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=[]):
-        resp = _client().post("/api/want_to_play", data={"api_key": "x", "username": "y"})
+        resp = client.get("/api/want_to_play")
 
     assert resp.get_json() == {"success": True, "items": [], "total": 0, "requested": 0}
 
 
-def test_never_echoes_api_key_back():
-    with patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=[]):
-        resp = _client().post("/api/want_to_play", data={"api_key": "super-secret-key", "username": "y"})
+# --- /api/ra/status y /api/ra/disconnect ------------------------------------
 
-    assert "super-secret-key" not in resp.get_data(as_text=True)
+
+def test_status_reflects_connection_state():
+    client = _client()
+    assert client.get("/api/ra/status").get_json() == {"connected": False, "username": None}
+
+    _connect(client, username="pipetboy")
+    assert client.get("/api/ra/status").get_json() == {"connected": True, "username": "pipetboy"}
+
+
+def test_disconnect_clears_session():
+    client = _client()
+    _connect(client, username="pipetboy")
+    assert client.get("/api/ra/status").get_json()["connected"] is True
+
+    disconnect_resp = client.post("/api/ra/disconnect")
+    assert disconnect_resp.get_json() == {"success": True}
+
+    assert client.get("/api/ra/status").get_json() == {"connected": False, "username": None}
+    assert client.get("/api/want_to_play").status_code == 401
