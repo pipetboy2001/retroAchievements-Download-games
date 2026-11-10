@@ -291,6 +291,34 @@ def ra_status():
     return {"connected": username is not None, "username": username}
 
 
+@app.route("/api/ra/profile")
+def ra_profile():
+    """Perfil público de RA (avatar, puntos, motto) de la cuenta conectada --
+    separado de /api/want_to_play porque es una llamada liviana a una API de
+    RA distinta (GetUserProfile) que no necesita cruzar nada contra el
+    catálogo local."""
+    api_key = session.get("ra_api_key")
+    username = session.get("ra_username")
+    if not api_key or not username:
+        return {"success": False, "message": "No hay una cuenta de RetroAchievements conectada."}, 401
+
+    try:
+        profile = RetroAchievementsClient(api_key).get_user_profile(username)
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al consultar el perfil de RetroAchievements.")
+        return {"success": False, "message": "No pudimos traer tu perfil."}, 502
+
+    user_pic = profile.get("UserPic") or ""
+    return {
+        "success": True,
+        "avatar_url": f"https://media.retroachievements.org{user_pic}" if user_pic else None,
+        "total_points": profile.get("TotalPoints"),
+        "total_true_points": profile.get("TotalTruePoints"),
+        "member_since": profile.get("MemberSince"),
+        "motto": profile.get("Motto") or None,
+    }
+
+
 @app.route("/api/want_to_play")
 def want_to_play():
     api_key = session.get("ra_api_key")
