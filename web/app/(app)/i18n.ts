@@ -22,6 +22,7 @@ const es = {
   "footer.faqLegal": "FAQ y Aviso legal",
 
   "common.close": "Cerrar",
+  "common.accept": "Aceptar",
   "common.download": "Descargar",
   "common.loading": "Cargando…",
   "common.noResults": "Sin resultados",
@@ -139,6 +140,9 @@ const es = {
   "ra.connectedAs": "Conectado como",
   "ra.disconnect": "Desconectar",
   "ra.connectError": "No pudimos conectar: revisá tu API Key y usuario.",
+  "ra.points": "Puntos",
+  "ra.truePoints": "Puntos ponderados",
+  "ra.memberSince": "Miembro desde",
 
   "wtp.pill": "Mi Want to Play",
   "wtp.noResults": "No encontramos juegos de tu lista en nuestro catálogo.",
@@ -161,6 +165,7 @@ const en: Record<keyof typeof es, string> = {
   "footer.faqLegal": "FAQ & legal notice",
 
   "common.close": "Close",
+  "common.accept": "Accept",
   "common.download": "Download",
   "common.loading": "Loading…",
   "common.noResults": "No results",
@@ -276,6 +281,9 @@ const en: Record<keyof typeof es, string> = {
   "ra.connectedAs": "Connected as",
   "ra.disconnect": "Disconnect",
   "ra.connectError": "Couldn't connect: check your API Key and username.",
+  "ra.points": "Points",
+  "ra.truePoints": "Weighted points",
+  "ra.memberSince": "Member since",
 
   "wtp.pill": "My Want to Play",
   "wtp.noResults": "We didn't find any games from your list in our catalog.",
@@ -298,6 +306,7 @@ const pt: Record<keyof typeof es, string> = {
   "footer.faqLegal": "FAQ e Aviso legal",
 
   "common.close": "Fechar",
+  "common.accept": "Aceitar",
   "common.download": "Baixar",
   "common.loading": "Carregando…",
   "common.noResults": "Sem resultados",
@@ -415,6 +424,9 @@ const pt: Record<keyof typeof es, string> = {
   "ra.connectedAs": "Conectado como",
   "ra.disconnect": "Desconectar",
   "ra.connectError": "Não conseguimos conectar: confira sua API Key e usuário.",
+  "ra.points": "Pontos",
+  "ra.truePoints": "Pontos ponderados",
+  "ra.memberSince": "Membro desde",
 
   "wtp.pill": "Minha Want to Play",
   "wtp.noResults": "Não encontramos jogos da sua lista em nosso catálogo.",
@@ -437,6 +449,7 @@ const fr: Record<keyof typeof es, string> = {
   "footer.faqLegal": "FAQ et mentions légales",
 
   "common.close": "Fermer",
+  "common.accept": "Accepter",
   "common.download": "Télécharger",
   "common.loading": "Chargement…",
   "common.noResults": "Aucun résultat",
@@ -554,6 +567,9 @@ const fr: Record<keyof typeof es, string> = {
   "ra.connectedAs": "Connecté en tant que",
   "ra.disconnect": "Déconnecter",
   "ra.connectError": "Connexion impossible : vérifiez votre clé API et votre nom d'utilisateur.",
+  "ra.points": "Points",
+  "ra.truePoints": "Points pondérés",
+  "ra.memberSince": "Membre depuis",
 
   "wtp.pill": "Ma liste Want to Play",
   "wtp.noResults": "Aucun jeu de votre liste n'a été trouvé dans notre catalogue.",

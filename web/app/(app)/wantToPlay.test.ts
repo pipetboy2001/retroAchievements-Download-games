@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { connectRaAccount, disconnectRaAccount, fetchWantToPlay, getRaStatus } from "./wantToPlay";
-import type { RaConnectResponse, RaStatusResponse, WantToPlayResponse } from "./types";
+import { connectRaAccount, disconnectRaAccount, fetchWantToPlay, getRaProfile, getRaStatus } from "./wantToPlay";
+import type { RaConnectResponse, RaProfile, RaStatusResponse, WantToPlayResponse } from "./types";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -60,6 +60,26 @@ describe("getRaStatus", () => {
 
     expect(result).toEqual(mockResponse);
     expect(fetchMock).toHaveBeenCalledWith("/api/ra/status");
+  });
+});
+
+describe("getRaProfile", () => {
+  it("gets /api/ra/profile and returns the parsed JSON", async () => {
+    const mockResponse: RaProfile = {
+      success: true,
+      avatar_url: "https://media.retroachievements.org/UserPic/pipetboy.png",
+      total_points: 12345,
+      total_true_points: 45678,
+      member_since: "2020-01-02 00:00:00",
+      motto: "Jugando RA",
+    };
+    const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getRaProfile();
+
+    expect(result).toEqual(mockResponse);
+    expect(fetchMock).toHaveBeenCalledWith("/api/ra/profile");
   });
 });
 

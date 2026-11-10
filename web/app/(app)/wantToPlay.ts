@@ -1,4 +1,4 @@
-import type { RaConnectResponse, RaStatusResponse, WantToPlayResponse } from "./types";
+import type { RaConnectResponse, RaProfile, RaStatusResponse, WantToPlayResponse } from "./types";
 
 export async function connectRaAccount(apiKey: string, username: string): Promise<RaConnectResponse> {
   const form = new FormData();
@@ -16,6 +16,11 @@ export async function disconnectRaAccount(): Promise<{ success: boolean }> {
 export async function getRaStatus(): Promise<RaStatusResponse> {
   const res = await fetch("/api/ra/status");
   return res.json() as Promise<RaStatusResponse>;
+}
+
+export async function getRaProfile(): Promise<RaProfile> {
+  const res = await fetch("/api/ra/profile");
+  return res.json() as Promise<RaProfile>;
 }
 
 export async function fetchWantToPlay(): Promise<WantToPlayResponse> {
