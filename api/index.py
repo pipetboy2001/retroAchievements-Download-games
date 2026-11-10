@@ -1,21 +1,35 @@
 import os
 import sys
-import webbrowser
 from html import escape
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from dotenv import load_dotenv
+from flask import Flask, redirect, render_template, request, session
 
 # Permite importar el paquete src/ (core de dominio compartido con la app de
 # consola) cuando este archivo corre como función serverless en Vercel.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import config
 from src.core.data_manager import RetroAchievementsDataManager
 from src.core.link_checker import is_download_url_reachable, is_hash_recognized_by_ra
+from src.core.retroachievements_api import RetroAchievementsAPIError, RetroAchievementsClient
 from src.core.rom_info import analyze_rom_info, extract_game_name, get_console_from_rom_path
 from src.factories.url_factory import URLGeneratorFactory
 
+load_dotenv(config.ENV_FILE)
+
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # Necesario para usar flash
+
+# Sesión de servidor (cookie firmada, HttpOnly) para la API Key de RA de
+# /api/ra/connect -- nunca queda en localStorage/JS. FLASK_SECRET_KEY *tiene*
+# que ser una variable de entorno real en producción (Vercel): sin ella, la
+# firma de la cookie es este valor público del código fuente y cualquiera
+# podría forjar una sesión (igual queda protegida de lectura por XSS gracias
+# a HttpOnly, pero no de falsificación).
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-only-insecure-secret-cambiar-en-produccion")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = bool(os.environ.get("VERCEL"))
 
 # Ruta al archivo JSON local
 JSON_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Data", "TamperMonkeyRetroachievements.json")
@@ -23,8 +37,8 @@ RA_METADATA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Dat
 
 data_manager = RetroAchievementsDataManager(json_file_path=JSON_FILE_PATH)
 cached_games_index = None  # Índice cacheado para listados
-cached_ra_metadata = None  # {game_id: {id, title, image_icon, achievements}}, generado por sync_games_metadata.py
-cached_console_icons = None  # {nombre_canonico_consola: icon_url}, generado por sync_games_metadata.py
+cached_ra_metadata = None  # {game_id: {id, title, image_icon, achievements}}, gen. por scripts/sync_games_metadata.py
+cached_console_icons = None  # {nombre_canonico_consola: icon_url}, generado por scripts/sync_games_metadata.py
 
 
 # Cargar el archivo JSON local
@@ -34,7 +48,7 @@ def load_json_file():
 
 def load_ra_metadata():
     """Carga Data/retroachievements_metadata.json (titulos/caratulas/logros reales).
-    Si no existe todavia (no se corrio sync_games_metadata.py), /games sigue
+    Si no existe todavia (no se corrio scripts/sync_games_metadata.py), /games sigue
     funcionando sin esos datos."""
     global cached_ra_metadata
     if cached_ra_metadata is None:
@@ -50,7 +64,7 @@ def load_ra_metadata():
 
 def load_console_icons():
     """Carga el mapa de iconos por consola (mismo archivo que load_ra_metadata,
-    generado por sync_games_metadata.py). Degrada a {} si no existe todavia."""
+    generado por scripts/sync_games_metadata.py). Degrada a {} si no existe todavia."""
     global cached_console_icons
     if cached_console_icons is None:
         try:
@@ -111,46 +125,6 @@ def build_games_index():
     return cached_games_index
 
 
-# Función para buscar juegos por nombre (mejorada con múltiples versiones)
-def search_games_by_name(json_data, search_term):
-    search_term = search_term.lower()
-    matching_games = []
-
-    for game_id, hash_list in json_data.items():
-        if len(matching_games) >= 10:  # Limitar a 10 juegos diferentes
-            break
-
-        for item in hash_list:
-            versions = []
-            game_name = None
-
-            for hash_key, rom_path in item.items():
-                current_game_name = extract_game_name(rom_path)
-                if not game_name:
-                    game_name = current_game_name
-
-                if search_term in current_game_name.lower():
-                    rom_info = analyze_rom_info(rom_path)
-                    versions.append({"hash": hash_key, "rom_path": rom_path, "info": rom_info})
-
-            if versions and game_name:
-                # Ordenar versiones por prioridad
-                versions.sort(key=lambda x: x["info"]["priority"])
-
-                matching_games.append(
-                    {
-                        "id": game_id,
-                        "name": game_name,
-                        "versions": versions,
-                        "primary_version": versions[0],  # La versión de mayor prioridad
-                        "total_versions": len(versions),
-                    }
-                )
-                break  # Solo tomar el primer resultado por juego
-
-    return matching_games[:10]  # Asegurar que no se excedan 10 resultados
-
-
 # Función para buscar por hash
 def find_hash_in_json(json_data, hash_value):
     return data_manager.find_hash(hash_value)
@@ -159,13 +133,6 @@ def find_hash_in_json(json_data, hash_value):
 # Función para obtener la URL de descarga
 def get_download_url(rom_path: str) -> str:
     return URLGeneratorFactory.generate_url(rom_path)
-
-
-@app.route("/")
-def index():
-    json_data = load_json_file()
-    total_games = count_total_games(json_data) if json_data else 0
-    return render_template("index.html", total_games=total_games)
 
 
 # Consolas disponibles y conteos (usado por /api/games)
@@ -251,31 +218,6 @@ def get_game_versions():
         return {"success": False, "versions": []}
 
 
-@app.route("/search_games", methods=["POST"])
-def search_games():
-    search_term = request.form.get("search_term", "")
-    json_data = load_json_file()
-
-    if json_data and search_term:
-        matching_games = search_games_by_name(json_data, search_term)
-        # Simplificar para el frontend
-        simplified_games = []
-        for game in matching_games:
-            simplified_games.append(
-                {
-                    "id": game["id"],
-                    "name": game["name"],
-                    "hash": game["primary_version"]["hash"],
-                    "rom_path": game["primary_version"]["rom_path"],
-                    "total_versions": game["total_versions"],
-                    "primary_info": game["primary_version"]["info"],
-                }
-            )
-        return {"success": True, "games": simplified_games}
-    else:
-        return {"success": False, "games": []}
-
-
 @app.route("/search", methods=["POST"])
 def search():
     search_term = request.form["search_term"]
@@ -300,12 +242,99 @@ def search():
         return {"success": False, "message": "Error al cargar el archivo JSON local."}, 500
 
 
-@app.route("/open_browser", methods=["POST"])
-def open_browser(download_url):
-    print(f"Abrir el navegador con la URL: {download_url}")  # Log de apertura
-    webbrowser.open(download_url)
-    flash("El juego se está descargando...", "success")  # Mensaje de éxito al abrir el navegador
-    return redirect(url_for("index"))
+def _resolve_want_to_play(api_key: str, username: str):
+    """Cruza la lista "Want to Play" de RA contra nuestro catálogo local por ID
+    de juego (ambos indexados por el ID real de RA -- ver build_games_index).
+    No hace falta resolver hashes/regiones acá: eso ya lo hace
+    /get_game_versions una vez que se abre una card. Puede lanzar
+    RetroAchievementsAPIError."""
+    wtp_games = RetroAchievementsClient(api_key).get_want_to_play_list(username)
+    wanted_ids = {str(g["ID"]) for g in wtp_games}
+    items = [g for g in build_games_index() if g["id"] in wanted_ids]
+    return items, len(items), len(wtp_games)
+
+
+@app.route("/api/ra/connect", methods=["POST"])
+def ra_connect():
+    """Valida la API Key contra la API de RA y, si funciona, la guarda en la
+    sesión del servidor (cookie firmada + HttpOnly) -- nunca en la respuesta
+    ni en ningún storage del browser."""
+    api_key = request.form.get("api_key", "").strip()
+    username = request.form.get("username", "").strip()
+    if not api_key or not username:
+        return {"success": False, "message": "Falta API Key o usuario."}, 400
+
+    try:
+        # Validación: no hace falta el resultado, solo confirmar que la API
+        # Key puede llamar a la API de RA. El frontend trae los conteos de
+        # want_to_play y el perfil por separado apenas ve la cuenta conectada.
+        RetroAchievementsClient(api_key).get_want_to_play_list(username)
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al conectar la cuenta de RetroAchievements.")
+        return {"success": False, "message": "No pudimos conectar: revisá tu API Key y usuario."}, 502
+
+    session["ra_api_key"] = api_key
+    session["ra_username"] = username
+    # No se devuelve `username`: es el mismo valor que el cliente acaba de
+    # mandar, reflejarlo de vuelta no aporta nada y CodeQL lo marca como
+    # posible XSS reflejado (el frontend ya lo tiene en su propio form).
+    return {"success": True}
+
+
+@app.route("/api/ra/disconnect", methods=["POST"])
+def ra_disconnect():
+    session.pop("ra_api_key", None)
+    session.pop("ra_username", None)
+    return {"success": True}
+
+
+@app.route("/api/ra/status")
+def ra_status():
+    username = session.get("ra_username")
+    return {"connected": username is not None, "username": username}
+
+
+@app.route("/api/ra/profile")
+def ra_profile():
+    """Perfil público de RA (avatar, puntos, motto) de la cuenta conectada --
+    separado de /api/want_to_play porque es una llamada liviana a una API de
+    RA distinta (GetUserProfile) que no necesita cruzar nada contra el
+    catálogo local."""
+    api_key = session.get("ra_api_key")
+    username = session.get("ra_username")
+    if not api_key or not username:
+        return {"success": False, "message": "No hay una cuenta de RetroAchievements conectada."}, 401
+
+    try:
+        profile = RetroAchievementsClient(api_key).get_user_profile(username)
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al consultar el perfil de RetroAchievements.")
+        return {"success": False, "message": "No pudimos traer tu perfil."}, 502
+
+    user_pic = profile.get("UserPic") or ""
+    return {
+        "success": True,
+        "avatar_url": f"https://media.retroachievements.org{user_pic}" if user_pic else None,
+        "total_points": profile.get("TotalPoints"),
+        "total_true_points": profile.get("TotalTruePoints"),
+        "motto": profile.get("Motto") or None,
+    }
+
+
+@app.route("/api/want_to_play")
+def want_to_play():
+    api_key = session.get("ra_api_key")
+    username = session.get("ra_username")
+    if not api_key or not username:
+        return {"success": False, "message": "No hay una cuenta de RetroAchievements conectada."}, 401
+
+    try:
+        items, total, requested = _resolve_want_to_play(api_key, username)
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al consultar Want to Play en RetroAchievements.")
+        return {"success": False, "message": "No pudimos traer tu lista de deseos."}, 502
+
+    return {"success": True, "items": items, "total": total, "requested": requested}
 
 
 @app.errorhandler(404)

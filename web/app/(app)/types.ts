@@ -53,3 +53,30 @@ export interface SearchResult {
   console?: string;
   message?: string;
 }
+
+export interface WantToPlayResponse {
+  success: boolean;
+  items: Game[];
+  total?: number;
+  requested?: number;
+  message?: string;
+}
+
+export interface RaConnectResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface RaStatusResponse {
+  connected: boolean;
+  username: string | null;
+}
+
+export interface RaProfile {
+  success: boolean;
+  avatar_url: string | null;
+  total_points?: number;
+  total_true_points?: number;
+  motto?: string | null;
+  message?: string;
+}

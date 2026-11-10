@@ -45,9 +45,9 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 - **Descripción**: Catálogo navegable con carrito y descarga en lote, más búsqueda directa por hash (ver capturas arriba)
 
 ### Versión de Consola
-- **Modo Unificado**: `python main.py` - Permite elegir entre búsqueda directa o lista de deseos
-- **Modo Hash Directo**: `python console_mode.py` - Búsqueda directa por hash
-- **Modo Lista de Deseos**: `python want_to_play.py` - Descarga desde tu lista "Want to Play"
+- **Modo Unificado**: `python console/main.py` - Permite elegir entre búsqueda directa o lista de deseos
+- **Modo Hash Directo**: `python console/Console_mode.py` - Búsqueda directa por hash
+- **Modo Lista de Deseos**: `python console/want_to_play.py` - Descarga desde tu lista "Want to Play"
 
 ## 🎯 Cómo Utilizar
 
@@ -62,37 +62,58 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 
 #### Opción 1: Modo Unificado (Recomendado)
 ```bash
-python main.py
+python console/main.py
 ```
 Te permite elegir entre búsqueda directa por hash o lista de deseos.
 
 #### Opción 2: Modos Específicos
 ```bash
 # Búsqueda directa por hash
-python console_mode.py
+python console/Console_mode.py
 
 # Lista de deseos
-python want_to_play.py
+python console/want_to_play.py
 ```
+
+> 💡 Estos comandos funcionan igual si los corrés desde la raíz del repo (como arriba) o si entrás a `console/` y corrés `python main.py`: todas las rutas de archivos (`.env`, `game_hashes.json`, `Data/...`) se resuelven relativas a la raíz del proyecto (ver `config.py`), nunca a la carpeta desde la que lanzás el script. Eso sí, el **archivo `.env` en sí siempre va en la raíz** — no dentro de `console/`.
+
+#### Cambiar de modo sin reiniciar
+
+No hace falta elegir un modo y quedarte ahí: tanto la búsqueda por hash como la lista de deseos tienen una salida para pasar al otro modo sin cerrar la app.
+
+- **Búsqueda por hash**: en el prompt del hash, escribí `M` para cambiar de modo o `S` para salir.
+- **Lista de deseos**: en el menú de consola/juego, las últimas dos opciones numeradas son siempre "Cambiar de modo" y "Salir" — y después de descargar un juego, el menú vuelve a aparecer en vez de cerrar la app.
 
 #### Ejemplo de Uso
 ```bash
-$ python main.py
+$ python console/main.py
 
-🎮 RetroAchievements Downloader
+┌─────────────────────────────────┐
+│ 🎮 RetroAchievements Downloader │
+└─────────────────────────────────┘
 
-Seleccione el modo de operación:
-1. Búsqueda directa por hash
-2. Lista de deseos (Want to Play)
+Seleccioná el modo de operación:
+  1. Búsqueda directa por hash
+  2. Lista de deseos (Want to Play)
 
-Ingrese el número del modo que desea usar [1]: 1
+  → [1/2] (1): 1
 
-¡Bienvenido a RetroAchievements Downloader!
-Modo: Búsqueda directa por hash
+┌─────────────────────────────────┐
+│ 🎮 RetroAchievements Downloader │
+│ Búsqueda directa por hash       │
+└─────────────────────────────────┘
 
-Por favor, ingresa el hash que deseas buscar: ABC123DEF456
-Hash encontrado. La URL de descarga es: https://archive.org/...
-Abriendo URL en el navegador...
+🔎 Hash a buscar (M: cambiar de modo, S: salir): ABC123DEF456
+
+┌─────────────────────────────────────────────┐
+│ Super Mario World (SNES)                     │
+│ https://archive.org/download/...             │
+│                                               │
+│ ✅ Descarga verificada   ✅ RA reconocido     │
+└─────────────────────────────────────────────┘
+
+🔎 Hash a buscar (M: cambiar de modo, S: salir): S
+👋 Saliendo...
 ```
 ## 📌 Requisitos
 
@@ -116,10 +137,11 @@ RetroArchivement-Download-games/
 ├── 📁 Data/                   # Datos JSON principales
 ├── 📁 api/                    # Backend Flask (Vercel)
 ├── 📁 web/                    # Frontend Next.js/TS (Vercel)
-├── 📄 main.py                 # Punto de entrada unificado
-├── 📄 console_mode.py         # Modo hash directo
-├── 📄 want_to_play.py         # Modo lista de deseos
-├── 📄 sync_want_to_play.py    # Genera game_hashes.json desde la API de RA
+├── 📁 scripts/                # Scripts de mantenimiento (sync_*.py, check_sources_health.py)
+├── 📁 console/                 # Entry points de la versión consola
+│   ├── 📄 main.py              # Punto de entrada unificado
+│   ├── 📄 Console_mode.py      # Modo hash directo
+│   └── 📄 want_to_play.py      # Modo lista de deseos
 ├── 📄 config.py               # Configuraciones centralizadas
 ├── 📄 game_hashes.json        # Lista de juegos deseados
 ├── 📄 .env                    # Variables de entorno
@@ -134,13 +156,13 @@ Asegúrate de que existe `Data/TamperMonkeyRetroachievements.json` con los hashe
 
 ### Lista de deseos
 Para usar el modo "Want to Play":
-1. **Archivo de juegos**: `game_hashes.json` con tus juegos deseados — se genera automáticamente con `python sync_want_to_play.py` (ver abajo), o se puede armar a mano.
+1. **Archivo de juegos**: `game_hashes.json` con tus juegos deseados — se genera automáticamente con `python scripts/sync_want_to_play.py` (ver abajo), o se puede armar a mano.
 2. **Variables de entorno**: Configura `.env` con tu API Key de RetroAchievements
 
 #### Generar game_hashes.json automáticamente
 
 ```bash
-python sync_want_to_play.py
+python scripts/sync_want_to_play.py
 ```
 
 Trae tu lista real de "Want to Play" desde la API de RetroAchievements, cruza cada hash contra `Data/TamperMonkeyRetroachievements.json` para quedarse solo con los que sí se pueden descargar, y sobreescribe `game_hashes.json`. Requiere `API_KEY` y `RETROACHIEVEMENTS_USERNAME` en `.env`.
@@ -159,13 +181,15 @@ El modo "Want to Play" puede requerir credenciales de RetroAchievements para gen
 #### ⚙️ **Configurar las credenciales:**
 
 ```bash
-# 1. Copia el archivo de ejemplo
+# 1. Copia el archivo de ejemplo (corré esto desde la raíz del repo)
 cp ejemplo.env .env
 
 # 2. Edita .env con tus credenciales
 API_KEY=tu_api_key_de_retroachievements_aqui
 RETROACHIEVEMENTS_USERNAME=tu_nombre_de_usuario_de_retroachievements
 ```
+
+> `.env` siempre va en la **raíz del repo** (al lado de `ejemplo.env` y `config.py`), nunca dentro de `console/` o `scripts/` — no importa desde qué carpeta corras los scripts después, todos buscan `.env` ahí.
 
 #### 📋 **Ejemplo de archivo .env:**
 
@@ -176,6 +200,10 @@ RETROACHIEVEMENTS_USERNAME=MiUsuarioRetroAchievements
 ```
 
 > **💡 Nota**: La API Key es **opcional** para la búsqueda directa por hash. Solo se necesita para generar y gestionar tu lista personal de "Want to Play".
+
+### Variable de entorno del backend web (producción)
+
+El catálogo web (`/`) permite conectar tu cuenta de RA para traer tu lista "Want to Play" directo desde el navegador (sin tocar `.env` ni la consola). Esa API Key nunca llega al browser: queda en una cookie de sesión firmada por el servidor (`flask.session`). Para que esa firma sea real en producción, `FLASK_SECRET_KEY` tiene que configurarse como variable de entorno en Vercel (Project Settings → Environment Variables) — sin ella, el backend usa un valor de desarrollo público (seguro para probar en local, no para producción).
 
 ### Personalización avanzada
 Edita `config.py` para personalizar:

@@ -5,11 +5,16 @@ Verificaciones livianas de si un hash/URL "funciona de verdad":
 """
 
 import json
+import os
 from typing import Optional, Set
 
 import requests
 
-METADATA_FILE = "Data/retroachievements_metadata.json"
+# Ancla la ruta a la raiz del repo (no al directorio de trabajo actual): este
+# modulo lo importan tanto api/index.py como la app de consola, que puede
+# correrse parada dentro de console/.
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+METADATA_FILE = os.path.join(_BASE_DIR, "Data", "retroachievements_metadata.json")
 
 _recognized_hashes: Optional[Set[str]] = None
 
@@ -31,7 +36,7 @@ def is_download_url_reachable(url: str) -> bool:
 
 def is_hash_recognized_by_ra(hash_value: str) -> bool:
     """True si el hash aparece en el set de hashes que RA reconoce
-    (generado por sync_games_metadata.py). Si el archivo no existe
+    (generado por scripts/sync_games_metadata.py). Si el archivo no existe
     todavia, devuelve False en vez de romper."""
     global _recognized_hashes
     if _recognized_hashes is None:

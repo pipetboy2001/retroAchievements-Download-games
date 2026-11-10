@@ -5,6 +5,7 @@
 .claude/
 .agents/
 skills-lock.json
+.taste-skill/
 
 # Node / Next.js (web/)
 node_modules/
@@ -42,12 +43,6 @@ venv.bak/
 *.swp
 *.swo
 
-# Claude Code: skills de uso personal, no para el repo
-.agents/
-.claude/
-.taste-skill/
-skills-lock.json
-
 # OS
 .DS_Store
 Thumbs.db
@@ -56,20 +51,13 @@ Thumbs.db
 missing_games.txt
 *.tmp
 *.bak
-migrate.py
-README_REFACTOR.md
-*_new.py
-
-# Environment variables
-.env
 
 # Data files (keep structure but ignore if needed)
 game_hashes.json
-# Data/*.json
 .env*
 
-# sync_source.py: cache de resumen (progreso intermedio, no el resultado final)
+# scripts/sync_source.py: cache de resumen (progreso intermedio, no el resultado final)
 Data/.*_hash_cache.json
 
-# check_sources_health.py: reporte de la corrida, se regenera cada vez (CI lo lee antes de que termine el job)
+# scripts/check_sources_health.py: reporte de la corrida, se regenera cada vez (CI lo lee antes de que termine el job)
 sources_health_report.md

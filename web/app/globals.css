@@ -107,6 +107,7 @@ body {
 }
 .icon-btn-labeled:hover { border-color: var(--accent-border); color: var(--text-bright); }
 .icon-btn-labeled svg { flex-shrink: 0; }
+.topbar-avatar { width: 18px; height: 18px; border-radius: 999px; object-fit: cover; flex-shrink: 0; }
 .cart-trigger {
   position: relative; display: flex; align-items: center; justify-content: center;
   width: 36px; height: 36px; background: var(--surface); border: 1px solid var(--rule-strong);
@@ -141,7 +142,6 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 
 @media (max-width: 860px) {
   .topbar-inner { gap: 12px; padding: 0 16px; }
-  .brand .name { display: none; }
   main.app-main { padding: 20px 16px 48px; }
   .search { max-width: none; }
   .icon-btn-labeled .btn-label { display: none; }
@@ -250,8 +250,10 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .gcard-trophy {
   position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 4px;
   padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; background: rgba(0,0,0,0.8);
-  color: var(--text); border: 1px solid var(--rule-strong);
+  color: var(--text); border: 1px solid var(--rule-strong); text-decoration: none; cursor: pointer;
+  transition: border-color 120ms ease-out, color 120ms ease-out;
 }
+.gcard-trophy:hover { border-color: var(--accent-border); color: var(--text-bright); }
 .gcard-trophy svg { color: var(--trophy); flex-shrink: 0; }
 
 .gcard-console {
@@ -292,11 +294,29 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .icon-btn:hover { border-color: var(--accent-border); color: var(--accent); }
 .icon-btn:active:not(:disabled) { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
-  .btn-primary, .btn-ghost, .icon-btn { transition: none; }
+  .btn-primary, .btn-ghost, .icon-btn, .gcard-trophy { transition: none; }
   .btn-primary:active:not(:disabled), .btn-ghost:active:not(:disabled), .icon-btn:active:not(:disabled) { transform: none; }
 }
 .icon-btn.in-cart { color: var(--accent); border-color: var(--accent-border); background: var(--accent-soft); }
 .icon-pop { animation: icon-pop-in 280ms cubic-bezier(0.23, 1, 0.32, 1); }
+
+/* --- Skeletons (estado de carga) -- va después de las reglas de gcard,
+   btn-ghost e icon-btn para pisar su "background" propio con el shimmer,
+   sin necesidad de !important. */
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton {
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--raised) 25%, var(--rule-strong) 37%, var(--raised) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+.skel-line { height: 10px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
 @keyframes icon-pop-in {
   0% { transform: scale(0.5) rotate(-20deg); opacity: 0; }
   60% { transform: scale(1.15) rotate(4deg); opacity: 1; }
@@ -348,6 +368,34 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .soon-panel svg { color: var(--faint); margin-bottom: 12px; }
 .soon-panel h3 { margin: 0 0 8px; font-size: 14px; color: var(--text-bright); }
 .soon-panel p { margin: 0; font-size: 13px; color: var(--muted); max-width: 42ch; margin-inline: auto; }
+
+/* --- Cuenta de RA conectada (RaAccountModal) --- */
+.ra-account-avatar {
+  width: 48px; height: 48px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ra-account-name { font-size: 14px; font-weight: 600; color: var(--text-bright); }
+.ra-account-hint { margin: 0; font-size: 13px; color: var(--muted); max-width: 42ch; }
+
+.ra-profile { display: flex; flex-direction: column; gap: 14px; padding: 4px; }
+.ra-profile-head { display: flex; align-items: center; gap: 12px; }
+.ra-profile-avatar {
+  width: 48px; height: 48px; border-radius: 999px; object-fit: cover; flex-shrink: 0;
+  border: 1px solid var(--rule-strong);
+}
+.ra-profile-motto { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 2px; }
+.ra-profile-stats {
+  display: flex; gap: 8px; padding: 12px; background: var(--surface);
+  border: 1px solid var(--rule-strong); border-radius: 8px;
+}
+.ra-profile-stats > div { display: flex; flex-direction: column; gap: 3px; flex: 1; text-align: center; min-width: 0; }
+.ra-profile-stats .num { font-size: 14px; font-weight: 700; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ra-profile-stats label {
+  font-size: 9px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: 0.04em;
+}
+.ra-profile-actions { display: flex; gap: 8px; }
+.ra-profile-actions .btn-primary,
+.ra-profile-actions .btn-ghost { flex: 1; justify-content: center; }
 
 /* --- Verificar ROM: dropzone --- */
 .modal-head .title-badge { color: var(--accent); flex-shrink: 0; margin-left: 6px; }

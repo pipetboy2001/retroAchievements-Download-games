@@ -38,15 +38,14 @@ class RetroAchievementsDataManager(DataProvider):
             try:
                 with open(self.json_file_path, "r", encoding="utf-8") as file:
                     self._data = json.load(file)
-                self.console.print("[bold green]Datos JSON cargados exitosamente.[/bold green]")
             except FileNotFoundError:
-                self.console.print(f"[bold red]Archivo JSON no encontrado: {self.json_file_path}[/bold red]")
+                self.console.print(f"[bold red]❌ Archivo JSON no encontrado: {self.json_file_path}[/bold red]")
                 return None
             except json.JSONDecodeError as e:
-                self.console.print(f"[bold red]Error al decodificar el archivo JSON: {e}[/bold red]")
+                self.console.print(f"[bold red]❌ Error al decodificar el archivo JSON: {e}[/bold red]")
                 return None
             except Exception as e:
-                self.console.print(f"[bold red]Error al cargar el archivo JSON: {e}[/bold red]")
+                self.console.print(f"[bold red]❌ Error al cargar el archivo JSON: {e}[/bold red]")
                 return None
 
         return self._data

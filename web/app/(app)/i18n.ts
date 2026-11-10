@@ -22,6 +22,7 @@ const es = {
   "footer.faqLegal": "FAQ y Aviso legal",
 
   "common.close": "Cerrar",
+  "common.accept": "Aceptar",
   "common.download": "Descargar",
   "common.loading": "Cargando…",
   "common.noResults": "Sin resultados",
@@ -89,6 +90,7 @@ const es = {
   "gamecard.otherMirrors": "Otros espejos",
   "gamecard.copyHash": "Copiar hash MD5",
   "gamecard.hashCopied": "Hash copiado",
+  "gamecard.viewOnRa": "Ver en RetroAchievements",
 
   "hasher.dropTitle": "Soltá tu ROM acá",
   "hasher.dropSub": "o hacé clic para explorar tu equipo",
@@ -126,7 +128,24 @@ const es = {
 
   "ra.title": "Conectar RetroAchievements",
   "ra.body":
-    'Vas a poder conectar tu cuenta con tu propia Web API Key (nunca se guarda en nuestro servidor) para traer tu lista "Want to Play" y ver qué juegos ya tenemos disponibles para descargar.',
+    'Conectá tu cuenta con tu propia Web API Key para traer tu lista "Want to Play" y ver qué juegos de ahí ya tenemos para descargar. La guardamos solo en tu navegador, nunca en nuestro servidor.',
+  "ra.apiKeyLabel": "Web API Key",
+  "ra.apiKeyPlaceholder": "Tu Web API Key de RetroAchievements",
+  "ra.usernameLabel": "Usuario de RetroAchievements",
+  "ra.usernamePlaceholder": "Tu nombre de usuario",
+  "ra.getApiKeyHint": "¿No tenés una? Conseguila en ",
+  "ra.getApiKeyLink": "retroachievements.org",
+  "ra.connect": "Conectar",
+  "ra.connecting": "Conectando…",
+  "ra.connectedAs": "Conectado como",
+  "ra.disconnect": "Desconectar",
+  "ra.connectError": "No pudimos conectar: revisá tu API Key y usuario.",
+  "ra.points": "Puntos",
+  "ra.truePoints": "Puntos ponderados",
+
+  "wtp.pill": "Mi Want to Play",
+  "wtp.noResults": "No encontramos juegos de tu lista en nuestro catálogo.",
+  "wtp.fetchError": "No pudimos traer tu lista de deseos. Intentá de nuevo.",
 
   "notfound.title": "Página no encontrada",
   "notfound.body": "La página que buscás no existe o se movió de lugar.",
@@ -145,6 +164,7 @@ const en: Record<keyof typeof es, string> = {
   "footer.faqLegal": "FAQ & legal notice",
 
   "common.close": "Close",
+  "common.accept": "Accept",
   "common.download": "Download",
   "common.loading": "Loading…",
   "common.noResults": "No results",
@@ -210,6 +230,7 @@ const en: Record<keyof typeof es, string> = {
   "gamecard.otherMirrors": "Other mirrors",
   "gamecard.copyHash": "Copy MD5 hash",
   "gamecard.hashCopied": "Hash copied",
+  "gamecard.viewOnRa": "View on RetroAchievements",
 
   "hasher.dropTitle": "Drop your ROM here",
   "hasher.dropSub": "or click to browse your computer",
@@ -247,7 +268,24 @@ const en: Record<keyof typeof es, string> = {
 
   "ra.title": "Connect RetroAchievements",
   "ra.body":
-    'You\'ll be able to connect your account with your own Web API Key (never stored on our server) to pull your "Want to Play" list and see which games we already have available to download.',
+    'Connect your account with your own Web API Key to pull your "Want to Play" list and see which of those games we already have available to download. We only store it in your browser, never on our server.',
+  "ra.apiKeyLabel": "Web API Key",
+  "ra.apiKeyPlaceholder": "Your RetroAchievements Web API Key",
+  "ra.usernameLabel": "RetroAchievements username",
+  "ra.usernamePlaceholder": "Your username",
+  "ra.getApiKeyHint": "Don't have one? Get it at ",
+  "ra.getApiKeyLink": "retroachievements.org",
+  "ra.connect": "Connect",
+  "ra.connecting": "Connecting…",
+  "ra.connectedAs": "Connected as",
+  "ra.disconnect": "Disconnect",
+  "ra.connectError": "Couldn't connect: check your API Key and username.",
+  "ra.points": "Points",
+  "ra.truePoints": "Weighted points",
+
+  "wtp.pill": "My Want to Play",
+  "wtp.noResults": "We didn't find any games from your list in our catalog.",
+  "wtp.fetchError": "Couldn't load your want-to-play list. Try again.",
 
   "notfound.title": "Page not found",
   "notfound.body": "The page you're looking for doesn't exist or moved.",
@@ -266,6 +304,7 @@ const pt: Record<keyof typeof es, string> = {
   "footer.faqLegal": "FAQ e Aviso legal",
 
   "common.close": "Fechar",
+  "common.accept": "Aceitar",
   "common.download": "Baixar",
   "common.loading": "Carregando…",
   "common.noResults": "Sem resultados",
@@ -333,6 +372,7 @@ const pt: Record<keyof typeof es, string> = {
   "gamecard.otherMirrors": "Outros espelhos",
   "gamecard.copyHash": "Copiar hash MD5",
   "gamecard.hashCopied": "Hash copiado",
+  "gamecard.viewOnRa": "Ver no RetroAchievements",
 
   "hasher.dropTitle": "Solte sua ROM aqui",
   "hasher.dropSub": "ou clique para explorar seu computador",
@@ -370,7 +410,24 @@ const pt: Record<keyof typeof es, string> = {
 
   "ra.title": "Conectar RetroAchievements",
   "ra.body":
-    'Você vai poder conectar sua conta com sua própria Web API Key (nunca é salva em nosso servidor) para trazer sua lista "Want to Play" e ver quais jogos já temos disponíveis para baixar.',
+    'Conecte sua conta com sua própria Web API Key para trazer sua lista "Want to Play" e ver quais desses jogos já temos disponíveis para baixar. Guardamos isso só no seu navegador, nunca em nosso servidor.',
+  "ra.apiKeyLabel": "Web API Key",
+  "ra.apiKeyPlaceholder": "Sua Web API Key do RetroAchievements",
+  "ra.usernameLabel": "Usuário do RetroAchievements",
+  "ra.usernamePlaceholder": "Seu nome de usuário",
+  "ra.getApiKeyHint": "Não tem uma? Consiga em ",
+  "ra.getApiKeyLink": "retroachievements.org",
+  "ra.connect": "Conectar",
+  "ra.connecting": "Conectando…",
+  "ra.connectedAs": "Conectado como",
+  "ra.disconnect": "Desconectar",
+  "ra.connectError": "Não conseguimos conectar: confira sua API Key e usuário.",
+  "ra.points": "Pontos",
+  "ra.truePoints": "Pontos ponderados",
+
+  "wtp.pill": "Minha Want to Play",
+  "wtp.noResults": "Não encontramos jogos da sua lista em nosso catálogo.",
+  "wtp.fetchError": "Não conseguimos carregar sua lista de desejos. Tente novamente.",
 
   "notfound.title": "Página não encontrada",
   "notfound.body": "A página que você procura não existe ou foi movida.",
@@ -389,6 +446,7 @@ const fr: Record<keyof typeof es, string> = {
   "footer.faqLegal": "FAQ et mentions légales",
 
   "common.close": "Fermer",
+  "common.accept": "Accepter",
   "common.download": "Télécharger",
   "common.loading": "Chargement…",
   "common.noResults": "Aucun résultat",
@@ -456,6 +514,7 @@ const fr: Record<keyof typeof es, string> = {
   "gamecard.otherMirrors": "Autres miroirs",
   "gamecard.copyHash": "Copier le hash MD5",
   "gamecard.hashCopied": "Hash copié",
+  "gamecard.viewOnRa": "Voir sur RetroAchievements",
 
   "hasher.dropTitle": "Déposez votre ROM ici",
   "hasher.dropSub": "ou cliquez pour parcourir votre ordinateur",
@@ -493,7 +552,24 @@ const fr: Record<keyof typeof es, string> = {
 
   "ra.title": "Connecter RetroAchievements",
   "ra.body":
-    "Vous pourrez connecter votre compte avec votre propre clé Web API (jamais stockée sur notre serveur) pour récupérer votre liste « Want to Play » et voir quels jeux sont déjà disponibles au téléchargement.",
+    "Connectez votre compte avec votre propre clé Web API pour récupérer votre liste « Want to Play » et voir lesquels de ces jeux sont déjà disponibles chez nous. On la stocke seulement dans votre navigateur, jamais sur notre serveur.",
+  "ra.apiKeyLabel": "Clé Web API",
+  "ra.apiKeyPlaceholder": "Votre clé Web API RetroAchievements",
+  "ra.usernameLabel": "Nom d'utilisateur RetroAchievements",
+  "ra.usernamePlaceholder": "Votre nom d'utilisateur",
+  "ra.getApiKeyHint": "Vous n'en avez pas ? Récupérez-la sur ",
+  "ra.getApiKeyLink": "retroachievements.org",
+  "ra.connect": "Connecter",
+  "ra.connecting": "Connexion…",
+  "ra.connectedAs": "Connecté en tant que",
+  "ra.disconnect": "Déconnecter",
+  "ra.connectError": "Connexion impossible : vérifiez votre clé API et votre nom d'utilisateur.",
+  "ra.points": "Points",
+  "ra.truePoints": "Points pondérés",
+
+  "wtp.pill": "Ma liste Want to Play",
+  "wtp.noResults": "Aucun jeu de votre liste n'a été trouvé dans notre catalogue.",
+  "wtp.fetchError": "Impossible de récupérer votre liste. Réessayez.",
 
   "notfound.title": "Page introuvable",
   "notfound.body": "La page que vous recherchez n'existe pas ou a été déplacée.",
@@ -594,5 +670,18 @@ export function downloadingNamed(name: string | undefined, locale: Locale = curr
       return name ? `Téléchargement de ${name}…` : "Téléchargement du jeu…";
     default:
       return name ? `Downloading ${name}…` : "Downloading game…";
+  }
+}
+
+export function wtpFoundCount(total: number, requested: number, locale: Locale = current): string {
+  switch (locale) {
+    case "es":
+      return `Encontramos ${total} de ${requested} juego${requested === 1 ? "" : "s"} en nuestro catálogo.`;
+    case "pt":
+      return `Encontramos ${total} de ${requested} jogo${requested === 1 ? "" : "s"} em nosso catálogo.`;
+    case "fr":
+      return `Nous avons trouvé ${total} jeu${requested === 1 ? "" : "x"} sur ${requested} dans notre catalogue.`;
+    default:
+      return `Found ${total} of ${requested} game${requested === 1 ? "" : "s"} in our catalog.`;
   }
 }

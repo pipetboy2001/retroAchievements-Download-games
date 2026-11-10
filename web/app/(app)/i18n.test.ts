@@ -8,6 +8,7 @@ import {
   setLocale,
   subscribe,
   t,
+  wtpFoundCount,
 } from "./i18n";
 
 beforeEach(() => {
@@ -59,6 +60,19 @@ describe("resultsCount", () => {
 
   it("includes the filter clause when present", () => {
     expect(resultsCount(10, "SNES", "es")).toBe("10 juegos en SNES");
+  });
+});
+
+describe("wtpFoundCount", () => {
+  it.each([
+    ["es", 1, 5, "Encontramos 1 de 5 juegos en nuestro catálogo."],
+    ["en", 1, 1, "Found 1 of 1 game in our catalog."],
+    ["en", 3, 1, "Found 3 of 1 game in our catalog."],
+    ["pt", 2, 4, "Encontramos 2 de 4 jogos em nosso catálogo."],
+    ["fr", 2, 4, "Nous avons trouvé 2 jeux sur 4 dans notre catalogue."],
+    ["fr", 1, 1, "Nous avons trouvé 1 jeu sur 1 dans notre catalogue."],
+  ] as const)("interpolates total/requested for %s (total=%i, requested=%i)", (locale, total, requested, expected) => {
+    expect(wtpFoundCount(total, requested, locale)).toBe(expected);
   });
 });
 

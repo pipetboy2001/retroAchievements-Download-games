@@ -13,7 +13,7 @@ _source_override_cache: Dict[str, dict] = {}
 
 def _load_source_override(path: str) -> dict:
     """Carga (y cachea en memoria) un Data/<consola>_source_override.json
-    generado por sync_source.py -- mapea rom_path -> nombre de archivo en
+    generado por scripts/sync_source.py -- mapea rom_path -> nombre de archivo en
     la colección de reemplazo. Si no existe todavía, devuelve {} (la
     consola sigue usando su BASE_URL de siempre, sin romper nada)."""
     if path not in _source_override_cache:
@@ -57,7 +57,7 @@ class SNESURLGenerator(URLGenerator):
     """Generador de URLs para SNES/Super Famicom.
 
     La colección vieja de archive.org (BASE_URL) murió. Hay una de
-    reemplazo, pero con nombres/estructura distintos -- sync_source.py
+    reemplazo, pero con nombres/estructura distintos -- scripts/sync_source.py
     genera Data/snes_source_override.json (rom_path -> nombre de archivo
     en la colección nueva) matcheando por hash real, no por nombre. Lo que
     todavía no tiene match sigue cayendo en el BASE_URL viejo (roto, pero
@@ -181,7 +181,7 @@ class WiiURLGenerator(URLGenerator):
     'RetroAchievementsWii' (archivos sueltos en la raiz del item, sin
     subcarpetas). Root propio ("WiiWare", no "Wii") para diferenciarlo de
     los juegos de disco (.rvz/.iso), que ahora cubre WiiDiscURLGenerator
-    (mismo item, root "Wii") -- sync_wii.py matchea ambos por MD5 contra
+    (mismo item, root "Wii") -- scripts/sync_wii.py matchea ambos por MD5 contra
     el .dat de RetroAchievements (UGA_RA_DATs), sin descargar ningun
     juego (mismo mecanismo que GameCube, ver dat_archive_sync.py)."""
 
@@ -215,7 +215,7 @@ class GameCubeURLGenerator(URLGenerator):
     """Generador de URLs para GameCube. Fuente: item de archive.org
     'RetroAchievementsGameCube' (archivos .rvz sueltos en la raiz del
     item, sin subcarpetas). A diferencia de Wii, estos SI estan
-    verificados sin descargar: sync_gamecube.py matchea por MD5 del .rvz
+    verificados sin descargar: scripts/sync_gamecube.py matchea por MD5 del .rvz
     contra el .dat de RetroAchievements (UGA_RA_DATs), que trae md5 y
     ra_hash juntos por archivo."""
 

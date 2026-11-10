@@ -23,7 +23,7 @@ jobs:
       - name: Correr chequeo de salud
         id: health
         continue-on-error: true
-        run: python check_sources_health.py
+        run: python scripts/check_sources_health.py
 
       - name: Asegurar que exista la etiqueta fuente-rota
         if: steps.health.outcome == 'failure'

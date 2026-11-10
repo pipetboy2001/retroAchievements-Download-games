@@ -5,7 +5,9 @@ Utilidades comunes para el sistema.
 from typing import List, Optional
 
 from rich.console import Console
+from rich.panel import Panel
 from rich.prompt import Prompt
+from rich.rule import Rule
 
 
 class UIHelper:
@@ -15,66 +17,83 @@ class UIHelper:
         self.console = Console()
 
     def select_from_list(self, items: List[str], title: str, allow_all: bool = False) -> Optional[str]:
-        """Permite al usuario seleccionar de una lista de elementos."""
+        """Permite al usuario seleccionar de una lista de elementos.
+
+        Agrega al final dos opciones numeradas: cambiar de modo y salir.
+        """
         if not items:
-            self.console.print(f"[bold red]No hay {title.lower()} disponibles.[/bold red]")
+            self.console.print(f"[bold red]❌ No hay {title.lower()} disponibles.[/bold red]")
             return None
 
-        self.console.print(f"Seleccione {title.lower()}:", style="bold blue")
+        self.console.print(Rule(f"[bold blue]{title.capitalize()}[/bold blue]", style="blue", align="left"))
 
         for i, item in enumerate(items, 1):
-            self.console.print(f"{i}. {item}", style="bold cyan")
+            self.console.print(f"  [cyan]{i}.[/cyan] {item}")
 
+        next_index = len(items) + 1
+        all_index = None
         if allow_all:
-            self.console.print(f"{len(items) + 1}. Todos", style="bold cyan")
+            self.console.print(f"  [cyan]{next_index}.[/cyan] [dim]Todos[/dim]")
+            all_index = next_index
+            next_index += 1
 
-        choice = Prompt.ask(
-            f"Ingrese el número de {title.lower()} que desea seleccionar", default="1", show_default=True
-        )
+        cambiar_index = next_index
+        salir_index = next_index + 1
+        self.console.print(f"  [cyan]{cambiar_index}.[/cyan] [dim]Cambiar de modo[/dim]")
+        self.console.print(f"  [cyan]{salir_index}.[/cyan] [dim]Salir[/dim]")
+
+        choice = Prompt.ask("  [bold]→[/bold] Elegí una opción", default="1", show_default=True)
 
         try:
             choice_num = int(choice)
-
-            if allow_all and choice_num == len(items) + 1:
-                return "todos"
-
-            if 1 <= choice_num <= len(items):
-                return items[choice_num - 1]
-            else:
-                self.console.print(
-                    f"[bold red]Selección no válida. Usando el primer {title.lower()} por defecto.[/bold red]"
-                )
-                return items[0]
-
         except ValueError:
-            self.console.print(f"[bold red]Entrada no válida. Usando el primer {title.lower()} por defecto.[/bold red]")
+            self.console.print(f"[bold red]❌ Entrada no válida, usando {items[0]!r} por defecto.[/bold red]")
             return items[0]
 
-    def get_hash_input(self) -> Optional[str]:
-        """Obtiene un hash del usuario."""
-        hash_value = Prompt.ask("Por favor, ingresa el hash que deseas buscar (o escribe 'salir' para terminar)")
+        if choice_num == salir_index:
+            return "salir"
+        if choice_num == cambiar_index:
+            return "cambiar"
+        if allow_all and choice_num == all_index:
+            return "todos"
+        if 1 <= choice_num <= len(items):
+            return items[choice_num - 1]
 
-        if hash_value.lower() == "salir":
-            self.console.print("[bold red]Saliendo...[/bold red]")
-            return None
+        self.console.print(f"[bold red]❌ Selección no válida, usando {items[0]!r} por defecto.[/bold red]")
+        return items[0]
+
+    def get_hash_input(self) -> str:
+        """Obtiene un hash del usuario. Atajos: 'M' cambia de modo, 'S' sale."""
+        hash_value = Prompt.ask("\n[bold]🔎 Hash a buscar[/bold] [dim](M: cambiar de modo, S: salir)[/dim]")
+
+        normalized = hash_value.strip().lower()
+        if normalized == "s":
+            self.console.print("[bold yellow]👋 Saliendo...[/bold yellow]")
+            return "salir"
+
+        if normalized == "m":
+            return "cambiar"
 
         return hash_value
 
-    def display_welcome_message(self, app_name: str):
-        """Muestra mensaje de bienvenida."""
-        self.console.print(f"[bold green]¡Bienvenido a {app_name}![/bold green]")
+    def display_welcome_message(self, app_name: str, subtitle: Optional[str] = None):
+        """Muestra el panel de bienvenida con el nombre de la app y, opcionalmente, el modo activo."""
+        text = f"[bold green]🎮 {app_name}[/bold green]"
+        if subtitle:
+            text += f"\n[dim]{subtitle}[/dim]"
+        self.console.print(Panel(text, border_style="green", expand=False))
 
     def display_success_message(self, message: str):
         """Muestra mensaje de éxito."""
-        self.console.print(f"[bold green]{message}[/bold green]")
+        self.console.print(f"[bold green]✅ {message}[/bold green]")
 
     def display_error_message(self, message: str):
         """Muestra mensaje de error."""
-        self.console.print(f"[bold red]{message}[/bold red]")
+        self.console.print(f"[bold red]❌ {message}[/bold red]")
 
     def display_info_message(self, message: str):
         """Muestra mensaje informativo."""
-        self.console.print(f"[bold blue]{message}[/bold blue]")
+        self.console.print(f"[bold blue]ℹ️  {message}[/bold blue]")
 
 
 class ValidationHelper:
