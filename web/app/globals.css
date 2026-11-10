@@ -141,7 +141,6 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 
 @media (max-width: 860px) {
   .topbar-inner { gap: 12px; padding: 0 16px; }
-  .brand .name { display: none; }
   main.app-main { padding: 20px 16px 48px; }
   .search { max-width: none; }
   .icon-btn-labeled .btn-label { display: none; }
