@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.core.data_manager import RetroAchievementsDataManager
 from src.core.link_checker import is_download_url_reachable, is_hash_recognized_by_ra
+from src.core.retroachievements_api import RetroAchievementsAPIError, RetroAchievementsClient
 from src.core.rom_info import analyze_rom_info, extract_game_name, get_console_from_rom_path
 from src.factories.url_factory import URLGeneratorFactory
 
@@ -224,6 +225,27 @@ def search():
             return {"success": False, "message": message}, 404
     else:
         return {"success": False, "message": "Error al cargar el archivo JSON local."}, 500
+
+
+@app.route("/api/want_to_play", methods=["POST"])
+def want_to_play():
+    """Cruza la lista "Want to Play" de RetroAchievements del usuario contra
+    nuestro catálogo local por ID de juego (ambos indexados por el ID real de
+    RA -- ver build_games_index). No hace falta resolver hashes/regiones acá:
+    eso ya lo hace /get_game_versions una vez que se abre una card."""
+    api_key = request.form.get("api_key", "").strip()
+    username = request.form.get("username", "").strip()
+    if not api_key or not username:
+        return {"success": False, "message": "Falta API Key o usuario."}, 400
+
+    try:
+        wtp_games = RetroAchievementsClient(api_key).get_want_to_play_list(username)
+    except RetroAchievementsAPIError as e:
+        return {"success": False, "message": str(e)}, 502
+
+    wanted_ids = {str(g["ID"]) for g in wtp_games}
+    items = [g for g in build_games_index() if g["id"] in wanted_ids]
+    return {"success": True, "items": items, "total": len(items), "requested": len(wtp_games)}
 
 
 @app.errorhandler(404)
