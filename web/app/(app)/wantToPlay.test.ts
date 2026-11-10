@@ -8,7 +8,7 @@ afterEach(() => {
 
 describe("connectRaAccount", () => {
   it("posts api_key and username as form fields and returns the parsed JSON", async () => {
-    const mockResponse: RaConnectResponse = { success: true, username: "pipetboy", total: 1, requested: 2 };
+    const mockResponse: RaConnectResponse = { success: true, total: 1, requested: 2 };
     const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) });
     vi.stubGlobal("fetch", fetchMock);
 

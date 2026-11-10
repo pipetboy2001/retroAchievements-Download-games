@@ -22,9 +22,10 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
     setError("");
     setLoading(true);
     try {
-      const data = await connectRaAccount(apiKey.trim(), username.trim());
-      if (data.success && data.username) {
-        setConnected(data.username);
+      const trimmedUsername = username.trim();
+      const data = await connectRaAccount(apiKey.trim(), trimmedUsername);
+      if (data.success) {
+        setConnected(trimmedUsername);
         setSuccessMessage(wtpFoundCount(data.total ?? 0, data.requested ?? 0, locale));
         setApiKey("");
         setUsername("");

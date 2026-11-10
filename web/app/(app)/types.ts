@@ -64,7 +64,6 @@ export interface WantToPlayResponse {
 
 export interface RaConnectResponse {
   success: boolean;
-  username?: string;
   total?: number;
   requested?: number;
   message?: string;

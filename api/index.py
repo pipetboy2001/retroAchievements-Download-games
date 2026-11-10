@@ -272,7 +272,10 @@ def ra_connect():
 
     session["ra_api_key"] = api_key
     session["ra_username"] = username
-    return {"success": True, "username": username, "total": total, "requested": requested}
+    # No se devuelve `username`: es el mismo valor que el cliente acaba de
+    # mandar, reflejarlo de vuelta no aporta nada y CodeQL lo marca como
+    # posible XSS reflejado (el frontend ya lo tiene en su propio form).
+    return {"success": True, "total": total, "requested": requested}
 
 
 @app.route("/api/ra/disconnect", methods=["POST"])
