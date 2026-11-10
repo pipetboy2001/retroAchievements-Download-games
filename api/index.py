@@ -2,18 +2,34 @@ import os
 import sys
 from html import escape
 
-from flask import Flask, redirect, render_template, request
+from dotenv import load_dotenv
+from flask import Flask, redirect, render_template, request, session
 
 # Permite importar el paquete src/ (core de dominio compartido con la app de
 # consola) cuando este archivo corre como función serverless en Vercel.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import config
 from src.core.data_manager import RetroAchievementsDataManager
 from src.core.link_checker import is_download_url_reachable, is_hash_recognized_by_ra
+from src.core.retroachievements_api import RetroAchievementsAPIError, RetroAchievementsClient
 from src.core.rom_info import analyze_rom_info, extract_game_name, get_console_from_rom_path
 from src.factories.url_factory import URLGeneratorFactory
 
+load_dotenv(config.ENV_FILE)
+
 app = Flask(__name__)
+
+# Sesión de servidor (cookie firmada, HttpOnly) para la API Key de RA de
+# /api/ra/connect -- nunca queda en localStorage/JS. FLASK_SECRET_KEY *tiene*
+# que ser una variable de entorno real en producción (Vercel): sin ella, la
+# firma de la cookie es este valor público del código fuente y cualquiera
+# podría forjar una sesión (igual queda protegida de lectura por XSS gracias
+# a HttpOnly, pero no de falsificación).
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-only-insecure-secret-cambiar-en-produccion")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = bool(os.environ.get("VERCEL"))
 
 # Ruta al archivo JSON local
 JSON_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Data", "TamperMonkeyRetroachievements.json")
@@ -224,6 +240,71 @@ def search():
             return {"success": False, "message": message}, 404
     else:
         return {"success": False, "message": "Error al cargar el archivo JSON local."}, 500
+
+
+def _resolve_want_to_play(api_key: str, username: str):
+    """Cruza la lista "Want to Play" de RA contra nuestro catálogo local por ID
+    de juego (ambos indexados por el ID real de RA -- ver build_games_index).
+    No hace falta resolver hashes/regiones acá: eso ya lo hace
+    /get_game_versions una vez que se abre una card. Puede lanzar
+    RetroAchievementsAPIError."""
+    wtp_games = RetroAchievementsClient(api_key).get_want_to_play_list(username)
+    wanted_ids = {str(g["ID"]) for g in wtp_games}
+    items = [g for g in build_games_index() if g["id"] in wanted_ids]
+    return items, len(items), len(wtp_games)
+
+
+@app.route("/api/ra/connect", methods=["POST"])
+def ra_connect():
+    """Valida la API Key contra la API de RA y, si funciona, la guarda en la
+    sesión del servidor (cookie firmada + HttpOnly) -- nunca en la respuesta
+    ni en ningún storage del browser."""
+    api_key = request.form.get("api_key", "").strip()
+    username = request.form.get("username", "").strip()
+    if not api_key or not username:
+        return {"success": False, "message": "Falta API Key o usuario."}, 400
+
+    try:
+        _, total, requested = _resolve_want_to_play(api_key, username)
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al conectar la cuenta de RetroAchievements.")
+        return {"success": False, "message": "No pudimos conectar: revisá tu API Key y usuario."}, 502
+
+    session["ra_api_key"] = api_key
+    session["ra_username"] = username
+    # No se devuelve `username`: es el mismo valor que el cliente acaba de
+    # mandar, reflejarlo de vuelta no aporta nada y CodeQL lo marca como
+    # posible XSS reflejado (el frontend ya lo tiene en su propio form).
+    return {"success": True, "total": total, "requested": requested}
+
+
+@app.route("/api/ra/disconnect", methods=["POST"])
+def ra_disconnect():
+    session.pop("ra_api_key", None)
+    session.pop("ra_username", None)
+    return {"success": True}
+
+
+@app.route("/api/ra/status")
+def ra_status():
+    username = session.get("ra_username")
+    return {"connected": username is not None, "username": username}
+
+
+@app.route("/api/want_to_play")
+def want_to_play():
+    api_key = session.get("ra_api_key")
+    username = session.get("ra_username")
+    if not api_key or not username:
+        return {"success": False, "message": "No hay una cuenta de RetroAchievements conectada."}, 401
+
+    try:
+        items, total, requested = _resolve_want_to_play(api_key, username)
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al consultar Want to Play en RetroAchievements.")
+        return {"success": False, "message": "No pudimos traer tu lista de deseos."}, 502
+
+    return {"success": True, "items": items, "total": total, "requested": requested}
 
 
 @app.errorhandler(404)

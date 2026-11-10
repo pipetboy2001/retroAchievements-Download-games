@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Copy,
   Fingerprint,
+  Heart,
   Plus,
   Search,
   ShieldCheck,
@@ -35,6 +36,7 @@ export const UploadIcon = (props: LucideProps) => <Upload size={28} {...props} /
 export const ShieldCheckIcon = (props: LucideProps) => <ShieldCheck size={14} {...props} />;
 export const CheckCircleIcon = (props: LucideProps) => <CheckCircle2 size={16} {...props} />;
 export const WarningIcon = (props: LucideProps) => <AlertTriangle size={16} {...props} />;
+export const HeartIcon = (props: LucideProps) => <Heart size={14} {...props} />;
 
 // Logo del sitio: trofeo en pixel-art (ver pixelTrophy.ts). Usa currentColor
 // para heredar el color de texto del contenedor (.brand .mark).
