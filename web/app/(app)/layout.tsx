@@ -10,6 +10,7 @@ import CartDrawer from "./CartDrawer";
 import Footer from "./Footer";
 import HasherModal from "./HasherModal";
 import NoticeModal from "./NoticeModal";
+import { RaAccountProvider, useRaAccount } from "./RaAccountContext";
 import RaAccountModal from "./RaAccountModal";
 import {
   CartIcon,
@@ -37,11 +38,11 @@ function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const { items } = useCart();
+  const { account, modalOpen: raOpen, openModal: openRaModal, closeModal: closeRaModal } = useRaAccount();
   const { locale, setLocale, t } = useLocale();
   const [q, setQ] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [hasherOpen, setHasherOpen] = useState(false);
-  const [raOpen, setRaOpen] = useState(false);
 
   function onSearchSubmit(e: FormEvent) {
     e.preventDefault();
@@ -105,8 +106,8 @@ function Shell({ children }: { children: ReactNode }) {
             <button type="button" className="icon-btn-labeled" onClick={() => setHasherOpen(true)}>
               <FingerprintIcon /> <span className="btn-label">{t("topbar.verifyRom")}</span>
             </button>
-            <button type="button" className="icon-btn-labeled" onClick={() => setRaOpen(true)}>
-              <UserIcon /> <span className="btn-label">{t("topbar.connectRa")}</span>
+            <button type="button" className="icon-btn-labeled" onClick={openRaModal}>
+              <UserIcon /> <span className="btn-label">{account?.username ?? t("topbar.connectRa")}</span>
             </button>
             <button type="button" className="cart-trigger" onClick={() => setCartOpen(true)} aria-label={t("topbar.openCart")}>
               <CartIcon />
@@ -127,15 +128,17 @@ function Shell({ children }: { children: ReactNode }) {
       <NoticeModal />
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
       <HasherModal open={hasherOpen} onClose={() => setHasherOpen(false)} />
-      <RaAccountModal open={raOpen} onClose={() => setRaOpen(false)} />
+      <RaAccountModal open={raOpen} onClose={closeRaModal} />
     </div>
   );
 }
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <CartProvider>
-      <Shell>{children}</Shell>
-    </CartProvider>
+    <RaAccountProvider>
+      <CartProvider>
+        <Shell>{children}</Shell>
+      </CartProvider>
+    </RaAccountProvider>
   );
 }

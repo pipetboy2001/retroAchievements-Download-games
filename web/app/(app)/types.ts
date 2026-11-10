@@ -53,3 +53,11 @@ export interface SearchResult {
   console?: string;
   message?: string;
 }
+
+export interface WantToPlayResponse {
+  success: boolean;
+  items: Game[];
+  total?: number;
+  requested?: number;
+  message?: string;
+}

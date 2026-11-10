@@ -7,10 +7,12 @@ import { COMPANY_ORDER, companyOf } from "./consoleCompanies";
 import GameCard from "./GameCard";
 import GameCardSkeleton from "./GameCardSkeleton";
 import { useCart } from "./CartContext";
+import { useRaAccount } from "./RaAccountContext";
 import { downloadGame } from "./download";
-import { BoltIcon, CheckIcon, SearchIcon } from "./icons";
+import { BoltIcon, CheckIcon, HeartIcon, SearchIcon } from "./icons";
 import type { ConsoleCount, Game, GamesResponse, SearchResult } from "./types";
 import { lookupHash } from "./verifyHash";
+import { fetchWantToPlay } from "./wantToPlay";
 import { resultsCount } from "./i18n";
 import { useLocale } from "./useLocale";
 
@@ -44,6 +46,7 @@ export default function GamesView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const cart = useCart();
+  const { account, openModal: openRaModal } = useRaAccount();
   const { locale, t } = useLocale();
 
   const [input, setInput] = useState("");
@@ -71,6 +74,11 @@ export default function GamesView() {
   const [consoles, setConsoles] = useState<ConsoleCount[]>([]);
   const [allTotal, setAllTotal] = useState(0);
 
+  const [wtpActive, setWtpActive] = useState(false);
+  const [wtpItems, setWtpItems] = useState<Game[]>([]);
+  const [wtpLoading, setWtpLoading] = useState(false);
+  const [wtpError, setWtpError] = useState("");
+
   const [verify, setVerify] = useState<SearchResult | null>(null);
   const [verifyHash, setVerifyHash] = useState("");
   const [verifyLoading, setVerifyLoading] = useState(false);
@@ -86,7 +94,7 @@ export default function GamesView() {
   }, []);
 
   useEffect(() => {
-    if (isHash) return;
+    if (isHash || wtpActive) return;
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (consoleFilter) params.set("console", consoleFilter);
@@ -104,7 +112,21 @@ export default function GamesView() {
         setConsoles(data.consoles || []);
       })
       .finally(() => setLoading(false));
-  }, [q, consoleFilter, page, pageSize, isHash]);
+  }, [q, consoleFilter, page, pageSize, isHash, wtpActive]);
+
+  useEffect(() => {
+    if (!wtpActive || !account) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marca el inicio del fetch que dispara este mismo efecto, no estado derivado de un render anterior
+    setWtpLoading(true);
+    setWtpError("");
+    fetchWantToPlay(account.apiKey, account.username)
+      .then((data) => {
+        if (data.success) setWtpItems(data.items);
+        else setWtpError(data.message || t("wtp.fetchError"));
+      })
+      .catch(() => setWtpError(t("wtp.fetchError")))
+      .finally(() => setWtpLoading(false));
+  }, [wtpActive, account, t]);
 
   useEffect(() => {
     if (!isHash) {
@@ -153,10 +175,32 @@ export default function GamesView() {
     });
   }
 
+  function toggleWtp() {
+    if (!account) {
+      openRaModal();
+      return;
+    }
+    setWtpActive((prev) => !prev);
+    setConsoleFilter("");
+    setPage(1);
+  }
+
   const consolesByCompany = COMPANY_ORDER.map((company) => ({
     company,
     consoles: consoles.filter((c) => companyOf(c.name) === company).sort((a, b) => b.count - a.count),
   })).filter((g) => g.consoles.length > 0);
+
+  // Modo "Mi Want to Play": wtpItems ya vino completo del server en un solo
+  // fetch (el acumulado no suele pasar de un par de cientos de juegos), así
+  // que el filtro por nombre/consola y la paginación se hacen client-side en
+  // vez de pegarle a /api/games de nuevo en cada tecla.
+  const filteredWtpItems = wtpItems.filter((g) => {
+    const matchesConsole = !consoleFilter || g.consoles.includes(consoleFilter);
+    const matchesQuery = !q || g.name.toLowerCase().includes(q.toLowerCase());
+    return matchesConsole && matchesQuery;
+  });
+  const wtpTotalPages = Math.max(1, Math.ceil(filteredWtpItems.length / pageSize));
+  const pagedWtpItems = filteredWtpItems.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <>
@@ -221,13 +265,17 @@ export default function GamesView() {
           <div className="pill-row">
             <button
               type="button"
-              className={`pill${consoleFilter === "" ? " active" : ""}`}
+              className={`pill${!wtpActive && consoleFilter === "" ? " active" : ""}`}
               onClick={() => {
                 setConsoleFilter("");
+                setWtpActive(false);
                 setPage(1);
               }}
             >
               {t("dropdown.all")}
+            </button>
+            <button type="button" className={`pill${wtpActive ? " active" : ""}`} onClick={toggleWtp}>
+              <HeartIcon /> {t("wtp.pill")}
             </button>
             {consolesByCompany.map(({ company, consoles: companyConsoles }) => (
               <ConsoleFilterDropdown
@@ -235,9 +283,10 @@ export default function GamesView() {
                 label={company}
                 consoles={companyConsoles}
                 value={consoleFilter}
-                selected={companyConsoles.some((c) => c.name === consoleFilter)}
+                selected={!wtpActive && companyConsoles.some((c) => c.name === consoleFilter)}
                 onChange={(name) => {
                   setConsoleFilter(name);
+                  setWtpActive(false);
                   setPage(1);
                 }}
               />
@@ -245,7 +294,7 @@ export default function GamesView() {
           </div>
 
           <div className="grid-head">
-            <span>{resultsCount(total, consoleFilter, locale)}</span>
+            <span>{resultsCount(wtpActive ? filteredWtpItems.length : total, consoleFilter, locale)}</span>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div className="page-size">
                 <label htmlFor="page-size-select">{t("games.showLabel")}</label>
@@ -264,11 +313,34 @@ export default function GamesView() {
                   ))}
                 </select>
               </div>
-              <Pager page={page} totalPages={totalPages} onChange={setPage} />
+              <Pager page={page} totalPages={wtpActive ? wtpTotalPages : totalPages} onChange={setPage} />
             </div>
           </div>
 
-          {loading ? (
+          {wtpActive ? (
+            wtpLoading ? (
+              <div className="games-grid">
+                {Array.from({ length: Math.min(pageSize, SKELETON_COUNT) }).map((_, i) => (
+                  <GameCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : wtpError ? (
+              <p className="empty-hint">{wtpError}</p>
+            ) : pagedWtpItems.length === 0 ? (
+              <p className="empty-hint">{t("wtp.noResults")}</p>
+            ) : (
+              <>
+                <div className="games-grid">
+                  {pagedWtpItems.map((g) => (
+                    <GameCard key={g.id} game={g} />
+                  ))}
+                </div>
+                <div className="grid-foot">
+                  <Pager page={page} totalPages={wtpTotalPages} onChange={setPage} />
+                </div>
+              </>
+            )
+          ) : loading ? (
             <div className="games-grid">
               {Array.from({ length: Math.min(pageSize, SKELETON_COUNT) }).map((_, i) => (
                 <GameCardSkeleton key={i} />
