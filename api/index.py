@@ -240,8 +240,9 @@ def want_to_play():
 
     try:
         wtp_games = RetroAchievementsClient(api_key).get_want_to_play_list(username)
-    except RetroAchievementsAPIError as e:
-        return {"success": False, "message": str(e)}, 502
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al consultar Want to Play en RetroAchievements.")
+        return {"success": False, "message": "No se pudo obtener la lista de Want to Play."}, 502
 
     wanted_ids = {str(g["ID"]) for g in wtp_games}
     items = [g for g in build_games_index() if g["id"] in wanted_ids]
