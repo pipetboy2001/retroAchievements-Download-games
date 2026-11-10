@@ -6,11 +6,11 @@ import { wtpFoundCount } from "./i18n";
 import { UserIcon } from "./icons";
 import { useLocale } from "./useLocale";
 import { useRaAccount } from "./RaAccountContext";
-import { fetchWantToPlay } from "./wantToPlay";
+import { connectRaAccount } from "./wantToPlay";
 
 export default function RaAccountModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t, locale } = useLocale();
-  const { account, connect, disconnect } = useRaAccount();
+  const { account, setConnected, disconnect } = useRaAccount();
   const [apiKey, setApiKey] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,9 +22,9 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
     setError("");
     setLoading(true);
     try {
-      const data = await fetchWantToPlay(apiKey.trim(), username.trim());
-      if (data.success) {
-        connect(username.trim(), apiKey.trim());
+      const data = await connectRaAccount(apiKey.trim(), username.trim());
+      if (data.success && data.username) {
+        setConnected(data.username);
         setSuccessMessage(wtpFoundCount(data.total ?? 0, data.requested ?? 0, locale));
         setApiKey("");
         setUsername("");

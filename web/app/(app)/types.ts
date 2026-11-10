@@ -61,3 +61,16 @@ export interface WantToPlayResponse {
   requested?: number;
   message?: string;
 }
+
+export interface RaConnectResponse {
+  success: boolean;
+  username?: string;
+  total?: number;
+  requested?: number;
+  message?: string;
+}
+
+export interface RaStatusResponse {
+  connected: boolean;
+  username: string | null;
+}

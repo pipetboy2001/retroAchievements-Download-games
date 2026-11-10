@@ -1,15 +1,16 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { disconnectRaAccount, getRaStatus } from "./wantToPlay";
 
 export interface RaAccount {
   username: string;
-  apiKey: string;
 }
 
 interface RaAccountContextValue {
   account: RaAccount | null;
-  connect: (username: string, apiKey: string) => void;
+  statusLoading: boolean;
+  setConnected: (username: string) => void;
   disconnect: () => void;
   modalOpen: boolean;
   openModal: () => void;
@@ -17,43 +18,39 @@ interface RaAccountContextValue {
 }
 
 const RaAccountContext = createContext<RaAccountContextValue | null>(null);
-// Riesgo aceptado (CodeQL "Clear text storage of sensitive information"):
-// guardamos la Web API Key de RA en localStorage, igual que el carrito, para
-// no pedirla en cada visita. Nunca sale del navegador salvo hacia nuestro
-// propio backend (ver /api/want_to_play) -- decisión explícita del usuario,
-// no un descuido.
-const STORAGE_KEY = "ra-downloader-account";
 
 export function RaAccountProvider({ children }: { children: ReactNode }) {
-  const [account, setAccount] = useState<RaAccount | null>(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [account, setAccount] = useState<RaAccount | null>(null);
+  const [statusLoading, setStatusLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
 
+  // La API Key vive solo en una cookie HttpOnly del servidor (ver
+  // /api/ra/connect) -- el browser nunca la tiene, así que al montar hay que
+  // preguntarle al servidor si ya hay una sesión activa (en vez de leer algo
+  // propio del cliente).
   useEffect(() => {
-    if (account) localStorage.setItem(STORAGE_KEY, JSON.stringify(account));
-    else localStorage.removeItem(STORAGE_KEY);
-  }, [account]);
+    getRaStatus()
+      .then((data) => {
+        if (data.connected && data.username) setAccount({ username: data.username });
+      })
+      .finally(() => setStatusLoading(false));
+  }, []);
 
-  function connect(username: string, apiKey: string) {
-    setAccount({ username, apiKey });
+  function setConnected(username: string) {
+    setAccount({ username });
   }
 
   function disconnect() {
     setAccount(null);
+    void disconnectRaAccount();
   }
 
   return (
     <RaAccountContext.Provider
       value={{
         account,
-        connect,
+        statusLoading,
+        setConnected,
         disconnect,
         modalOpen,
         openModal: () => setModalOpen(true),

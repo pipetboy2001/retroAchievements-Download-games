@@ -119,7 +119,7 @@ export default function GamesView() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- marca el inicio del fetch que dispara este mismo efecto, no estado derivado de un render anterior
     setWtpLoading(true);
     setWtpError("");
-    fetchWantToPlay(account.apiKey, account.username)
+    fetchWantToPlay()
       .then((data) => {
         if (data.success) setWtpItems(data.items);
         else setWtpError(data.message || t("wtp.fetchError"));

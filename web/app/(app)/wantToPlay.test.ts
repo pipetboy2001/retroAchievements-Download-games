@@ -1,24 +1,24 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchWantToPlay } from "./wantToPlay";
-import type { WantToPlayResponse } from "./types";
+import { connectRaAccount, disconnectRaAccount, fetchWantToPlay, getRaStatus } from "./wantToPlay";
+import type { RaConnectResponse, RaStatusResponse, WantToPlayResponse } from "./types";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("fetchWantToPlay", () => {
+describe("connectRaAccount", () => {
   it("posts api_key and username as form fields and returns the parsed JSON", async () => {
-    const mockResponse: WantToPlayResponse = { success: true, items: [], total: 0, requested: 0 };
+    const mockResponse: RaConnectResponse = { success: true, username: "pipetboy", total: 1, requested: 2 };
     const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) });
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await fetchWantToPlay("my-key", "my-user");
+    const result = await connectRaAccount("my-key", "my-user");
 
     expect(result).toEqual(mockResponse);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe("/api/want_to_play");
+    expect(url).toBe("/api/ra/connect");
     expect(options.method).toBe("POST");
 
     const form = options.body as FormData;
@@ -27,14 +27,51 @@ describe("fetchWantToPlay", () => {
   });
 
   it("propagates the error response as-is", async () => {
-    const mockResponse: WantToPlayResponse = { success: false, items: [], message: "boom" };
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) }),
-    );
+    const mockResponse: RaConnectResponse = { success: false, message: "boom" };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) }));
 
-    const result = await fetchWantToPlay("bad-key", "someone");
+    const result = await connectRaAccount("bad-key", "someone");
 
     expect(result).toEqual(mockResponse);
+  });
+});
+
+describe("disconnectRaAccount", () => {
+  it("posts to /api/ra/disconnect with no body", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve({ success: true }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await disconnectRaAccount();
+
+    expect(result).toEqual({ success: true });
+    const [url, options] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("/api/ra/disconnect");
+    expect(options.method).toBe("POST");
+  });
+});
+
+describe("getRaStatus", () => {
+  it("gets /api/ra/status and returns the parsed JSON", async () => {
+    const mockResponse: RaStatusResponse = { connected: true, username: "pipetboy" };
+    const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getRaStatus();
+
+    expect(result).toEqual(mockResponse);
+    expect(fetchMock).toHaveBeenCalledWith("/api/ra/status");
+  });
+});
+
+describe("fetchWantToPlay", () => {
+  it("gets /api/want_to_play with no arguments (credenciales vía cookie de sesión)", async () => {
+    const mockResponse: WantToPlayResponse = { success: true, items: [], total: 0, requested: 0 };
+    const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchWantToPlay();
+
+    expect(result).toEqual(mockResponse);
+    expect(fetchMock).toHaveBeenCalledWith("/api/want_to_play");
   });
 });
