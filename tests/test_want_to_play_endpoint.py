@@ -42,17 +42,21 @@ def test_missing_params_returns_400():
 
 
 def test_ra_api_error_returns_502():
+    """El mensaje al cliente es genérico a propósito -- no debe filtrar el
+    texto interno de la excepción (ver app.logger.exception en api/index.py,
+    que sí registra el detalle del lado del servidor)."""
     with patch.object(
         api_module.RetroAchievementsClient,
         "get_want_to_play_list",
-        side_effect=api_module.RetroAchievementsAPIError("boom"),
+        side_effect=api_module.RetroAchievementsAPIError("detalle interno sensible"),
     ):
         resp = _client().post("/api/want_to_play", data={"api_key": "x", "username": "y"})
 
     assert resp.status_code == 502
     data = resp.get_json()
     assert data["success"] is False
-    assert "boom" in data["message"]
+    assert data["message"]
+    assert "detalle interno sensible" not in data["message"]
 
 
 def test_intersects_wtp_ids_against_local_catalog():
