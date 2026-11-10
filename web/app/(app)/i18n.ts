@@ -89,6 +89,7 @@ const es = {
   "gamecard.otherMirrors": "Otros espejos",
   "gamecard.copyHash": "Copiar hash MD5",
   "gamecard.hashCopied": "Hash copiado",
+  "gamecard.viewOnRa": "Ver en RetroAchievements",
 
   "hasher.dropTitle": "Soltá tu ROM acá",
   "hasher.dropSub": "o hacé clic para explorar tu equipo",
@@ -225,6 +226,7 @@ const en: Record<keyof typeof es, string> = {
   "gamecard.otherMirrors": "Other mirrors",
   "gamecard.copyHash": "Copy MD5 hash",
   "gamecard.hashCopied": "Hash copied",
+  "gamecard.viewOnRa": "View on RetroAchievements",
 
   "hasher.dropTitle": "Drop your ROM here",
   "hasher.dropSub": "or click to browse your computer",
@@ -363,6 +365,7 @@ const pt: Record<keyof typeof es, string> = {
   "gamecard.otherMirrors": "Outros espelhos",
   "gamecard.copyHash": "Copiar hash MD5",
   "gamecard.hashCopied": "Hash copiado",
+  "gamecard.viewOnRa": "Ver no RetroAchievements",
 
   "hasher.dropTitle": "Solte sua ROM aqui",
   "hasher.dropSub": "ou clique para explorar seu computador",
@@ -501,6 +504,7 @@ const fr: Record<keyof typeof es, string> = {
   "gamecard.otherMirrors": "Autres miroirs",
   "gamecard.copyHash": "Copier le hash MD5",
   "gamecard.hashCopied": "Hash copié",
+  "gamecard.viewOnRa": "Voir sur RetroAchievements",
 
   "hasher.dropTitle": "Déposez votre ROM ici",
   "hasher.dropSub": "ou cliquez pour parcourir votre ordinateur",
