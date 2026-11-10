@@ -7,20 +7,10 @@ import { UserIcon } from "./icons";
 import { useLocale } from "./useLocale";
 import { useRaAccount } from "./RaAccountContext";
 import { connectRaAccount } from "./wantToPlay";
-import type { Locale } from "./i18n";
-
-function formatMemberSince(raw: string | undefined, locale: Locale): string {
-  if (!raw) return "";
-  // RA devuelve "YYYY-MM-DD HH:MM:SS" en UTC sin indicarlo -- se lo marcamos
-  // explícito para que Date no lo interprete como hora local.
-  const date = new Date(`${raw.replace(" ", "T")}Z`);
-  if (Number.isNaN(date.getTime())) return raw;
-  return date.toLocaleDateString(locale, { year: "numeric", month: "long" });
-}
 
 export default function RaAccountModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t, locale } = useLocale();
-  const { account, profile, wtpCounts, setConnected, setWtpCounts, disconnect } = useRaAccount();
+  const { account, profile, wtpCounts, setConnected, disconnect } = useRaAccount();
   const [apiKey, setApiKey] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,8 +24,9 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
       const trimmedUsername = username.trim();
       const data = await connectRaAccount(apiKey.trim(), trimmedUsername);
       if (data.success) {
+        // El contexto trae perfil y conteo de want-to-play solo (ver el
+        // efecto en RaAccountContext que reacciona a que account cambió).
         setConnected(trimmedUsername);
-        setWtpCounts(data.total ?? 0, data.requested ?? 0);
         setApiKey("");
         setUsername("");
       } else {
@@ -93,12 +84,6 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
                     <span className="num">{profile.total_true_points ?? 0}</span>
                     <label>{t("ra.truePoints")}</label>
                   </div>
-                  {profile.member_since && (
-                    <div>
-                      <span className="num">{formatMemberSince(profile.member_since, locale)}</span>
-                      <label>{t("ra.memberSince")}</label>
-                    </div>
-                  )}
                 </div>
               )}
 

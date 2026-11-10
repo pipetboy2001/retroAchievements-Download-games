@@ -107,6 +107,7 @@ body {
 }
 .icon-btn-labeled:hover { border-color: var(--accent-border); color: var(--text-bright); }
 .icon-btn-labeled svg { flex-shrink: 0; }
+.topbar-avatar { width: 18px; height: 18px; border-radius: 999px; object-fit: cover; flex-shrink: 0; }
 .cart-trigger {
   position: relative; display: flex; align-items: center; justify-content: center;
   width: 36px; height: 36px; background: var(--surface); border: 1px solid var(--rule-strong);

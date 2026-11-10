@@ -265,7 +265,10 @@ def ra_connect():
         return {"success": False, "message": "Falta API Key o usuario."}, 400
 
     try:
-        _, total, requested = _resolve_want_to_play(api_key, username)
+        # Validación: no hace falta el resultado, solo confirmar que la API
+        # Key puede llamar a la API de RA. El frontend trae los conteos de
+        # want_to_play y el perfil por separado apenas ve la cuenta conectada.
+        RetroAchievementsClient(api_key).get_want_to_play_list(username)
     except RetroAchievementsAPIError:
         app.logger.exception("Error al conectar la cuenta de RetroAchievements.")
         return {"success": False, "message": "No pudimos conectar: revisá tu API Key y usuario."}, 502
@@ -275,7 +278,7 @@ def ra_connect():
     # No se devuelve `username`: es el mismo valor que el cliente acaba de
     # mandar, reflejarlo de vuelta no aporta nada y CodeQL lo marca como
     # posible XSS reflejado (el frontend ya lo tiene en su propio form).
-    return {"success": True, "total": total, "requested": requested}
+    return {"success": True}
 
 
 @app.route("/api/ra/disconnect", methods=["POST"])
@@ -314,7 +317,6 @@ def ra_profile():
         "avatar_url": f"https://media.retroachievements.org{user_pic}" if user_pic else None,
         "total_points": profile.get("TotalPoints"),
         "total_true_points": profile.get("TotalTruePoints"),
-        "member_since": profile.get("MemberSince"),
         "motto": profile.get("Motto") or None,
     }
 

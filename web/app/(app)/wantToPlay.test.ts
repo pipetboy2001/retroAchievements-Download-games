@@ -8,7 +8,7 @@ afterEach(() => {
 
 describe("connectRaAccount", () => {
   it("posts api_key and username as form fields and returns the parsed JSON", async () => {
-    const mockResponse: RaConnectResponse = { success: true, total: 1, requested: 2 };
+    const mockResponse: RaConnectResponse = { success: true };
     const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -70,7 +70,6 @@ describe("getRaProfile", () => {
       avatar_url: "https://media.retroachievements.org/UserPic/pipetboy.png",
       total_points: 12345,
       total_true_points: 45678,
-      member_since: "2020-01-02 00:00:00",
       motto: "Jugando RA",
     };
     const fetchMock = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResponse) });

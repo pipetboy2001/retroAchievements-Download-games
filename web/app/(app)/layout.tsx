@@ -38,7 +38,7 @@ function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const { items } = useCart();
-  const { account, modalOpen: raOpen, openModal: openRaModal, closeModal: closeRaModal } = useRaAccount();
+  const { account, profile, modalOpen: raOpen, openModal: openRaModal, closeModal: closeRaModal } = useRaAccount();
   const { locale, setLocale, t } = useLocale();
   const [q, setQ] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
@@ -107,7 +107,13 @@ function Shell({ children }: { children: ReactNode }) {
               <FingerprintIcon /> <span className="btn-label">{t("topbar.verifyRom")}</span>
             </button>
             <button type="button" className="icon-btn-labeled" onClick={openRaModal}>
-              <UserIcon /> <span className="btn-label">{account?.username ?? t("topbar.connectRa")}</span>
+              {profile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="topbar-avatar" src={profile.avatar_url} alt="" />
+              ) : (
+                <UserIcon />
+              )}
+              <span className="btn-label">{account?.username ?? t("topbar.connectRa")}</span>
             </button>
             <button type="button" className="cart-trigger" onClick={() => setCartOpen(true)} aria-label={t("topbar.openCart")}>
               <CartIcon />

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { disconnectRaAccount, getRaProfile, getRaStatus } from "./wantToPlay";
+import { disconnectRaAccount, fetchWantToPlay, getRaProfile, getRaStatus } from "./wantToPlay";
 import type { RaProfile } from "./types";
 
 export interface RaAccount {
@@ -47,18 +47,22 @@ export function RaAccountProvider({ children }: { children: ReactNode }) {
       .finally(() => setStatusLoading(false));
   }, []);
 
-  // Trae el perfil (avatar/puntos) cada vez que hay una cuenta conectada --
-  // tanto recién conectada como al retomar una sesión existente tras
-  // recargar la página. Es una llamada liviana (GetUserProfile), separada
-  // de la lista de deseos.
+  // Trae el perfil y el conteo de want-to-play cada vez que hay una cuenta
+  // conectada -- tanto recién conectada como al retomar una sesión existente
+  // tras recargar la página, para que el modal siempre pueda mostrar "Mi
+  // Want to Play" y el conteo, no solo la primera vez que se conecta.
   useEffect(() => {
     if (!account) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- reacciona a que la cuenta (sistema externo) cambió, no a estado derivado de un render anterior
       setProfile(null);
+      setWtpCountsState(null);
       return;
     }
     getRaProfile().then((data) => {
       if (data.success) setProfile(data);
+    });
+    fetchWantToPlay().then((data) => {
+      if (data.success) setWtpCountsState({ total: data.total ?? data.items.length, requested: data.requested ?? data.items.length });
     });
   }, [account]);
 

@@ -64,8 +64,6 @@ export interface WantToPlayResponse {
 
 export interface RaConnectResponse {
   success: boolean;
-  total?: number;
-  requested?: number;
   message?: string;
 }
 
@@ -79,7 +77,6 @@ export interface RaProfile {
   avatar_url: string | null;
   total_points?: number;
   total_true_points?: number;
-  member_since?: string;
   motto?: string | null;
   message?: string;
 }
