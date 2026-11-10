@@ -201,6 +201,10 @@ RETROACHIEVEMENTS_USERNAME=MiUsuarioRetroAchievements
 
 > **💡 Nota**: La API Key es **opcional** para la búsqueda directa por hash. Solo se necesita para generar y gestionar tu lista personal de "Want to Play".
 
+### Variable de entorno del backend web (producción)
+
+El catálogo web (`/`) permite conectar tu cuenta de RA para traer tu lista "Want to Play" directo desde el navegador (sin tocar `.env` ni la consola). Esa API Key nunca llega al browser: queda en una cookie de sesión firmada por el servidor (`flask.session`). Para que esa firma sea real en producción, `FLASK_SECRET_KEY` tiene que configurarse como variable de entorno en Vercel (Project Settings → Environment Variables) — sin ella, el backend usa un valor de desarrollo público (seguro para probar en local, no para producción).
+
 ### Personalización avanzada
 Edita `config.py` para personalizar:
 - Rutas de archivos
