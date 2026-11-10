@@ -65,6 +65,10 @@ class RetroAchievementsClient:
         data = self._get("API_GetGameHashes.php", {"i": game_id})
         return data.get("Results", [])
 
+    def get_user_profile(self, username: str) -> Dict[str, Any]:
+        """Trae el perfil público del usuario (avatar, puntos, motto, etc)."""
+        return self._get("API_GetUserProfile.php", {"u": username})
+
     def get_console_ids(self) -> List[Dict[str, Any]]:
         """Trae todos los sistemas/consolas conocidos por RA (ID, Name)."""
         return self._get("API_GetConsoleIDs.php", {})

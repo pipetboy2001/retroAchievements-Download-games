@@ -69,20 +69,19 @@ def test_connect_ra_api_error_returns_502_without_leaking_detail():
     assert "detalle interno sensible" not in data["message"]
 
 
-def test_connect_success_returns_counts_never_credentials():
+def test_connect_success_never_returns_credentials():
     """No devuelve ni la api_key ni el username que el cliente acaba de
     mandar -- lo segundo porque reflejar de vuelta un valor que llega en el
     mismo request es exactamente el patrón que CodeQL marca como XSS
-    reflejado, y el cliente ya lo tiene en su propio form de todos modos."""
-    fake_wtp = [{"ID": 1, "Title": "Sonic the Hedgehog"}, {"ID": 999999999, "Title": "No existe"}]
-    with (
-        patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=fake_wtp),
-        patch.object(api_module, "build_games_index", return_value=_FAKE_CATALOG),
-    ):
+    reflejado, y el cliente ya lo tiene en su propio form de todos modos.
+    Tampoco devuelve conteos: el frontend los trae por separado de
+    /api/want_to_play apenas ve la cuenta conectada."""
+    fake_wtp = [{"ID": 1, "Title": "Sonic the Hedgehog"}]
+    with patch.object(api_module.RetroAchievementsClient, "get_want_to_play_list", return_value=fake_wtp):
         resp = _connect(_client(), api_key="super-secret-key", username="pipetboy", wtp_games=fake_wtp)
 
     assert resp.status_code == 200
-    assert resp.get_json() == {"success": True, "total": 1, "requested": 2}
+    assert resp.get_json() == {"success": True}
     assert "super-secret-key" not in resp.get_data(as_text=True)
     assert "pipetboy" not in resp.get_data(as_text=True)
 
@@ -163,3 +162,64 @@ def test_disconnect_clears_session():
 
     assert client.get("/api/ra/status").get_json() == {"connected": False, "username": None}
     assert client.get("/api/want_to_play").status_code == 401
+
+
+# --- /api/ra/profile ---------------------------------------------------------
+
+_FAKE_PROFILE = {
+    "User": "pipetboy",
+    "UserPic": "/UserPic/pipetboy.png",
+    "TotalPoints": 12345,
+    "TotalTruePoints": 45678,
+    "MemberSince": "2020-01-02 00:00:00",
+    "Motto": "Jugando RA",
+}
+
+
+def test_profile_without_session_returns_401():
+    resp = _client().get("/api/ra/profile")
+    assert resp.status_code == 401
+    assert resp.get_json()["success"] is False
+
+
+def test_profile_uses_session_and_builds_full_avatar_url():
+    client = _client()
+    _connect(client)
+
+    with patch.object(api_module.RetroAchievementsClient, "get_user_profile", return_value=_FAKE_PROFILE):
+        resp = client.get("/api/ra/profile")
+
+    assert resp.status_code == 200
+    assert resp.get_json() == {
+        "success": True,
+        "avatar_url": "https://media.retroachievements.org/UserPic/pipetboy.png",
+        "total_points": 12345,
+        "total_true_points": 45678,
+        "motto": "Jugando RA",
+    }
+
+
+def test_profile_without_avatar_returns_null_url():
+    client = _client()
+    _connect(client)
+    profile_without_pic = {**_FAKE_PROFILE, "UserPic": ""}
+
+    with patch.object(api_module.RetroAchievementsClient, "get_user_profile", return_value=profile_without_pic):
+        resp = client.get("/api/ra/profile")
+
+    assert resp.get_json()["avatar_url"] is None
+
+
+def test_profile_ra_api_error_returns_502():
+    client = _client()
+    _connect(client)
+
+    with patch.object(
+        api_module.RetroAchievementsClient,
+        "get_user_profile",
+        side_effect=api_module.RetroAchievementsAPIError("boom"),
+    ):
+        resp = client.get("/api/ra/profile")
+
+    assert resp.status_code == 502
+    assert "boom" not in resp.get_data(as_text=True)

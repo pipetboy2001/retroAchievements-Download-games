@@ -46,7 +46,7 @@ export default function GamesView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const cart = useCart();
-  const { account } = useRaAccount();
+  const { account, setWtpCounts } = useRaAccount();
   const { locale, t } = useLocale();
 
   const [input, setInput] = useState("");
@@ -121,12 +121,16 @@ export default function GamesView() {
     setWtpError("");
     fetchWantToPlay()
       .then((data) => {
-        if (data.success) setWtpItems(data.items);
-        else setWtpError(data.message || t("wtp.fetchError"));
+        if (data.success) {
+          setWtpItems(data.items);
+          setWtpCounts(data.total ?? data.items.length, data.requested ?? data.items.length);
+        } else {
+          setWtpError(data.message || t("wtp.fetchError"));
+        }
       })
       .catch(() => setWtpError(t("wtp.fetchError")))
       .finally(() => setWtpLoading(false));
-  }, [wtpActive, account, t]);
+  }, [wtpActive, account, t, setWtpCounts]);
 
   useEffect(() => {
     // Si se desconecta la cuenta mientras el filtro está activo, el pill

@@ -10,12 +10,11 @@ import { connectRaAccount } from "./wantToPlay";
 
 export default function RaAccountModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t, locale } = useLocale();
-  const { account, setConnected, disconnect } = useRaAccount();
+  const { account, profile, wtpCounts, setConnected, disconnect } = useRaAccount();
   const [apiKey, setApiKey] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -25,8 +24,9 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
       const trimmedUsername = username.trim();
       const data = await connectRaAccount(apiKey.trim(), trimmedUsername);
       if (data.success) {
+        // El contexto trae perfil y conteo de want-to-play solo (ver el
+        // efecto en RaAccountContext que reacciona a que account cambió).
         setConnected(trimmedUsername);
-        setSuccessMessage(wtpFoundCount(data.total ?? 0, data.requested ?? 0, locale));
         setApiKey("");
         setUsername("");
       } else {
@@ -45,7 +45,6 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
       onOpenChange={(o: boolean) => {
         if (!o) {
           setError("");
-          setSuccessMessage("");
           onClose();
         }
       }}
@@ -59,17 +58,47 @@ export default function RaAccountModal({ open, onClose }: { open: boolean; onClo
         </div>
         <div className="modal-body">
           {account ? (
-            <div className="ra-account-connected">
-              <div className="ra-account-avatar">
-                <UserIcon size={20} />
+            <div className="ra-profile">
+              <div className="ra-profile-head">
+                {profile?.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="ra-profile-avatar" src={profile.avatar_url} alt="" />
+                ) : (
+                  <div className="ra-account-avatar">
+                    <UserIcon size={20} />
+                  </div>
+                )}
+                <div>
+                  <div className="ra-account-name">{account.username}</div>
+                  {profile?.motto && <div className="ra-profile-motto">&ldquo;{profile.motto}&rdquo;</div>}
+                </div>
               </div>
-              <div className="ra-account-name">
-                {t("ra.connectedAs")} <strong>{account.username}</strong>
+
+              {profile && (
+                <div className="ra-profile-stats">
+                  <div>
+                    <span className="num">{profile.total_points ?? 0}</span>
+                    <label>{t("ra.points")}</label>
+                  </div>
+                  <div>
+                    <span className="num">{profile.total_true_points ?? 0}</span>
+                    <label>{t("ra.truePoints")}</label>
+                  </div>
+                </div>
+              )}
+
+              {wtpCounts && (
+                <p className="ra-account-hint">{wtpFoundCount(wtpCounts.total, wtpCounts.requested, locale)}</p>
+              )}
+
+              <div className="ra-profile-actions">
+                <button type="button" className="btn-primary" onClick={onClose}>
+                  {t("common.accept")}
+                </button>
+                <button type="button" className="btn-ghost" onClick={disconnect}>
+                  {t("ra.disconnect")}
+                </button>
               </div>
-              {successMessage && <p className="ra-account-hint">{successMessage}</p>}
-              <button type="button" className="btn-ghost" onClick={disconnect}>
-                {t("ra.disconnect")}
-              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>

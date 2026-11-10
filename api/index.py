@@ -265,7 +265,10 @@ def ra_connect():
         return {"success": False, "message": "Falta API Key o usuario."}, 400
 
     try:
-        _, total, requested = _resolve_want_to_play(api_key, username)
+        # Validación: no hace falta el resultado, solo confirmar que la API
+        # Key puede llamar a la API de RA. El frontend trae los conteos de
+        # want_to_play y el perfil por separado apenas ve la cuenta conectada.
+        RetroAchievementsClient(api_key).get_want_to_play_list(username)
     except RetroAchievementsAPIError:
         app.logger.exception("Error al conectar la cuenta de RetroAchievements.")
         return {"success": False, "message": "No pudimos conectar: revisá tu API Key y usuario."}, 502
@@ -275,7 +278,7 @@ def ra_connect():
     # No se devuelve `username`: es el mismo valor que el cliente acaba de
     # mandar, reflejarlo de vuelta no aporta nada y CodeQL lo marca como
     # posible XSS reflejado (el frontend ya lo tiene en su propio form).
-    return {"success": True, "total": total, "requested": requested}
+    return {"success": True}
 
 
 @app.route("/api/ra/disconnect", methods=["POST"])
@@ -289,6 +292,33 @@ def ra_disconnect():
 def ra_status():
     username = session.get("ra_username")
     return {"connected": username is not None, "username": username}
+
+
+@app.route("/api/ra/profile")
+def ra_profile():
+    """Perfil público de RA (avatar, puntos, motto) de la cuenta conectada --
+    separado de /api/want_to_play porque es una llamada liviana a una API de
+    RA distinta (GetUserProfile) que no necesita cruzar nada contra el
+    catálogo local."""
+    api_key = session.get("ra_api_key")
+    username = session.get("ra_username")
+    if not api_key or not username:
+        return {"success": False, "message": "No hay una cuenta de RetroAchievements conectada."}, 401
+
+    try:
+        profile = RetroAchievementsClient(api_key).get_user_profile(username)
+    except RetroAchievementsAPIError:
+        app.logger.exception("Error al consultar el perfil de RetroAchievements.")
+        return {"success": False, "message": "No pudimos traer tu perfil."}, 502
+
+    user_pic = profile.get("UserPic") or ""
+    return {
+        "success": True,
+        "avatar_url": f"https://media.retroachievements.org{user_pic}" if user_pic else None,
+        "total_points": profile.get("TotalPoints"),
+        "total_true_points": profile.get("TotalTruePoints"),
+        "motto": profile.get("Motto") or None,
+    }
 
 
 @app.route("/api/want_to_play")
