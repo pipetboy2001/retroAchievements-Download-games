@@ -19,19 +19,27 @@ METADATA_FILE = os.path.join(_BASE_DIR, "Data", "retroachievements_metadata.json
 _recognized_hashes: Optional[Set[str]] = None
 
 
-def is_download_url_reachable(url: str) -> bool:
+def is_download_url_reachable(url: str, retries: int = 2) -> bool:
     """HEAD a la URL de descarga. Nunca levanta excepcion: ante cualquier
     error de red se asume no-alcanzable en vez de romper el flujo de descarga.
 
     archive.org devuelve 401 para archivos que existen pero requieren login
     en el navegador (ver FAQ del proyecto) - eso NO significa que el link
     este roto, asi que solo 404/410 (confirmado no existe) cuentan como tal.
+
+    Reintenta ante error de red (timeout/conexion): un chequeo masivo de
+    ~40 consolas en pocos minutos (scripts/check_sources_health.py) puede
+    pegarle a un rate-limit transitorio de archive.org y marcar una consola
+    entera como rota sin estarlo (issue #100, GameCube 0/15 -- confirmado
+    manualmente que los links estaban bien).
     """
-    try:
-        response = requests.head(url, timeout=10, allow_redirects=True)
-        return response.status_code not in (404, 410)
-    except requests.RequestException:
-        return False
+    for attempt in range(retries + 1):
+        try:
+            response = requests.head(url, timeout=10, allow_redirects=True)
+            return response.status_code not in (404, 410)
+        except requests.RequestException:
+            if attempt == retries:
+                return False
 
 
 def is_hash_recognized_by_ra(hash_value: str) -> bool:
