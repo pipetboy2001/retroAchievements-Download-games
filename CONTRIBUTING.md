@@ -1,6 +1,6 @@
 # Contribuir
 
-Gracias por el interés en contribuir a RetroAchievements Downloader. Esta
+Gracias por el interés en contribuir a CheevosRoms. Esta
 guía resume cómo está organizado el flujo de trabajo del repo.
 
 ## Flujo de ramas

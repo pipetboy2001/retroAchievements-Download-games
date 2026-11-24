@@ -1,6 +1,6 @@
-# 🎮 RetroAchievements Downloader
+# 🎮 CheevosRoms
 
-**RetroAchievements Downloader** es una aplicación en **Python** que facilita la descarga de ROMs compatibles con los logros de **RetroAchievements** 🏆.
+**CheevosRoms** es una aplicación en **Python** que facilita la descarga de ROMs compatibles con los logros de **RetroAchievements** 🏆.
 
 Permite explorar un catálogo de más de 8.400 juegos, buscar por nombre o por hash, armar un carrito y descargar en lote — además del modo tradicional de "Want to Play" por consola. Está disponible tanto en **versión web** como en **scripts de consola**.
 
@@ -25,7 +25,7 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 ✅ **Carrito con descarga en lote**: armá una lista y descargá todo de una  
 ✅ **Lista de deseos (consola)**: descargá juegos desde tu lista personal de "Want to Play"  
 ✅ **Soporte multiplataforma**: SNES, NES, PSP, PS1, PS2, Genesis, Arcade y más de 50 consolas en total  
-✅ **Versión web** disponible en [RetroAchievements Downloader](https://retroachievements.vercel.app/)  
+✅ **Versión web** disponible en [CheevosRoms](https://cheevosroms.vercel.app/)  
 ✅ **Interfaz de consola** con múltiples modos de operación
 
 
@@ -41,7 +41,7 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 ## 🌐 Versiones
 
 ### Versión Web
-- **URL**: [RetroAchievements Downloader](https://retroachievements.vercel.app/)
+- **URL**: [CheevosRoms](https://cheevosroms.vercel.app/)
 - **Descripción**: Catálogo navegable con carrito y descarga en lote, más búsqueda directa por hash (ver capturas arriba)
 
 ### Versión de Consola
@@ -52,7 +52,7 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 ## 🎯 Cómo Utilizar
 
 ### Versión Web
-1. **Accede a la web**: [RetroAchievements Downloader](https://retroachievements.vercel.app/)
+1. **Accede a la web**: [CheevosRoms](https://cheevosroms.vercel.app/)
 2. **Inicia sesión en archive.org**: Antes de descargar, inicia sesión en <https://archive.org/>
 3. **Buscá**: por nombre (navegás el catálogo filtrando por consola) o pegando un hash directamente
 4. **Agregá al carrito** los que quieras, o descargá uno a la vez con el botón "Descargar"
@@ -88,9 +88,9 @@ No hace falta elegir un modo y quedarte ahí: tanto la búsqueda por hash como l
 ```bash
 $ python console/main.py
 
-┌─────────────────────────────────┐
-│ 🎮 RetroAchievements Downloader │
-└─────────────────────────────────┘
+┌────────────────┐
+│ 🎮 CheevosRoms │
+└────────────────┘
 
 Seleccioná el modo de operación:
   1. Búsqueda directa por hash
@@ -98,10 +98,10 @@ Seleccioná el modo de operación:
 
   → [1/2] (1): 1
 
-┌─────────────────────────────────┐
-│ 🎮 RetroAchievements Downloader │
-│ Búsqueda directa por hash       │
-└─────────────────────────────────┘
+┌───────────────────────────┐
+│ 🎮 CheevosRoms            │
+│ Búsqueda directa por hash │
+└───────────────────────────┘
 
 🔎 Hash a buscar (M: cambiar de modo, S: salir): ABC123DEF456
 
