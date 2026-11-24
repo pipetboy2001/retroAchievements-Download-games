@@ -1,0 +1,26 @@
+# CheevosRoms
+
+> CheevosRoms (https://cheevosroms.vercel.app) helps RetroAchievements players find ROMs whose hash matches the one RetroAchievements recognizes, so achievements ("cheevos") actually unlock. It indexes 8,400+ games across 50+ consoles and links to files hosted on archive.org; it does not host any files itself.
+
+Also known as: CheevoRoms, Cheevos Roms, RA Downloader (former name).
+
+## What it does
+
+- Search by game name or by RetroAchievements hash (MD5-style RA hash).
+- Verify a hash: is it valid, is it recognized by RetroAchievements, and is the download link alive.
+- Verify a local ROM file: the RA hash is computed in the browser, the file is never uploaded (cartridge systems only).
+- Connect a RetroAchievements account to bring in your "Want to Play" list.
+- Cart with batch download.
+- Interface in Spanish, English, Portuguese and French.
+
+## Links
+
+- [Home / game search](https://cheevosroms.vercel.app/)
+- [FAQ and legal notice](https://cheevosroms.vercel.app/faq)
+- [Source code (GitHub)](https://github.com/pipetboy2001/retroAchievements-Download-games)
+
+## Notes
+
+- Not affiliated with RetroAchievements.org.
+- Downloads open on archive.org in the user's browser; logging in to archive.org first is recommended.
+- Users should respect local laws and the terms of archive.org and RetroAchievements.

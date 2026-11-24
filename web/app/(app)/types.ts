@@ -51,6 +51,8 @@ export interface SearchResult {
   ra_recognized?: boolean;
   name?: string;
   console?: string;
+  image_icon?: string | null;
+  achievements?: number | null;
   message?: string;
 }
 

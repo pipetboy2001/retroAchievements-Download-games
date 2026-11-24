@@ -81,19 +81,6 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
           )}
         </div>
 
-        <div className="drawer-section">
-          <label>
-            {t("cart.exportStructure")}
-            <span className="soon-badge">{t("common.soon")}</span>
-          </label>
-          <select className="gcard-select" disabled style={{ marginBottom: 8 }}>
-            <option>{t("cart.flatRoot")}</option>
-          </select>
-          <div className="tree-preview">
-            <span style={{ opacity: 0.6, fontStyle: "italic" }}>{t("cart.zipNote")}</span>
-          </div>
-        </div>
-
         <div className="drawer-footer">
           <button type="button" className="btn-primary" disabled={count === 0} onClick={downloadAll}>
             {downloadAllLabel(count, locale)}
