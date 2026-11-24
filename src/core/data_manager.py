@@ -3,7 +3,7 @@ Singleton para el manejo de datos JSON de RetroAchievements.
 """
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from rich.console import Console
 
@@ -57,13 +57,19 @@ class RetroAchievementsDataManager(DataProvider):
 
     def find_hash(self, hash_value: str) -> Optional[str]:
         """Busca un hash en los datos cargados."""
+        entry = self.find_hash_entry(hash_value)
+        return entry[1] if entry else None
+
+    def find_hash_entry(self, hash_value: str) -> Optional[Tuple[str, str]]:
+        """Como find_hash, pero devuelve (game_id, rom_path): el game_id es el ID
+        real de RA, la clave para cruzar con Data/retroachievements_metadata.json."""
         data = self.load_data()
         if not data:
             return None
 
         hash_upper = hash_value.upper()
-        for console_id, hash_list in data.items():
+        for game_id, hash_list in data.items():
             for item in hash_list:
                 if hash_upper in item:
-                    return item[hash_upper]
+                    return game_id, item[hash_upper]
         return None

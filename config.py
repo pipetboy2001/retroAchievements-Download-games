@@ -1,4 +1,4 @@
-# Configuración para RetroAchievements Downloader
+# Configuración para CheevosRoms
 
 import os
 

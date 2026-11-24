@@ -8,13 +8,13 @@ pegarle a la red.
 
 import json
 import random
-from collections import defaultdict
+from collections import Counter, defaultdict
 from typing import Dict, List, Tuple
 
 import config
 
 from ..factories.url_factory import URLGeneratorFactory
-from .link_checker import is_download_url_reachable
+from .link_checker import download_url_failure
 from .rom_info import get_console_from_rom_path
 
 
@@ -29,9 +29,20 @@ def group_roms_by_console(data: dict) -> Dict[str, List[str]]:
     return roms
 
 
-def _status(reachable: int, total: int, threshold: float) -> Tuple[str, float]:
-    pct = reachable / total if total else 0.0
+def _status(reachable: int, gone: int, threshold: float) -> Tuple[str, float]:
+    """Solo cuenta respuestas definitivas (alcanzable vs 404/410): un timeout
+    no prueba que el archivo no exista. archive.org le responde lento a los
+    runners de GitHub en items grandes (GameCube: 11/15 ReadTimeout en CI,
+    255/255 OK desde afuera), y eso marcaba la consola como ROTA sin estarlo."""
+    total = reachable + gone
+    if not total:
+        return "SIN RESPUESTA", 0.0
+    pct = reachable / total
     return ("OK" if pct >= threshold else "ROTO"), pct
+
+
+def _reasons(failures: Counter) -> str:
+    return " (fallos: " + ", ".join(f"{r} x{n}" for r, n in failures.most_common()) + ")" if failures else ""
 
 
 def run(sample_size: int = 15, threshold: float = 0.5) -> Tuple[str, bool]:
@@ -47,21 +58,24 @@ def run(sample_size: int = 15, threshold: float = 0.5) -> Tuple[str, bool]:
         # ruidosa); si eso da falsos positivos seguidos, subir sample_size.
         candidates = roms_by_console[console]
         sample = random.sample(candidates, min(sample_size, len(candidates)))
-        reachable = sum(
-            1 for rom_path in sample if is_download_url_reachable(URLGeneratorFactory.generate_url(rom_path))
-        )
-        status, pct = _status(reachable, len(sample), threshold)
+        failures = Counter(download_url_failure(URLGeneratorFactory.generate_url(rom_path)) for rom_path in sample)
+        reachable = failures.pop(None, 0)
+        gone = failures["404"] + failures["410"]
+        status, _ = _status(reachable, gone, threshold)
         if status == "ROTO":
             any_broken = True
-        lines.append(f"- {console}: {reachable}/{len(sample)} alcanzables ({pct:.0%}) -- {status}")
+        lines.append(f"- {console}: {reachable}/{len(sample)} alcanzables -- {status}{_reasons(failures)}")
 
     return "\n".join(lines), any_broken
 
 
 if __name__ == "__main__":
-    assert _status(8, 10, 0.5) == ("OK", 0.8)
-    assert _status(2, 10, 0.5) == ("ROTO", 0.2)
-    assert _status(0, 0, 0.5) == ("ROTO", 0.0)
+    assert _status(8, 2, 0.5) == ("OK", 0.8)
+    assert _status(2, 8, 0.5) == ("ROTO", 0.2)
+    assert _status(0, 0, 0.5) == ("SIN RESPUESTA", 0.0)
+    assert _status(4, 0, 0.5) == ("OK", 1.0)  # GameCube en CI: 4 OK + 11 timeouts
+    assert _reasons(Counter()) == ""
+    assert _reasons(Counter({"ReadTimeout": 3, "404": 1})) == " (fallos: ReadTimeout x3, 404 x1)"
 
     fixture = {
         "1": [{"HASHA": "SNES-Super Famicom/Game/Game (U).sfc"}],

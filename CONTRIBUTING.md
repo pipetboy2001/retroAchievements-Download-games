@@ -1,6 +1,6 @@
 # Contribuir
 
-Gracias por el interés en contribuir a RetroAchievements Downloader. Esta
+Gracias por el interés en contribuir a CheevosRoms. Esta
 guía resume cómo está organizado el flujo de trabajo del repo.
 
 ## Flujo de ramas
@@ -52,6 +52,9 @@ localmente, también va a fallar ahí.
 
 - 🆕 Agregar soporte para nuevas consolas (ver `src/factories/url_factory.py`
   y `src/core/rom_info.py`).
+- 🎮 Encontrar juegos que faltan: `Data/*_missing_sources.txt` lista los hashes
+  reconocidos por RetroAchievements que todavía no tienen fuente de descarga
+  (ver [Data/README.md](Data/README.md)).
 - 🔧 Mejorar la interfaz de usuario (`web/`).
 - 🐛 Reportar y corregir bugs.
 - 📚 Mejorar documentación.
