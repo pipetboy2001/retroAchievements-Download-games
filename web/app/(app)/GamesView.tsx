@@ -90,7 +90,8 @@ export default function GamesView() {
   useEffect(() => {
     fetch("/api/games?page=1&page_size=1")
       .then((res) => res.json() as Promise<GamesResponse>)
-      .then((data) => setAllTotal(data.total || 0));
+      .then((data) => setAllTotal(data.total || 0))
+      .catch(() => {}); // API caída: el contador queda en 0, sin error sin capturar
   }, []);
 
   useEffect(() => {
@@ -111,6 +112,7 @@ export default function GamesView() {
         setTotalPages(data.total_pages || 1);
         setConsoles(data.consoles || []);
       })
+      .catch(() => {}) // API caída o respuesta no-JSON: se mantiene lo último mostrado
       .finally(() => setLoading(false));
   }, [q, consoleFilter, page, pageSize, isHash, wtpActive]);
 

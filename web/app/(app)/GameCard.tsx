@@ -23,6 +23,10 @@ export default function GameCard({ game }: { game: Game }) {
       .then((res) => res.json() as Promise<VersionsResponse>)
       .then((data) => {
         if (!cancelled && data.success) setVersions(data.versions);
+      })
+      // Sin esto el select quedaba en "Cargando…" para siempre si la API fallaba.
+      .catch(() => {
+        if (!cancelled) setVersions([]);
       });
     return () => {
       cancelled = true;
