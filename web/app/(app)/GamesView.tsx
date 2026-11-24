@@ -90,7 +90,8 @@ export default function GamesView() {
   useEffect(() => {
     fetch("/api/games?page=1&page_size=1")
       .then((res) => res.json() as Promise<GamesResponse>)
-      .then((data) => setAllTotal(data.total || 0));
+      .then((data) => setAllTotal(data.total || 0))
+      .catch(() => {}); // API caída: el contador queda en 0, sin error sin capturar
   }, []);
 
   useEffect(() => {
@@ -111,6 +112,7 @@ export default function GamesView() {
         setTotalPages(data.total_pages || 1);
         setConsoles(data.consoles || []);
       })
+      .catch(() => {}) // API caída o respuesta no-JSON: se mantiene lo último mostrado
       .finally(() => setLoading(false));
   }, [q, consoleFilter, page, pageSize, isHash, wtpActive]);
 
@@ -182,8 +184,8 @@ export default function GamesView() {
       id: verifyHash,
       name: verify.name ?? verifyHash,
       consoles: verify.console ? [verify.console] : [],
-      image_icon: null,
-      achievements: null,
+      image_icon: verify.image_icon ?? null,
+      achievements: verify.achievements ?? null,
       hash: verifyHash,
       rom_path: "",
     });
@@ -216,7 +218,7 @@ export default function GamesView() {
     <>
       <div className="title-row">
         <div>
-          <h1>{t("games.title")}</h1>
+          <h2>{t("games.title")}</h2>
           <div className="sub">
             <b className="num">{allTotal}</b> {t("games.indexedSuffix")}
           </div>
@@ -234,7 +236,12 @@ export default function GamesView() {
           {verifyError && <p className="empty-hint">{verifyError}</p>}
           {verify && (
             <div className="verify">
-              <div className="icon" />
+              {verify.image_icon ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={verify.image_icon} alt="" className="icon" />
+              ) : (
+                <div className="icon" />
+              )}
               <div className="meta">
                 <div className="name">{verify.name ?? t("games.foundName")}</div>
                 <div className="sub">{verify.console ?? t("common.unknownConsole")}</div>

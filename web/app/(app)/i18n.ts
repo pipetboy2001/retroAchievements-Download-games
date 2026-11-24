@@ -28,7 +28,6 @@ const es = {
   "common.noResults": "Sin resultados",
   "common.addToCart": "Agregar al carrito",
   "common.inCart": "En el carrito",
-  "common.soon": "Próximamente",
   "common.backHome": "Volver al inicio",
   "common.unknownConsole": "Consola desconocida",
   "common.verifyingHash": "Verificando hash…",
@@ -76,10 +75,6 @@ const es = {
   "cart.title": "Carrito de descarga",
   "cart.empty": "El carrito está vacío.",
   "cart.remove": "Quitar",
-  "cart.exportStructure": "Estructura de exportación",
-  "cart.flatRoot": "Raíz plana (todos juntos)",
-  "cart.zipNote":
-    'El empaquetado en ZIP con estructura de carpetas (RetroArch, OnionOS, Batocera) todavía no está disponible. Por ahora, "Descargar todo" abre cada archivo por separado.',
 
   "dropdown.searchConsole": "Buscar consola...",
   "dropdown.all": "Todo",
@@ -87,7 +82,6 @@ const es = {
   "gamecard.versionRom": "Versión / ROM",
   "gamecard.noVersions": "Sin versiones",
   "gamecard.mirror": "Espejo de descarga",
-  "gamecard.otherMirrors": "Otros espejos",
   "gamecard.copyHash": "Copiar hash MD5",
   "gamecard.hashCopied": "Hash copiado",
   "gamecard.viewOnRa": "Ver en RetroAchievements",
@@ -115,6 +109,8 @@ const es = {
   "hasher.notVerified": "No verificado",
   "hasher.removeFile": "Quitar archivo",
 
+  "home.heading": "CheevosRoms: ROMs compatibles con RetroAchievements",
+  "home.tagline": "Cada ROM está verificada por hash contra RetroAchievements, así los logros (cheevos) funcionan. Buscá por nombre o pegá un hash.",
   "games.title": "Buscar juegos",
   "games.indexedSuffix": "juegos indexados",
   "games.searchPlaceholder": "Nombre o hash…",
@@ -170,7 +166,6 @@ const en: Record<keyof typeof es, string> = {
   "common.noResults": "No results",
   "common.addToCart": "Add to cart",
   "common.inCart": "In cart",
-  "common.soon": "Soon",
   "common.backHome": "Back to home",
   "common.unknownConsole": "Unknown console",
   "common.verifyingHash": "Verifying hash…",
@@ -216,10 +211,6 @@ const en: Record<keyof typeof es, string> = {
   "cart.title": "Download cart",
   "cart.empty": "Your cart is empty.",
   "cart.remove": "Remove",
-  "cart.exportStructure": "Export structure",
-  "cart.flatRoot": "Flat root (everything together)",
-  "cart.zipNote":
-    'ZIP packaging with folder structure (RetroArch, OnionOS, Batocera) isn\'t available yet. For now, "Download all" opens each file separately.',
 
   "dropdown.searchConsole": "Search console...",
   "dropdown.all": "All",
@@ -227,7 +218,6 @@ const en: Record<keyof typeof es, string> = {
   "gamecard.versionRom": "Version / ROM",
   "gamecard.noVersions": "No versions",
   "gamecard.mirror": "Download mirror",
-  "gamecard.otherMirrors": "Other mirrors",
   "gamecard.copyHash": "Copy MD5 hash",
   "gamecard.hashCopied": "Hash copied",
   "gamecard.viewOnRa": "View on RetroAchievements",
@@ -255,6 +245,8 @@ const en: Record<keyof typeof es, string> = {
   "hasher.notVerified": "Not verified",
   "hasher.removeFile": "Remove file",
 
+  "home.heading": "CheevosRoms: RetroAchievements-compatible ROMs",
+  "home.tagline": "Every ROM is hash-verified against RetroAchievements, so achievements (cheevos) actually unlock. Search by name or paste a hash.",
   "games.title": "Search games",
   "games.indexedSuffix": "games indexed",
   "games.searchPlaceholder": "Name or hash…",
@@ -310,7 +302,6 @@ const pt: Record<keyof typeof es, string> = {
   "common.noResults": "Sem resultados",
   "common.addToCart": "Adicionar ao carrinho",
   "common.inCart": "No carrinho",
-  "common.soon": "Em breve",
   "common.backHome": "Voltar ao início",
   "common.unknownConsole": "Console desconhecido",
   "common.verifyingHash": "Verificando hash…",
@@ -358,10 +349,6 @@ const pt: Record<keyof typeof es, string> = {
   "cart.title": "Carrinho de download",
   "cart.empty": "O carrinho está vazio.",
   "cart.remove": "Remover",
-  "cart.exportStructure": "Estrutura de exportação",
-  "cart.flatRoot": "Raiz plana (tudo junto)",
-  "cart.zipNote":
-    'O empacotamento em ZIP com estrutura de pastas (RetroArch, OnionOS, Batocera) ainda não está disponível. Por enquanto, "Baixar tudo" abre cada arquivo separadamente.',
 
   "dropdown.searchConsole": "Buscar console...",
   "dropdown.all": "Todos",
@@ -369,7 +356,6 @@ const pt: Record<keyof typeof es, string> = {
   "gamecard.versionRom": "Versão / ROM",
   "gamecard.noVersions": "Sem versões",
   "gamecard.mirror": "Espelho de download",
-  "gamecard.otherMirrors": "Outros espelhos",
   "gamecard.copyHash": "Copiar hash MD5",
   "gamecard.hashCopied": "Hash copiado",
   "gamecard.viewOnRa": "Ver no RetroAchievements",
@@ -397,6 +383,8 @@ const pt: Record<keyof typeof es, string> = {
   "hasher.notVerified": "Não verificado",
   "hasher.removeFile": "Remover arquivo",
 
+  "home.heading": "CheevosRoms: ROMs compatíveis com RetroAchievements",
+  "home.tagline": "Cada ROM é verificada por hash no RetroAchievements, para as conquistas (cheevos) funcionarem. Busque pelo nome ou cole um hash.",
   "games.title": "Buscar jogos",
   "games.indexedSuffix": "jogos indexados",
   "games.searchPlaceholder": "Nome ou hash…",
@@ -452,7 +440,6 @@ const fr: Record<keyof typeof es, string> = {
   "common.noResults": "Aucun résultat",
   "common.addToCart": "Ajouter au panier",
   "common.inCart": "Dans le panier",
-  "common.soon": "Bientôt",
   "common.backHome": "Retour à l'accueil",
   "common.unknownConsole": "Console inconnue",
   "common.verifyingHash": "Vérification du hash…",
@@ -500,10 +487,6 @@ const fr: Record<keyof typeof es, string> = {
   "cart.title": "Panier de téléchargement",
   "cart.empty": "Le panier est vide.",
   "cart.remove": "Retirer",
-  "cart.exportStructure": "Structure d'export",
-  "cart.flatRoot": "Racine plate (tout ensemble)",
-  "cart.zipNote":
-    "L'empaquetage en ZIP avec structure de dossiers (RetroArch, OnionOS, Batocera) n'est pas encore disponible. Pour l'instant, « Tout télécharger » ouvre chaque fichier séparément.",
 
   "dropdown.searchConsole": "Rechercher une console...",
   "dropdown.all": "Tous",
@@ -511,7 +494,6 @@ const fr: Record<keyof typeof es, string> = {
   "gamecard.versionRom": "Version / ROM",
   "gamecard.noVersions": "Aucune version",
   "gamecard.mirror": "Miroir de téléchargement",
-  "gamecard.otherMirrors": "Autres miroirs",
   "gamecard.copyHash": "Copier le hash MD5",
   "gamecard.hashCopied": "Hash copié",
   "gamecard.viewOnRa": "Voir sur RetroAchievements",
@@ -539,6 +521,8 @@ const fr: Record<keyof typeof es, string> = {
   "hasher.notVerified": "Non vérifié",
   "hasher.removeFile": "Retirer le fichier",
 
+  "home.heading": "CheevosRoms : ROMs compatibles RetroAchievements",
+  "home.tagline": "Chaque ROM est vérifiée par hash auprès de RetroAchievements, pour que les succès (cheevos) fonctionnent. Cherchez par nom ou collez un hash.",
   "games.title": "Rechercher des jeux",
   "games.indexedSuffix": "jeux indexés",
   "games.searchPlaceholder": "Nom ou hash…",

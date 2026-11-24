@@ -58,7 +58,7 @@ function Shell({ children }: { children: ReactNode }) {
             <div className="mark">
               <LogoMark size={16} />
             </div>
-            <div className="name">RA Downloader</div>
+            <div className="name">CheevosRoms</div>
           </Link>
 
           {!isHome && (

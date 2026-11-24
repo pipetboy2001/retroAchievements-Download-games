@@ -44,6 +44,8 @@ export function RaAccountProvider({ children }: { children: ReactNode }) {
       .then((data) => {
         if (data.connected && data.username) setAccount({ username: data.username });
       })
+      // Si la API no responde JSON (caída, 500 en HTML), se queda como "sin sesión" en vez de tirar un error sin capturar.
+      .catch(() => {})
       .finally(() => setStatusLoading(false));
   }, []);
 
@@ -58,12 +60,16 @@ export function RaAccountProvider({ children }: { children: ReactNode }) {
       setWtpCountsState(null);
       return;
     }
-    getRaProfile().then((data) => {
-      if (data.success) setProfile(data);
-    });
-    fetchWantToPlay().then((data) => {
-      if (data.success) setWtpCountsState({ total: data.total ?? data.items.length, requested: data.requested ?? data.items.length });
-    });
+    getRaProfile()
+      .then((data) => {
+        if (data.success) setProfile(data);
+      })
+      .catch(() => {});
+    fetchWantToPlay()
+      .then((data) => {
+        if (data.success) setWtpCountsState({ total: data.total ?? data.items.length, requested: data.requested ?? data.items.length });
+      })
+      .catch(() => {});
   }, [account]);
 
   // Funciones estables (useCallback): las consume GamesView como dependencia
@@ -81,7 +87,7 @@ export function RaAccountProvider({ children }: { children: ReactNode }) {
   const disconnect = useCallback(() => {
     setAccount(null);
     setWtpCountsState(null);
-    void disconnectRaAccount();
+    disconnectRaAccount().catch(() => {});
   }, []);
 
   const openModal = useCallback(() => setModalOpen(true), []);

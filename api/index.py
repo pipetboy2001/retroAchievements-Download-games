@@ -224,8 +224,10 @@ def search():
     json_data = load_json_file()
 
     if json_data:
-        rom_path = find_hash_in_json(json_data, search_term)
-        if rom_path:
+        entry = data_manager.find_hash_entry(search_term)
+        if entry:
+            game_id, rom_path = entry
+            ra_info = load_ra_metadata().get(game_id) or {}
             download_url = get_download_url(rom_path)
             return {
                 "success": True,
@@ -234,6 +236,8 @@ def search():
                 "ra_recognized": is_hash_recognized_by_ra(search_term),
                 "name": extract_game_name(rom_path),
                 "console": get_console_from_rom_path(rom_path),
+                "image_icon": ra_info.get("image_icon"),
+                "achievements": ra_info.get("achievements"),
             }
         else:
             message = f"No se encontró el hash '{escape(search_term)}' en la base de datos."
