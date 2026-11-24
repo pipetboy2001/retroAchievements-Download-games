@@ -20,7 +20,14 @@ _recognized_hashes: Optional[Set[str]] = None
 
 
 def is_download_url_reachable(url: str, retries: int = 2) -> bool:
-    """HEAD a la URL de descarga. Nunca levanta excepcion: ante cualquier
+    return download_url_failure(url, retries) is None
+
+
+def download_url_failure(url: str, retries: int = 2) -> Optional[str]:
+    """None si la URL es alcanzable; si no, el motivo ("404", "ReadTimeout",
+    ...) para que el reporte de salud distinga fuente muerta de error de red.
+
+    HEAD a la URL de descarga. Nunca levanta excepcion: ante cualquier
     error de red se asume no-alcanzable en vez de romper el flujo de descarga.
 
     archive.org devuelve 401 para archivos que existen pero requieren login
@@ -36,10 +43,10 @@ def is_download_url_reachable(url: str, retries: int = 2) -> bool:
     for attempt in range(retries + 1):
         try:
             response = requests.head(url, timeout=10, allow_redirects=True)
-            return response.status_code not in (404, 410)
-        except requests.RequestException:
+            return str(response.status_code) if response.status_code in (404, 410) else None
+        except requests.RequestException as e:
             if attempt == retries:
-                return False
+                return type(e).__name__
 
 
 def is_hash_recognized_by_ra(hash_value: str) -> bool:
