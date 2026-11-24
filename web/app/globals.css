@@ -345,7 +345,7 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 @media (prefers-reduced-motion: reduce) {
   .verify { animation: none; }
 }
-.verify .icon { width: 48px; height: 48px; border-radius: 8px; background: var(--raised); flex-shrink: 0; }
+.verify .icon { width: 48px; height: 48px; border-radius: 8px; background: var(--raised); flex-shrink: 0; object-fit: cover; }
 .verify .meta { flex: 1; min-width: 200px; }
 .verify .meta .name { font-size: 16px; font-weight: 600; color: var(--text-bright); }
 .verify .meta .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
