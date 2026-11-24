@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const title = "RA Downloader";
+const title = "CheevosRoms";
 const description = "Buscá y descargá ROMs compatibles con RetroAchievements por nombre o hash.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://retroachievements.vercel.app"),
+  metadataBase: new URL("https://cheevosroms.vercel.app"),
   title,
   description,
   openGraph: {

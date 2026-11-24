@@ -1,5 +1,5 @@
 """
-RetroAchievements Downloader - Aplicación unificada.
+CheevosRoms - Aplicación unificada.
 Permite elegir entre modo hash directo o lista de deseos.
 """
 
@@ -21,7 +21,7 @@ def main():
     """Función principal que permite elegir el modo de operación."""
     console = Console()
 
-    console.print(Panel("[bold green]🎮 RetroAchievements Downloader[/bold green]", border_style="green", expand=False))
+    console.print(Panel("[bold green]🎮 CheevosRoms[/bold green]", border_style="green", expand=False))
     console.print("\n[bold blue]Seleccioná el modo de operación:[/bold blue]")
     console.print("  [cyan]1.[/cyan] Búsqueda directa por hash")
     console.print("  [cyan]2.[/cyan] Lista de deseos (Want to Play)")
