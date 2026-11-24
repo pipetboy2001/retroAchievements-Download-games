@@ -167,9 +167,13 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 
 /* --- Title row / buttons --- */
 .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-.title-row h1 { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-bright); letter-spacing: -0.01em; }
+.title-row h1, .title-row h2 { margin: 0; font-size: 24px; font-weight: 700; color: var(--text-bright); letter-spacing: -0.01em; }
 .title-row .sub { margin-top: 4px; font-size: 13px; color: var(--muted); }
 .title-row .sub b { color: var(--text); font-weight: 600; }
+
+.home-intro { margin-bottom: 20px; max-width: 680px; }
+.home-intro h1 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.home-intro p { margin: 4px 0 0; font-size: 13px; color: var(--faint); line-height: 1.5; }
 
 .btn-primary { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 16px; background: var(--text-bright); color: var(--ground); border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; text-decoration: none; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }

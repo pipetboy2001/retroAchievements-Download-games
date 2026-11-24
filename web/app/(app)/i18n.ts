@@ -115,6 +115,8 @@ const es = {
   "hasher.notVerified": "No verificado",
   "hasher.removeFile": "Quitar archivo",
 
+  "home.heading": "CheevosRoms: ROMs compatibles con RetroAchievements",
+  "home.tagline": "Cada ROM está verificada por hash contra RetroAchievements, así los logros (cheevos) funcionan. Buscá por nombre o pegá un hash.",
   "games.title": "Buscar juegos",
   "games.indexedSuffix": "juegos indexados",
   "games.searchPlaceholder": "Nombre o hash…",
@@ -255,6 +257,8 @@ const en: Record<keyof typeof es, string> = {
   "hasher.notVerified": "Not verified",
   "hasher.removeFile": "Remove file",
 
+  "home.heading": "CheevosRoms: RetroAchievements-compatible ROMs",
+  "home.tagline": "Every ROM is hash-verified against RetroAchievements, so achievements (cheevos) actually unlock. Search by name or paste a hash.",
   "games.title": "Search games",
   "games.indexedSuffix": "games indexed",
   "games.searchPlaceholder": "Name or hash…",
@@ -397,6 +401,8 @@ const pt: Record<keyof typeof es, string> = {
   "hasher.notVerified": "Não verificado",
   "hasher.removeFile": "Remover arquivo",
 
+  "home.heading": "CheevosRoms: ROMs compatíveis com RetroAchievements",
+  "home.tagline": "Cada ROM é verificada por hash no RetroAchievements, para as conquistas (cheevos) funcionarem. Busque pelo nome ou cole um hash.",
   "games.title": "Buscar jogos",
   "games.indexedSuffix": "jogos indexados",
   "games.searchPlaceholder": "Nome ou hash…",
@@ -539,6 +545,8 @@ const fr: Record<keyof typeof es, string> = {
   "hasher.notVerified": "Non vérifié",
   "hasher.removeFile": "Retirer le fichier",
 
+  "home.heading": "CheevosRoms : ROMs compatibles RetroAchievements",
+  "home.tagline": "Chaque ROM est vérifiée par hash auprès de RetroAchievements, pour que les succès (cheevos) fonctionnent. Cherchez par nom ou collez un hash.",
   "games.title": "Rechercher des jeux",
   "games.indexedSuffix": "jeux indexés",
   "games.searchPlaceholder": "Nom ou hash…",
