@@ -216,7 +216,7 @@ export default function GamesView() {
     <>
       <div className="title-row">
         <div>
-          <h1>{t("games.title")}</h1>
+          <h2>{t("games.title")}</h2>
           <div className="sub">
             <b className="num">{allTotal}</b> {t("games.indexedSuffix")}
           </div>
