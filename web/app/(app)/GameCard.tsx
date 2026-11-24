@@ -113,12 +113,6 @@ export default function GameCard({ game }: { game: Game }) {
           <label>{t("gamecard.mirror")}</label>
           <div className="mirror-row">
             <span className="mirror-chip active">archive.org</span>
-            <button type="button" className="mirror-chip" disabled title={t("common.soon")}>
-              CoolROM
-            </button>
-          </div>
-          <div className="mirror-note">
-            {t("gamecard.otherMirrors")} <span className="soon-badge">{t("common.soon")}</span>
           </div>
         </div>
 
