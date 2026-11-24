@@ -40,7 +40,7 @@ class RetroAchievementsDownloader:
             mode_label = (
                 "Búsqueda directa por hash" if self.mode == AppMode.DIRECT_HASH else "Lista de deseos (Want to Play)"
             )
-            self.ui_helper.display_welcome_message("RetroAchievements Downloader", mode_label)
+            self.ui_helper.display_welcome_message("CheevosRoms", mode_label)
 
             if self.mode == AppMode.DIRECT_HASH:
                 result = self._run_direct_hash_mode()
