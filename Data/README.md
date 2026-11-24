@@ -17,7 +17,7 @@ La app **no las lee**. Son hashes que RetroAchievements reconoce pero para los q
 | Archivo | Faltantes | Contexto |
 |---|---|---|
 | `snes_missing_sources.txt` | 327 | Sin match en la colección nueva de SNES. Muchos son hacks y versiones MSU-1. |
-| `wii_missing_sources.txt` | 233 | Discos y canales WiiWare (60 de los 233 son `.wad`). |
+| `wii_missing_sources.txt` | 233 | Sobre todo discos (169 `.rvz`/`.iso`); 64 son canales WiiWare (`.wad`). |
 | `gamecube_missing_sources.txt` | 30 | |
 
 Formato: una línea por hash, separada por tabs: `nombre<TAB>rom_path<TAB>hash`.
