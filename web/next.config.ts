@@ -18,8 +18,9 @@ const nextConfig: NextConfig = {
   // En producción, Vercel Services rutea /api/*, /get_game_versions, /dl y
   // /search directo al servicio Flask antes de que Next.js los vea (ver
   // vercel.json en la raíz) -- estos rewrites nunca se ejecutan ahí. Solo
-  // sirven para `npm run dev`, donde Flask corre aparte en localhost:5000
+  // sirven para `npm run dev`, donde Flask corre aparte en 127.0.0.1:5000
   // (ver package.json de la raíz: dev:api / dev:web / dev).
+  // 127.0.0.1 y no "localhost": en macOS, AirPlay Receiver ocupa localhost:5000 y responde 403.
   //
   // Todas estas van en `afterFiles` (nunca `beforeFiles`): cualquier ruta
   // real de Next (ej. "/", "/faq") tiene que poder taparlas. Eso fue justo
@@ -30,10 +31,10 @@ const nextConfig: NextConfig = {
     if (process.env.NODE_ENV !== "development") return [];
     return {
       afterFiles: [
-        { source: "/api/:path*", destination: "http://localhost:5000/api/:path*" },
-        { source: "/get_game_versions", destination: "http://localhost:5000/get_game_versions" },
-        { source: "/dl", destination: "http://localhost:5000/dl" },
-        { source: "/search", destination: "http://localhost:5000/search" },
+        { source: "/api/:path*", destination: "http://127.0.0.1:5000/api/:path*" },
+        { source: "/get_game_versions", destination: "http://127.0.0.1:5000/get_game_versions" },
+        { source: "/dl", destination: "http://127.0.0.1:5000/dl" },
+        { source: "/search", destination: "http://127.0.0.1:5000/search" },
       ],
       fallback: [],
     };
