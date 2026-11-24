@@ -279,14 +279,6 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
   font-size: 9px; font-weight: 600; white-space: nowrap; overflow: hidden;
 }
 .mirror-chip.active { color: var(--accent); border-color: var(--accent-border); background: var(--accent-soft); }
-.mirror-chip[disabled] { cursor: not-allowed; opacity: 0.55; }
-.mirror-note { font-size: 9px; color: var(--faint); margin-top: 5px; }
-
-.soon-badge {
-  display: inline-flex; align-items: center; font-size: 9px; font-weight: 700; letter-spacing: 0.02em;
-  color: var(--warn); background: var(--warn-bg); border-radius: 3px; padding: 1px 5px; margin-left: 5px;
-  text-transform: uppercase; vertical-align: middle;
-}
 
 .gcard-actions { display: flex; align-items: center; gap: 6px; margin-top: auto; }
 .gcard-actions .btn-ghost { flex: 1; }
@@ -353,7 +345,7 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 @media (prefers-reduced-motion: reduce) {
   .verify { animation: none; }
 }
-.verify .icon { width: 48px; height: 48px; border-radius: 8px; background: var(--raised); flex-shrink: 0; }
+.verify .icon { width: 48px; height: 48px; border-radius: 8px; background: var(--raised); flex-shrink: 0; object-fit: cover; }
 .verify .meta { flex: 1; min-width: 200px; }
 .verify .meta .name { font-size: 16px; font-weight: 600; color: var(--text-bright); }
 .verify .meta .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
@@ -368,10 +360,6 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; line-height: 1; }
 .modal-body { padding: 16px 18px; overflow-y: auto; flex: 1; }
 
-.soon-panel { text-align: center; padding: 20px 12px; }
-.soon-panel svg { color: var(--faint); margin-bottom: 12px; }
-.soon-panel h3 { margin: 0 0 8px; font-size: 14px; color: var(--text-bright); }
-.soon-panel p { margin: 0; font-size: 13px; color: var(--muted); max-width: 42ch; margin-inline: auto; }
 
 /* --- Cuenta de RA conectada (RaAccountModal) --- */
 .ra-account-avatar {
@@ -474,14 +462,6 @@ main.app-main { flex: 1; width: 100%; max-width: 1312px; margin: 0 auto; padding
 .cart-item .meta .name { font-size: 12px; font-weight: 600; color: var(--text-bright); }
 .cart-item .meta .sub { font-size: 11px; color: var(--faint); margin-top: 2px; }
 .cart-item .remove { position: absolute; top: 8px; right: 8px; }
-
-.drawer-section { padding: 12px 14px; background: var(--ground); border-top: 1px solid var(--rule); }
-.drawer-section label { display: flex; align-items: center; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
-.tree-preview {
-  background: rgba(0,0,0,0.5); border: 1px solid var(--rule); border-radius: 6px; padding: 8px;
-  font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace; font-size: 10px;
-  color: var(--faint); height: 72px; overflow-y: auto;
-}
 
 .drawer-footer { padding: 16px 18px; border-top: 1px solid var(--rule); background: var(--card); display: flex; flex-direction: column; gap: 10px; }
 .drawer-footer .totals { display: flex; justify-content: space-between; align-items: center; }

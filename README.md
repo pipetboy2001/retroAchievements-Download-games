@@ -16,13 +16,17 @@ Pegás un hash y te dice si es válido, si está reconocido por RetroAchievement
 
 ![Carrito de descarga](docs/screenshots/carrito.jpg)
 
-"Descargar todo" abre el enlace de cada juego del carrito. En desarrollo: espejos adicionales (CoolROM), exportar el carrito como ZIP con estructura de carpetas lista para RetroArch/OnionOS/Batocera, verificar el hash de un archivo local sin subirlo, y conectar tu cuenta de RetroAchievements para traer tu "Want to Play" directo al catálogo.
+"Descargar todo" abre el enlace de cada juego del carrito.
+
+Además, **Verificar ROM** calcula el hash de un archivo tuyo directo en el navegador (nunca se sube) y te dice si RetroAchievements lo reconoce, y **Conectar RA** trae tu lista "Want to Play" de RetroAchievements al catálogo.
 
 ## 🚀 Características Principales
 
 ✅ **Catálogo navegable**: más de 8.400 juegos, filtrables por consola  
 ✅ **Búsqueda por hash directo**: pegás el hash y te dice si es válido y descargable  
 ✅ **Carrito con descarga en lote**: armá una lista y descargá todo de una  
+✅ **Verificar ROM**: hash de tu archivo calculado en el navegador, sin subirlo (consolas de cartucho)  
+✅ **Cuenta de RetroAchievements**: conectala y trae tu "Want to Play" a la web  
 ✅ **Lista de deseos (consola)**: descargá juegos desde tu lista personal de "Want to Play"  
 ✅ **Soporte multiplataforma**: SNES, NES, PSP, PS1, PS2, Genesis, Arcade y más de 50 consolas en total  
 ✅ **Versión web** disponible en [CheevosRoms](https://cheevosroms.vercel.app/)  
