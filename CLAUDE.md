@@ -4,121 +4,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A Python tool to find download URLs for RetroAchievements-compatible ROMs on archive.org, given a RetroAchievements hash. Public name: **CheevosRoms** (`https://cheevosroms.vercel.app`; the old `retroachievements.vercel.app` 308-redirects there — renamed so the site can't be mistaken for the official RetroAchievements one). Three surfaces:
+**CheevosRoms** (`https://cheevosroms.vercel.app`; the old `retroachievements.vercel.app` 308-redirects there): finds download URLs on archive.org for ROMs whose hash RetroAchievements recognizes. Three surfaces:
 
 - **Console app** (`console/main.py`, `console/Console_mode.py`, `console/want_to_play.py`) — layered OOP app under `src/`.
-- **Web backend** (`api/index.py`) — Flask, deployed to Vercel as the `api` service (`vercel.json`, Vercel Services model). Exposes only the JSON endpoints (`/api/games`, `/get_game_versions`, `/dl`, `/search`) consumed by the Next.js frontend — no server-rendered pages reachable in production.
-- **Web frontend** (`web/`) — Next.js/TypeScript, deployed as the `web` service, owns the catch-all route (`vercel.json`'s `/(.*) → web` is last/default; explicit entries route the 4 JSON endpoints above to `api` first).
+- **Web backend** (`api/index.py`) — Flask, deployed to Vercel as the `api` service. JSON endpoints only (`/api/*`, `/get_game_versions`, `/dl`, `/search`), no server-rendered pages.
+- **Web frontend** (`web/`) — Next.js (App Router) + TypeScript, deployed as the `web` service. Owns every page.
 
-Separately, `scripts/` holds one-off maintenance tools (`sync_*.py`, `check_sources_health.py`) — not part of any of the three surfaces above, run by hand or by CI (`check-sources.yml`), never imported by `src/`, `api/`, or `web/`.
+`scripts/` holds maintenance tools (`sync_*.py`, `check_sources_health.py`), run by hand or by CI — never imported by `src/`, `api/` or `web/`.
 
 ## Commands
 
 ```bash
 pip install -r requirements.txt
-npm install              # root devDependencies (concurrently) for the dev scripts below
+npm install              # root devDependencies (concurrently)
 cd web && npm install     # Next.js deps
 
 python console/main.py            # unified console entry point, prompts for mode
 python console/Console_mode.py    # direct hash search only (no credentials needed)
-python console/want_to_play.py    # "want to play" list mode (needs .env, see below)
+python console/want_to_play.py    # "want to play" list mode (needs .env)
 
-npm run dev:api           # Flask alone, http://localhost:5000
-npm run dev:web           # Next.js alone, http://localhost:3000 (proxies /api/*, /get_game_versions, /dl to :5000 in dev — see web/next.config.ts)
-npm run dev                # both together (concurrently) — this is the real local dev loop for the web app
+npm run dev:api           # Flask alone, 127.0.0.1:5000
+npm run dev:web           # Next.js alone, localhost:3000 (proxies the API routes to Flask, see web/next.config.ts)
+npm run dev                # both together — the real local dev loop for the web app
 ```
 
-Both halves have lint/type-check/test config, enforced in CI (`.github/workflows/ci.yml`). Python: `ruff.toml` (target py312, line-length 120, `E`/`F`/`I` rules) + `pytest.ini` (scoped to `src.factories.url_factory` + `src.core.rom_info`, `--cov-fail-under=90`) + `tests/test_rom_info.py` / `tests/test_url_factory.py` — job `api` runs `ruff check .`, `ruff format --check .`, a smoke-import of `api.index`, then `pytest`. Web: `web/package.json` scripts `lint` / `typecheck` / `test` (eslint flat config, strict `tsconfig.json`, vitest + coverage) — job `web` runs `lint`, `typecheck`, `test`, `build`. `vercel dev` (the official way to run multi-service Vercel projects locally) does **not** work for this repo yet — Vercel Services' local dev doesn't support the Flask service (`No dev server available for service "api"`), confirmed by testing; that's why the root `package.json` + Next.js rewrite-proxy exist instead.
+CI (`.github/workflows/ci.yml`):
+- **Python**: `ruff check .`, `ruff format --check .` (`ruff.toml`: py312, line-length 120, `E`/`F`/`I`), smoke-import of `api.index`, `pytest` (`tests/`; coverage gate of 90% scoped to `src.factories.url_factory` + `src.core.rom_info` in `pytest.ini`).
+- **Web** (in `web/`): `npm run lint`, `typecheck`, `test` (vitest), `build`.
 
-`.env` (copy from `ejemplo.env`) is only required for the "want to play" mode: `API_KEY` and `RETROACHIEVEMENTS_USERNAME` for the RetroAchievements Web API. Direct hash search needs no credentials.
-
-## Architecture — console app (`src/`)
-
-Classic Strategy / Factory / Command / Singleton split:
-
-- `src/app.py` — `RetroAchievementsDownloader`, picks a `HashSearchStrategy` based on `AppMode` (`DIRECT_HASH` / `WANT_TO_PLAY`) and drives the run loop.
-- `src/core/data_manager.py` — `RetroAchievementsDataManager` is a **singleton** that lazily loads `Data/TamperMonkeyRetroachievements.json` once per process and exposes `find_hash(hash) -> rom_path`.
-- `src/strategies/search_strategies.py`:
-  - `DirectHashSearchStrategy` — looks up a hash directly, infers console name from substrings in `rom_path`.
-  - `WantToPlaySearchStrategy` — reads `game_hashes.json` (gitignored, user-generated), picks the best hash per game by region priority (`config.PREFERRED_REGIONS`: ES > USA > WORLD > EUROPE > JPN), then resolves that hash through the same `RetroAchievementsDataManager`.
-- `src/factories/url_factory.py` — `URLGeneratorFactory` holds an ordered list of `URLGenerator`s (SNES, NES, PSP, PS1, PS2, Sega, Arcade, Default-fallback) and picks the first whose `can_handle(rom_path)` matches. Order matters: more specific generators (e.g. PSP, PS2) must precede broader ones (PS1, Default) since matching is substring-based. PS2 additionally splits into A-M / N-Z archive.org collections based on the first letter of the ROM filename.
-- `src/commands/download_commands.py` — `OpenInBrowserCommand` (opens the generated URL), `BatchDownloadCommand` (opens many, writes unresolved names to `missing_games.txt`), `DisplayURLCommand` (print only).
-- `config.py` — single source of truth for file paths, region priority, per-console base URLs, validation constants. Consumed via `import config` with `try/except ImportError` fallbacks scattered through `src/core` and `src/strategies`.
-
-## Architecture — web app (`api/index.py`)
-
-Flask app that **imports directly from `src/`** — no duplicated hash/URL logic (fixed in PR #13, see Working Log):
-
-- `from src.core.data_manager import RetroAchievementsDataManager`, `from src.core.link_checker import is_download_url_reachable, is_hash_recognized_by_ra`, `from src.core.rom_info import analyze_rom_info, extract_game_name, get_console_from_rom_path`, `from src.factories.url_factory import URLGeneratorFactory`.
-- `load_json_file()` / `find_hash_in_json()` delegate to the same `RetroAchievementsDataManager` singleton the console app uses; `get_download_url()` is a 2-line delegation to `URLGeneratorFactory.generate_url()`.
-- `build_games_index()` (web-only, no console-app equivalent) aggregates a per-`game_id` listing for `/api/games`; `load_ra_metadata()` / `load_console_icons()` (web-only) read `Data/retroachievements_metadata.json` for display metadata.
-- Routes: `/api/games` (paginated/filterable listing JSON, consumed by `web/app/games/page.tsx`), `/dl?hash=` (redirects to the resolved download URL), `/get_game_versions`, `/search` (hash lookup + reachability/RA-recognition check, used by `HasherModal`). `/games` and `/faq` are not Flask routes — Vercel's `services` rewrite sends them straight to the `web` (Next.js) service; see "Arquitectura — frontend TS" below.
-
-## Data
-
-`Data/TamperMonkeyRetroachievements.json` is the canonical dataset: `{ game_id: [ { HASH: rom_path, ... }, ... ], ... }`. `rom_path`'s root folder encodes the console (e.g. `SNES-Super Famicom/...`, `PlayStation 2/...`); this convention is what both `src/` and `api/index.py` parse against instead of an explicit console field.
+`.env` (copy from `ejemplo.env`) is only needed for "want to play" and the RA sync scripts: `API_KEY`, `RETROACHIEVEMENTS_USERNAME`. Direct hash search needs no credentials.
 
 ## Workflow
 
-- Rama de integración: `dev`. Las ramas de trabajo salen de `dev` y hacen PR hacia `dev` (no a `main`). `main` se actualiza solo cuando se corta un release con las mejoras ya probadas en `dev`.
-- Mensajes de commit en formato Conventional Commits: `tipo(scope): descripción` (`fix`, `feat`, `refactor`, `docs`, etc).
+- Integration branch: `dev`. Work branches come off `dev` and PR into `dev`, never `main`. `main` only moves when a release PR `dev → main` is cut.
+- Release PRs get squash-merged into `main`, so `main` ends up with a commit `dev` doesn't have and the *next* release PR conflicts. Fix: on a branch from `dev`, merge `origin/main` keeping `dev`'s side, and PR it to `dev` **as a merge commit** (not squash).
+- Commits: Conventional Commits, `tipo(scope): descripción` (`fix`, `feat`, `refactor`, `docs`, …).
 
-## Arquitectura — frontend TS (`web/`)
+## Architecture — console app (`src/`)
 
-Decisión del issue #19: **Next.js** (App Router, Tailwind) para páginas migradas. Convive con el backend Flask vía **Vercel Services** (`vercel.json`): `web` y `api` son dos servicios independientes en el mismo deploy, ruteados por `rewrites` de nivel superior evaluados en orden (primer match gana) — el catch-all `/(.*) → api` va último, así que solo hace falta agregar una entrada explícita por cada página que se migre.
+Strategy / Factory / Command / Singleton split:
 
-- **`/next-poc`**: página de prueba de la infraestructura, sin uso real.
-- **`/games`** (PR #23): primera página real migrada, port 1:1 de la UI que antes vivía en `games.html`/`games.js` (ya borrados). `web/app/games/page.tsx` + `VersionsModal.tsx` hacen `fetch` directo a los mismos endpoints JSON de Flask (`/api/games`, `/get_game_versions`) — mismo origen en producción (Vercel Services), sin CORS ni env vars. El único cambio de backend que requirió: `/api/games` ahora también devuelve `consoles` (antes ese dato solo se inyectaba server-side vía Jinja en la ruta `/games`, que ya no existe).
-- Próxima candidata a migrar: a definir — no hay más páginas en la cola todavía.
+- `src/app.py` — `RetroAchievementsDownloader`, picks a `HashSearchStrategy` by `AppMode` (`DIRECT_HASH` / `WANT_TO_PLAY`) and drives the run loop.
+- `src/core/data_manager.py` — `RetroAchievementsDataManager`, **singleton** that lazily loads `Data/TamperMonkeyRetroachievements.json` once per process. `find_hash(hash) -> rom_path`, `find_hash_entry(hash) -> (game_id, rom_path)`.
+- `src/strategies/search_strategies.py`:
+  - `DirectHashSearchStrategy` — looks up a hash directly.
+  - `WantToPlaySearchStrategy` — reads `game_hashes.json` (gitignored, user-generated), picks the best hash per game by region priority (`config.PREFERRED_REGIONS`), resolves it through the same data manager.
+- `src/factories/url_factory.py` — `URLGeneratorFactory` holds an ordered list of `URLGenerator`s and picks the first whose `can_handle(rom_path)` matches. **Order matters**: matching is substring-based, so specific generators (PSP, PS2) must precede broad ones (PS1, Default). PS2 splits into A-M / N-Z collections by the first letter of the filename. SNES reads `Data/snes_source_override.json` (see Data).
+- `src/core/rom_info.py` — console / game-name parsing from `rom_path`, shared by console app and web backend.
+- `src/commands/download_commands.py` — `OpenInBrowserCommand`, `BatchDownloadCommand` (writes unresolved names to `missing_games.txt`), `DisplayURLCommand`.
+- `config.py` — file paths, region priority, per-console base URLs, validation constants. Imported with `try/except ImportError` fallbacks in `src/core` and `src/strategies`.
 
-## Gotchas de Vercel (ya resueltos, pero quedan para no repetirlos)
+## Architecture — web backend (`api/index.py`)
 
-- **El modelo de deploy es `services`** (no el `builds`/`routes` legacy, no `experimentalServices` que ya está superado). Ejemplo mínimo funcionando:
-  ```json
-  {
-    "services": {
-      "web": { "root": "web/" },
-      "api": { "root": ".", "entrypoint": "api.index:app" }
-    },
-    "rewrites": [
-      { "source": "/next-poc(.*)", "destination": { "service": "web" } },
-      { "source": "/(.*)", "destination": { "service": "api" } }
-    ]
-  }
-  ```
-- **El `entrypoint` de un servicio Python usa notación de módulo con puntos, no de filesystem.** Para `api/index.py` con `root: "."`, es `"api.index:app"` — **no** `"api/index:app"` ("path does not exist") ni `"api/index.py:app"` (lo interpreta como paquete `index/py.py`, mismo error). Es el mismo formato que el ejemplo oficial `"main:app"` para un `main.py` en la raíz del servicio, solo que acá hay que incluir el paquete (`api.`) porque el archivo no está en la raíz del servicio.
-- **Con `root: "."` para el servicio Python, NO hace falta `includeFiles`**: a diferencia del builder legacy `@vercel/python` (que solo empaquetaba el directorio de la función salvo que se declarara explícitamente), Services con `root: "."` incluye todo el árbol del repo por defecto. `src/`, `config.py`, `Data/*.json` quedan disponibles sin configuración extra.
-- **El proyecto en Vercel (dashboard → Project Settings) tenía `Node.js Version: 20.x`**, descontinuado — rompía el build antes de llegar siquiera a la parte de Python. Se subió a `24.x` vía `vercel project update retroachievements --node-version 24.x --scope pipetboys-projects`.
-- **Existía un `api/requirements.txt` corrupto (UTF-16, de un commit viejo "Fixes #1")** que el builder de Python prioriza sobre el `requirements.txt` de la raíz cuando ambos existen. Se borró — la raíz es la única fuente de verdad de dependencias.
-- Para depurar un deploy fallido: `gh pr checks <n>` para ver si Vercel falló. Para el detalle real: `vercel deploy --scope pipetboys-projects --yes` local (reproduce el error de build/schema al instante, mucho más rápido que esperar el preview de GitHub) y, para errores en runtime (ej. `FUNCTION_INVOCATION_FAILED`), `vercel logs <deployment-url> --scope pipetboys-projects` (no `vercel inspect --logs`, que solo trae logs de build).
-- Las preview deployments tienen **Vercel Authentication** activado por default — `curl` directo da 401. Usar `vercel curl <url> --scope pipetboys-projects` (genera un bypass token automáticamente) para probarlas desde la terminal.
-- **`vercel dev` no sirve para desarrollo local todavía** con este `services` setup: detecta bien ambos servicios (`web` Next.js, `api` Flask) pero falla con `[DEV_SERVICE_START_FAILED] No dev server available for service "api" (framework: flask)` — soporte de dev-server local para Python en `services` (Beta) todavía no existe. Por eso el `package.json` de la raíz + el rewrite-proxy de `web/next.config.ts` (ver Commands arriba): simulan el mismo-origen que Vercel da gratis en producción, corriendo Flask y Next.js como dos procesos separados.
+Imports straight from `src/` — no duplicated hash/URL logic:
 
-## API de RetroAchievements
+- `RetroAchievementsDataManager` (same singleton), `URLGeneratorFactory`, `rom_info`, `link_checker` (`is_download_url_reachable`, `is_hash_recognized_by_ra`).
+- `build_games_index()` builds the per-`game_id` catalog for `/api/games`; `load_ra_metadata()` / `load_console_icons()` read `Data/retroachievements_metadata.json` (covers, titles, achievement counts).
+- Routes: `/api/games` (paginated/filterable catalog), `/get_game_versions`, `/dl?hash=` (redirect to the download URL), `/search` (hash lookup + link reachability + RA recognition + cover/achievements), `/api/ra/*` and `/api/want_to_play` (RA account via a signed HttpOnly session cookie — the API key never reaches the browser).
 
-- `src/core/retroachievements_api.py`: `RetroAchievementsClient`, wrapper fino sobre `requests` para la Web API de RA (`API_KEY` en `.env`). Reintenta automáticamente (3 intentos, 1s de pausa) errores de red, no de HTTP status — útil porque la API a veces se queda colgada varios segundos sin devolver ni un 429 explícito.
-- `scripts/sync_want_to_play.py` → genera `game_hashes.json` (personal, gitignored) desde tu lista "Want to Play".
-- `scripts/sync_games_metadata.py` → genera `Data/retroachievements_metadata.json` (público, se commitea) cruzando **todo** el catálogo por hash exacto vía `GetGameList(consoleId, h=1)` (trae todos los hashes de una consola en una sola llamada — no hace falta pedirlos juego por juego). Usado por `/games` (carátulas/logros) y por `src/core/link_checker.py` (¿RA reconoce este hash?).
-- `scripts/sync_gamecube.py` / `scripts/sync_wii.py` → dan de alta Nintendo GameCube / Wii en `Data/TamperMonkeyRetroachievements.json` cruzando un `.dat` de RetroAchievements (UGA_RA_DATs) contra el listado de archivos de los items de archive.org `RetroAchievementsGameCube` / `RetroAchievementsWii`, matcheando por MD5 (no por nombre) — no hace falta descargar ningún juego. Ambos son wrappers de 15 líneas sobre `src/core/dat_archive_sync.py::DatArchiveSync` (lógica compartida, sin duplicación entre consolas). Correr cuando haya hashes nuevos de GameCube/Wii para dar de alta — mismo criterio de uso que `sync_games_metadata.py`, no es parte del flujo normal.
-- **No existe un endpoint público hash→GameID** en la Web API de RA (confirmado contra la doc oficial). Por eso `sync_games_metadata.py` matchea consolas por nombre normalizado (con una tabla chica de alias a mano para NES/SNES/PS1/PS2/PSP/N64/etc, que no matchean por nombre normalizado contra RA) y dentro de cada consola matchea por hash exacto, no por título.
-- **Rate limiting real**: no hay un número publicado, pero en la práctica la API empieza a devolver timeouts de lectura (no un 429 limpio) después de un uso intenso en poco tiempo (ej. correr `sync_want_to_play.py` sobre 428 juegos y después `sync_games_metadata.py` varias veces seguidas). Si `sync_games_metadata.py` falla con `ReadTimeoutError` repetido, esperar un rato antes de reintentar — no es un bug, es la API limitándonos.
-- `archive.org` devuelve **401** (no 404) para archivos que existen pero requieren login en el navegador — `link_checker.is_download_url_reachable` solo cuenta 404/410 como "roto", 401/403 cuenta como alcanzable.
+## Architecture — web frontend (`web/`)
 
-## Working log
+- Pages: `/` (`app/(app)/page.tsx` → `GamesView`, catalog + hash search via `/?q=`) and `/faq`. Shared shell in `app/(app)/layout.tsx` (topbar, cart, hasher modal, RA account modal).
+- Same origin as Flask in production (Vercel Services), so components `fetch` the JSON endpoints directly — no CORS, no env vars.
+- i18n: `app/(app)/i18n.ts` (es/en/pt/fr, every key in all four). Pre-rendered HTML is always Spanish; `useLocale` (`useSyncExternalStore`, server snapshot `"es"`) switches to the stored locale right after hydration.
+- Anything read from `localStorage`/`sessionStorage` must not change the first render, or hydration breaks (see `CartContext`, `useLocale`).
+- `localStorage` keys keep the old `ra-downloader-*` prefix on purpose: renaming them would wipe every user's cart/locale.
+- "Verificar ROM" (`app/(app)/raHash.ts`) computes the RA hash in the browser and only sends the hash to `/search`. Rules are checked against rcheevos source, not the docs (the docs get PC Engine wrong: it's `size & 512`, not `% 131072`). Cartridge systems only — CD/disc would need `RAHasher` server-side and uploads bigger than Vercel's fixed 4.5 MB body limit.
+- SEO: `app/robots.ts`, `app/sitemap.ts`, `public/llms.txt`, JSON-LD `WebSite` in `app/layout.tsx`, canonical per page (`/?q=` canonicalizes to `/`). `public/BingSiteAuth.xml` and `public/google7d9e58b51851e461.html` are Bing/Google Search Console verification files — don't delete them.
 
-Running notes on in-progress/planned work on this repo. Add an entry when starting non-trivial work; mark it done (or drop it) when finished.
+## Data
 
-- **Hecho**: consolidar lógica duplicada de consola/nombre/URL entre `src/` y `api/index.py` en `src/core/rom_info.py` (PR #13 → `dev`).
-- **Hecho**: limpiar constantes muertas de `config.py` (PR #14).
-- **Hecho**: auto-generar `game_hashes.json` desde la API de RA (PR #15).
-- **Hecho**: issues [#16](https://github.com/pipetboy2001/RetroArchivement-Download-games/issues/16) + [#17](https://github.com/pipetboy2001/RetroArchivement-Download-games/issues/17) juntas — metadata de RA en `/games` + verificación de hash/link. `Data/retroachievements_metadata.json` se generó y está commiteado (~3.7MB, ~106k líneas).
-- **Hecho**: [#19](https://github.com/pipetboy2001/RetroArchivement-Download-games/issues/19) decidir stack TS + probar el patrón en un deploy real de Vercel (`web/` + Vercel Services, PR #22).
-- **Hecho**: migrar `/games` a Next.js, port 1:1 sin rediseño (PR #23). Ver "Arquitectura — frontend TS" arriba.
-- **Hecho**: comandos de dev local `dev:api`/`dev:web`/`dev` (root `package.json` + proxy en `web/next.config.ts`), porque `vercel dev` no soporta Flask en `services` todavía.
-- **Hecho**: chequeo semanal automático de salud de fuentes ([#12](https://github.com/pipetboy2001/RetroArchivement-Download-games/issues/12), la parte proactiva). `src/core/source_health.py` samplea N ROMs al azar por consola, genera su URL real vía `URLGeneratorFactory` y prueba `is_download_url_reachable`; si una consola cae bajo el umbral se asume fuente muerta (no ruido de archivos sueltos). `scripts/check_sources_health.py` es el CLI, `.github/workflows/check-sources.yml` lo corre cada lunes (gratis, repo público) y abre/actualiza un issue con label `fuente-rota` -- lo cierra solo cuando vuelve a estar todo OK. Validado contra el dataset real: detectó PC Engine, TurboGrafx-16, Fds y Gamegear rotos.
-- **Hecho**: "Verificar ROM" en la web (PR #39 → `dev`), la parte de [#12](https://github.com/pipetboy2001/RetroArchivement-Download-games/issues/12) de contribuir/chequear archivos propios. `HasherModal` era un placeholder que ya prometía "hash en el navegador, sin subir el archivo" -- ahora lo hace de verdad: `web/app/(app)/raHash.ts` calcula el hash estilo RA 100% client-side (reglas verificadas contra el código fuente de rcheevos, no solo la doc -- la doc describe mal la regla de PC Engine, es `size & 512` no `% 131072`) y manda solo el hash a `/search` (ya existente, sin endpoint nuevo en Flask). Alcance: solo cartucho -- CD/disco pendiente, necesitaría `RAHasher` como subproceso del lado del servidor + infra de upload grande que hoy no existe (Vercel Functions tiene un límite de 4.5MB de body, fijo, no configurable).
-- **Nota**: de paso se confirmó que `src/core/source_resync.py::_ra_hash` tiene mal la regla de PC Engine (usa `% 131072` en vez de `& 512`) -- no se tocó en esta PR (archivo no relacionado), pendiente de un fix aparte.
-- **Pendiente**: rediseño de `/games` (decidido explícitamente como paso aparte, después del port 1:1 — sin fecha todavía). [#18](https://github.com/pipetboy2001/RetroArchivement-Download-games/issues/18) compatibilidad con terceros (CoolROMs, menor prioridad).
-- **Hecho**: limpieza de arquitectura — borrado del Flask HTML/JS legacy muerto en producción (`api/templates/index.html` + `layouts/`/`components/`, `api/static/js/main.js`, `api/static/css/main.css`, `api/static/images/*`) y de las rutas `/`, `/search_games`, `/open_browser` (cero callers reales, `/` inalcanzable detrás del catch-all de Vercel que manda todo a `web`). `api/templates/500.html` se mantiene pero su link se cambió de `{{ url_for('index') }}` a `href="/"` porque el endpoint `index` ya no existe. De paso se corrigieron varias secciones de este archivo que describían un estado viejo del código (duplicación `src/`/`api` que ya no existe desde PR #13, `/faq` que ya no es Jinja, falta de tests/linter que ya no es cierta).
-- **Hecho**: rebranding a **CheevosRoms** (antes "RA Downloader" / "RetroAchievements Downloader"). Las claves de `localStorage` `ra-downloader-*` se dejaron a propósito: renombrarlas borraría carrito/idioma/aviso de todos los usuarios. El repo de GitHub y el proyecto de Vercel conservan su nombre viejo.
-- **Pendiente**: resync de PC Engine/TurboGrafx-16 (fuente realmente muerta, 51 hashes caen al fallback viejo `retroachievements_collection_v5/{pce,tg16}/`, confirmado roto). El item `nec-pc-engine-roms-for-retroachievements` de archive.org **no sirve** -- se probó (`scripts/sync_source.py --console "TurboGrafx-16,PC Engine" --item nec-pc-engine-roms-for-retroachievements --header-modulus 131072`), dio 0/51 matches; confirmado a mano que es una revisión/dump distinta a la que reconoce RA (hash de "Bomberman '93 (USA).pce" no coincide con ninguno de nuestros dos hashes para ese juego). Falta encontrar otro item. Candidato a revisar primero: `hashlinks.json` de [RARomOnHashes](https://github.com/mentalblank/RARomOnHashes) (mapeo hash→URL ya resuelto para Myrient antes de su cierre, con algunos fallback a archive.org) -- puede ahorrar la búsqueda a ciegas.
+See `Data/README.md` for every file. Key points:
+
+- `Data/TamperMonkeyRetroachievements.json` is the canonical dataset: `{ game_id: [ { HASH: rom_path } ] }`. The `rom_path` root folder encodes the console (`SNES-Super Famicom/...`, `PlayStation 2/...`) — `src/` and `api/` parse that instead of a console field. The parent folder is the game name the web shows.
+- When a console's archive.org source dies, `scripts/sync_source.py` matches our hashes against a replacement item by **hash** and writes `Data/<label>_source_override.json` (`rom_path → file in the new item`) plus `Data/<label>_missing_sources.txt`. The generator for that console reads the override; `rom_path`s in the dataset stay untouched. SNES works this way.
+- `Data/retroachievements_metadata.json` does **not** update itself: rerun `scripts/sync_games_metadata.py` after changing the dataset, or new games show up without covers.
+- Adding games or a new console: `docs/agregar-fuente-de-juegos.md`.
+
+## RetroAchievements API and archive.org
+
+- `src/core/retroachievements_api.py`: `RetroAchievementsClient`, thin `requests` wrapper. Retries network errors (3 attempts, 1 s apart), not HTTP status codes — the API sometimes hangs without a clean 429.
+- `scripts/sync_want_to_play.py` → `game_hashes.json` (personal, gitignored) from your "Want to Play" list.
+- `scripts/sync_games_metadata.py` → `Data/retroachievements_metadata.json` (committed), via `GetGameList(consoleId, h=1)` (all hashes of a console in one call).
+- `scripts/sync_gamecube.py` / `scripts/sync_wii.py` → add GameCube / Wii to the dataset by matching a RetroAchievements `.dat` (UGA_RA_DATs) against archive.org file listings by MD5, without downloading games. Thin wrappers over `src/core/dat_archive_sync.py::DatArchiveSync`.
+- There is **no public hash → GameID endpoint** in the RA Web API. `sync_games_metadata.py` matches consoles by normalized name (small manual alias table for NES/SNES/PS1/PS2/PSP/N64/…) and, within a console, by exact hash.
+- Rate limiting: no published number, but after heavy use the API returns read timeouts (not 429). Repeated `ReadTimeoutError` in `sync_games_metadata.py` means wait and retry, not a bug.
+- archive.org answers **401** (not 404) for files that exist but need a browser login — `link_checker` only treats 404/410 as broken.
+- `.github/workflows/check-sources.yml` runs `scripts/check_sources_health.py` every Monday: samples ROMs per console, checks their real URLs, and opens/updates/closes an issue labeled `fuente-rota`.
+
+## Vercel
+
+- Deploy model is **`services`** (`vercel.json`), not legacy `builds`/`routes` nor `experimentalServices`. Top-level `rewrites` are evaluated in order: explicit entries send the API routes to `api`, the catch-all `/(.*)` goes last to `web`. A new Flask route needs its own rewrite entry.
+- Python `entrypoint` uses dotted module notation: `"api.index:app"` (not `api/index:app` nor `api/index.py:app`).
+- With `root: "."` the Python service ships the whole repo (`src/`, `config.py`, `Data/`) — no `includeFiles` needed.
+- Root `requirements.txt` is the only dependency list. Don't add `api/requirements.txt`: the Python builder prefers it over the root one.
+- Project Node version must stay on a supported line (currently `24.x`, set in project settings).
+- **`vercel dev` doesn't work** with this setup (`No dev server available for service "api" (framework: flask)`). That's why the root `package.json` + the rewrite proxy in `web/next.config.ts` exist. The proxy targets `127.0.0.1:5000`, not `localhost:5000`: on macOS, AirPlay Receiver holds `localhost:5000` and answers 403.
+- Debugging deploys: `gh pr checks <n>`; `vercel deploy --scope pipetboys-projects --yes` reproduces build/schema errors locally; runtime errors (`FUNCTION_INVOCATION_FAILED`) via `vercel logs <deployment-url> --scope pipetboys-projects` (not `vercel inspect --logs`, which only has build logs).
+- Preview deployments have Vercel Authentication on — plain `curl` gets 401. Use `vercel curl <url> --scope pipetboys-projects`.
