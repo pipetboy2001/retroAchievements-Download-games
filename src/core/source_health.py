@@ -29,8 +29,15 @@ def group_roms_by_console(data: dict) -> Dict[str, List[str]]:
     return roms
 
 
-def _status(reachable: int, total: int, threshold: float) -> Tuple[str, float]:
-    pct = reachable / total if total else 0.0
+def _status(reachable: int, gone: int, threshold: float) -> Tuple[str, float]:
+    """Solo cuenta respuestas definitivas (alcanzable vs 404/410): un timeout
+    no prueba que el archivo no exista. archive.org le responde lento a los
+    runners de GitHub en items grandes (GameCube: 11/15 ReadTimeout en CI,
+    255/255 OK desde afuera), y eso marcaba la consola como ROTA sin estarlo."""
+    total = reachable + gone
+    if not total:
+        return "SIN RESPUESTA", 0.0
+    pct = reachable / total
     return ("OK" if pct >= threshold else "ROTO"), pct
 
 
@@ -53,18 +60,20 @@ def run(sample_size: int = 15, threshold: float = 0.5) -> Tuple[str, bool]:
         sample = random.sample(candidates, min(sample_size, len(candidates)))
         failures = Counter(download_url_failure(URLGeneratorFactory.generate_url(rom_path)) for rom_path in sample)
         reachable = failures.pop(None, 0)
-        status, pct = _status(reachable, len(sample), threshold)
+        gone = failures["404"] + failures["410"]
+        status, _ = _status(reachable, gone, threshold)
         if status == "ROTO":
             any_broken = True
-        lines.append(f"- {console}: {reachable}/{len(sample)} alcanzables ({pct:.0%}) -- {status}{_reasons(failures)}")
+        lines.append(f"- {console}: {reachable}/{len(sample)} alcanzables -- {status}{_reasons(failures)}")
 
     return "\n".join(lines), any_broken
 
 
 if __name__ == "__main__":
-    assert _status(8, 10, 0.5) == ("OK", 0.8)
-    assert _status(2, 10, 0.5) == ("ROTO", 0.2)
-    assert _status(0, 0, 0.5) == ("ROTO", 0.0)
+    assert _status(8, 2, 0.5) == ("OK", 0.8)
+    assert _status(2, 8, 0.5) == ("ROTO", 0.2)
+    assert _status(0, 0, 0.5) == ("SIN RESPUESTA", 0.0)
+    assert _status(4, 0, 0.5) == ("OK", 1.0)  # GameCube en CI: 4 OK + 11 timeouts
     assert _reasons(Counter()) == ""
     assert _reasons(Counter({"ReadTimeout": 3, "404": 1})) == " (fallos: ReadTimeout x3, 404 x1)"
 
